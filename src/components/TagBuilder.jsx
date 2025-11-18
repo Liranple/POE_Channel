@@ -15,10 +15,10 @@ export default function TagBuilder() {
   const [modalListId, setModalListId] = useState(null);
   const [currentEditOption, setCurrentEditOption] = useState(null);
   const [modalData, setModalData] = useState({
-    name: "",
-    tag: "",
-    value: "",
-    level: "",
+    optionText: "",
+    filterRegex: "",
+    maxRollRegex: "",
+    itemLevel: "",
     types: [],
   });
 
@@ -26,10 +26,10 @@ export default function TagBuilder() {
   const modalDown = useRef(false);
 
   const toggleOption = (opt) => {
-    if (selected.includes(opt.tag)) {
-      setSelected(selected.filter((t) => t !== opt.tag));
+    if (selected.includes(opt.filterRegex)) {
+      setSelected(selected.filter((t) => t !== opt.filterRegex));
     } else {
-      setSelected([...selected, opt.tag]);
+      setSelected([...selected, opt.filterRegex]);
     }
   };
 
@@ -37,11 +37,92 @@ export default function TagBuilder() {
     const allData = [...prefixData, ...suffixData];
     const tags = selected
       .map((tag) => {
-        const opt = allData.find((o) => o.tag === tag);
-        return opt ? opt.tag : null;
+        const opt = allData.find((o) => o.filterRegex === tag);
+        return opt ? opt.filterRegex : null;
       })
       .filter(Boolean);
-    return tags.join(" | ");
+    return tags.join("|");
+  };
+
+  const getItemRequirement = () => {
+    if (selected.length === 0) {
+      return { text: "필요한 아이템 조건이 여기 표시됩니다", isError: false };
+    }
+
+    const allData = [...prefixData, ...suffixData];
+    const selectedOptions = selected
+      .map((tag) => allData.find((o) => o.filterRegex === tag))
+      .filter(Boolean);
+
+    // 최대 레벨 찾기
+    const maxLevel = Math.max(
+      ...selectedOptions.map((opt) => parseInt(opt.itemLevel) || 0)
+    );
+
+    // 각 옵션별 유형 배열 (교집합 확인용)
+    const optionTypeSets = selectedOptions.map((opt) =>
+      opt.type
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+    );
+
+    // 모든 유형 수집 (중복 제거)
+    const allUniqueTypes = [...new Set(optionTypeSets.flat())];
+
+    // 모든 옵션에 공통으로 포함된 유형 찾기 (중복 없이)
+    const commonTypes = allUniqueTypes.filter((type) =>
+      optionTypeSets.every((typeSet) => typeSet.includes(type))
+    );
+
+    // 유형 검증
+    if (selectedOptions.length > 1 && commonTypes.length === 0) {
+      return { text: "아이템 유형이 잘못 되었습니다", isError: true };
+    }
+
+    // 플라스크 이름 매핑
+    const typeNames = {
+      생명력: "생명력",
+      마나: "마나",
+      특수: "특수",
+      팅크: "팅크",
+    };
+
+    // 공통 유형을 한글 이름으로 변환 (이미 중복 제거됨)
+    const flaskNames = commonTypes
+      .map((type) => typeNames[type] || type)
+      .filter(Boolean);
+
+    // 결과 문구 생성
+    let flaskText = "";
+    if (flaskNames.length === 0) {
+      flaskText = "플라스크";
+    } else if (flaskNames.length === 1) {
+      // 팅크는 "팅크"로만 표시
+      flaskText =
+        flaskNames[0] === "팅크" ? "팅크" : `${flaskNames[0]} 플라스크`;
+    } else {
+      // 여러 유형인 경우
+      // 팅크가 포함되어 있는지 확인
+      if (flaskNames.includes("팅크")) {
+        // 팅크가 아닌 플라스크들
+        const nonTincture = flaskNames.filter((n) => n !== "팅크");
+        if (nonTincture.length > 0) {
+          flaskText = nonTincture.join(" · ") + " 플라스크 혹은 팅크";
+        } else {
+          flaskText = "팅크";
+        }
+      } else {
+        // 팅크가 없는 경우
+        flaskText = flaskNames.join(" · ") + " 플라스크";
+      }
+    }
+
+    const levelText = maxLevel > 0 ? `아이템 레벨 ${maxLevel} 이상의 ` : "";
+    return {
+      text: `${levelText}${flaskText}가 필요합니다`,
+      isError: false,
+    };
   };
 
   const deleteOption = (opt, data, setData, listId) => {
@@ -50,7 +131,7 @@ export default function TagBuilder() {
       const newData = [...data];
       newData.splice(idx, 1);
       setData(newData);
-      setSelected(selected.filter((t) => t !== opt.tag));
+      setSelected(selected.filter((t) => t !== opt.filterRegex));
     }
   };
 
@@ -61,10 +142,10 @@ export default function TagBuilder() {
 
     if (mode === "edit" && opt) {
       setModalData({
-        name: opt.text,
-        tag: opt.tag,
-        value: opt.value,
-        level: opt.level,
+        optionText: opt.optionText,
+        filterRegex: opt.filterRegex,
+        maxRollRegex: opt.maxRollRegex,
+        itemLevel: opt.itemLevel,
         types: opt.type
           .split(",")
           .map((t) => t.trim())
@@ -72,10 +153,10 @@ export default function TagBuilder() {
       });
     } else {
       setModalData({
-        name: "",
-        tag: "",
-        value: "",
-        level: "",
+        optionText: "",
+        filterRegex: "",
+        maxRollRegex: "",
+        itemLevel: "",
         types: [],
       });
     }
@@ -84,8 +165,15 @@ export default function TagBuilder() {
   };
 
   const handleModalSave = () => {
-    const { name, tag, value, level, types } = modalData;
-    const type = types.join(",");
+    const { optionText, filterRegex, maxRollRegex, itemLevel, types } =
+      modalData;
+
+    // 유형 정렬: 생명력(HP) → 마나(MP) → 특수(SP) → 팅크(TK) 순서
+    const typeOrder = ["생명력", "마나", "특수", "팅크"];
+    const sortedTypes = types.sort((a, b) => {
+      return typeOrder.indexOf(a) - typeOrder.indexOf(b);
+    });
+    const type = sortedTypes.join(",");
 
     if (modalMode === "edit" && currentEditOption) {
       const updateData = (data, setData) => {
@@ -93,10 +181,10 @@ export default function TagBuilder() {
           if (item === currentEditOption) {
             return {
               ...item,
-              text: name,
-              tag: tag,
-              value: value,
-              level: level,
+              optionText: optionText,
+              filterRegex: filterRegex,
+              maxRollRegex: maxRollRegex,
+              itemLevel: itemLevel,
               type: type,
             };
           }
@@ -121,10 +209,10 @@ export default function TagBuilder() {
         ...arr,
         {
           id: maxId + 1,
-          text: name || "새 옵션",
-          tag: tag || "tag" + (maxId + 1),
-          value: value,
-          level: level,
+          optionText: optionText || "새 옵션",
+          filterRegex: filterRegex || "tag" + (maxId + 1),
+          maxRollRegex: maxRollRegex,
+          itemLevel: itemLevel,
           type: type,
         },
       ]);
@@ -373,7 +461,9 @@ export default function TagBuilder() {
 
     return (
       <div
-        className={`option ${selected.includes(opt.tag) ? "active" : ""}`}
+        className={`option ${
+          selected.includes(opt.filterRegex) ? "active" : ""
+        }`}
         data-id={opt.id}
         onClick={() => toggleOption(opt)}
         onMouseDown={(e) => handleMouseDownForDrag(e, opt, listId)}
@@ -382,33 +472,41 @@ export default function TagBuilder() {
           className="delete-progress"
           style={{ width: `${deleteProgress}%` }}
         ></div>
-        <span style={{ position: "relative", zIndex: 2 }}>{opt.text}</span>
+        <span style={{ position: "relative", zIndex: 2 }}>
+          {opt.optionText}
+        </span>
         <div className="right-box">
           <div className="option-tags">
-            {opt.type.split(",").map((t, idx) => {
-              const type = t.trim();
-              if (!type) return null;
-              let className = "option-tag";
-              let label = type;
-              if (type === "생명력") {
-                className += " tag-life";
-                label = "HP";
-              } else if (type === "마나") {
-                className += " tag-mana";
-                label = "MP";
-              } else if (type === "특수") {
-                className += " tag-special";
-                label = "SP";
-              } else if (type === "팅크") {
-                className += " tag-tincture";
-                label = "TK";
-              }
-              return (
-                <div key={idx} className={className}>
-                  {label}
-                </div>
-              );
-            })}
+            {opt.type
+              .split(",")
+              .map((t) => t.trim())
+              .filter(Boolean)
+              .sort((a, b) => {
+                const order = ["생명력", "마나", "특수", "팅크"];
+                return order.indexOf(a) - order.indexOf(b);
+              })
+              .map((type, idx) => {
+                let className = "option-tag";
+                let label = type;
+                if (type === "생명력") {
+                  className += " tag-life";
+                  label = "HP";
+                } else if (type === "마나") {
+                  className += " tag-mana";
+                  label = "MP";
+                } else if (type === "특수") {
+                  className += " tag-special";
+                  label = "SP";
+                } else if (type === "팅크") {
+                  className += " tag-tincture";
+                  label = "TK";
+                }
+                return (
+                  <div key={idx} className={className}>
+                    {label}
+                  </div>
+                );
+              })}
           </div>
           {adminMode && (
             <div className="buttons">
@@ -454,15 +552,36 @@ export default function TagBuilder() {
           </div>
         </header>
 
-        <div className="card">
+        {/* 선택 결과 영역 */}
+        <div className="card" style={{ marginBottom: 24 }}>
           <input
             id="result"
             className="search-box"
             readOnly
-            placeholder="선택한 옵션 태그가 여기 표시됩니다"
+            placeholder="선택한 옵션 정규식이 여기 표시됩니다"
             value={updateResult()}
           />
+          <div
+            style={{
+              marginTop: "10px",
+              textAlign: "center",
+              fontSize: "16px",
+              fontWeight: 600,
+              padding: "4px 0",
+              color:
+                selected.length === 0
+                  ? "#7a8a9a"
+                  : getItemRequirement().isError
+                  ? "#ff6262"
+                  : "var(--accent)",
+            }}
+          >
+            {getItemRequirement().text}
+          </div>
+        </div>
 
+        {/* 옵션 선택 영역 */}
+        <div className="card">
           <div className="layout">
             <div>
               <div className="section-title">접두 옵션</div>
@@ -506,10 +625,16 @@ export default function TagBuilder() {
           className="modal-bg"
           ref={modalBgRef}
           style={{ display: "flex" }}
+          onMouseDown={(e) => {
+            if (e.target === modalBgRef.current) {
+              modalDown.current = false;
+            }
+          }}
           onMouseUp={(e) => {
-            if (!modalDown.current && e.target === modalBgRef.current) {
+            if (e.target === modalBgRef.current && !modalDown.current) {
               setModalVisible(false);
             }
+            modalDown.current = false;
           }}
         >
           <div
@@ -526,45 +651,45 @@ export default function TagBuilder() {
             </div>
 
             <div className="modal-field">
-              <span>이름</span>
+              <span>옵션</span>
               <input
-                id="modalName"
-                value={modalData.name}
+                id="modalOptionText"
+                value={modalData.optionText}
                 onChange={(e) =>
-                  setModalData({ ...modalData, name: e.target.value })
+                  setModalData({ ...modalData, optionText: e.target.value })
                 }
               />
             </div>
 
             <div className="modal-field">
-              <span>태그</span>
+              <span>필터 정규식</span>
               <input
-                id="modalTag"
-                value={modalData.tag}
+                id="modalFilterRegex"
+                value={modalData.filterRegex}
                 onChange={(e) =>
-                  setModalData({ ...modalData, tag: e.target.value })
+                  setModalData({ ...modalData, filterRegex: e.target.value })
                 }
               />
             </div>
 
             <div className="modal-field">
-              <span>수치</span>
+              <span>필터 정규식 (Max roll)</span>
               <input
-                id="modalValue"
-                value={modalData.value}
+                id="modalMaxRollRegex"
+                value={modalData.maxRollRegex}
                 onChange={(e) =>
-                  setModalData({ ...modalData, value: e.target.value })
+                  setModalData({ ...modalData, maxRollRegex: e.target.value })
                 }
               />
             </div>
 
             <div className="modal-field">
-              <span>레벨</span>
+              <span>아이템 레벨</span>
               <input
-                id="modalLevel"
-                value={modalData.level}
+                id="modalItemLevel"
+                value={modalData.itemLevel}
                 onChange={(e) =>
-                  setModalData({ ...modalData, level: e.target.value })
+                  setModalData({ ...modalData, itemLevel: e.target.value })
                 }
               />
             </div>

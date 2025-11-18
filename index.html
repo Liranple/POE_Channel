@@ -1,83 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>태그 빌더 — ★ 플라스크</title>
-    <link rel="stylesheet" href="css/style.css" />
-  </head>
-  <body>
-    <div class="wrap">
-      <header>
-        <h1>★ 플라스크 태그 빌더</h1>
-        <div class="admin-container">
-          <span style="color: var(--text); font-weight: 700">관리자 모드</span>
-          <button id="adminBtn" class="admin-toggle">
-            <span class="circle"></span>
-          </button>
-        </div>
-      </header>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>태그 빌더 — ★ 플라스크</title>
 
-      <div class="card">
-        <input
-          id="result"
-          class="search-box"
-          readonly
-          placeholder="선택한 옵션 태그가 여기 표시됩니다"
-        />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
 
-        <div class="layout">
-          <div>
-            <div class="section-title">접두 옵션</div>
-            <div id="prefixList" class="list"></div>
-          </div>
-          <div>
-            <div class="section-title">접미 옵션</div>
-            <div id="suffixList" class="list"></div>
-          </div>
-        </div>
+<div class="wrap">
+  <header>
+    <h1>★ 플라스크 태그 빌더</h1>
+    <div class="admin-container">
+      <span style="color:var(--text);font-weight:700;">관리자 모드</span>
+      <button id="adminBtn" class="admin-toggle"><span class="circle"></span></button>
+    </div>
+  </header>
+
+  <div class="card">
+    <input id="result" class="search-box" readonly placeholder="선택한 옵션 태그가 여기 표시됩니다" />
+
+    <div class="layout">
+      <div>
+        <div class="section-title">접두 옵션</div>
+        <div id="prefixList" class="list"></div>
+      </div>
+      <div>
+        <div class="section-title">접미 옵션</div>
+        <div id="suffixList" class="list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 모달 -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">EDIT</div>
+
+    <div class="modal-field">
+      <span>이름</span>
+      <input id="modalName" />
+    </div>
+
+    <div class="modal-field">
+      <span>태그</span>
+      <input id="modalTag" />
+    </div>
+
+    <div class="modal-field">
+      <span>수치</span>
+      <input id="modalValue" />
+    </div>
+
+    <div class="modal-field">
+      <span>레벨</span>
+      <input id="modalLevel" />
+    </div>
+
+    <div class="modal-field">
+      <span>유형</span>
+      <div class="type-select">
+        <button class="type-btn type-life" data-type="생명력">생명력</button>
+        <button class="type-btn type-mana" data-type="마나">마나</button>
+        <button class="type-btn type-special" data-type="특수">특수</button>
+        <button class="type-btn type-tincture" data-type="팅크">팅크</button>
       </div>
     </div>
 
-    <!-- 모달 -->
-    <div class="modal-bg" id="modalBg">
-      <div class="modal">
-        <div class="modal-title" id="modalTitle">EDIT</div>
+    <button id="modalSave">저장</button>
+  </div>
+</div>
 
-        <div class="modal-field">
-          <span>이름</span>
-          <input id="modalName" />
-        </div>
-
-        <div class="modal-field">
-          <span>태그</span>
-          <input id="modalTag" />
-        </div>
-
-        <div class="modal-field">
-          <span>수치</span>
-          <input id="modalValue" />
-        </div>
-
-        <div class="modal-field">
-          <span>레벨</span>
-          <input id="modalLevel" />
-        </div>
-
-        <div class="modal-field">
-          <span>유형</span>
-          <div class="type-select">
-            <button class="type-btn type-life" data-type="생명력">생명력</button>
-            <button class="type-btn type-mana" data-type="마나">마나</button>
-            <button class="type-btn type-special" data-type="특수">특수</button>
-            <button class="type-btn type-tincture" data-type="팅크">팅크</button>
-          </div>
-        </div>
-
-        <button id="modalSave">저장</button>
-      </div>
-    </div>
-
-    <script src="js/script.js"></script>
-  </body>
+<script src="js/script.js"></script>
+</body>
 </html>

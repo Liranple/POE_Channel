@@ -1,321 +1,409 @@
 let adminMode = false;
-const adminBtn = document.getElementById('adminBtn');
-const modalBg = document.getElementById('modalBg');
-const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modalTitle');
-let currentEditOption = null;
-let currentTargetList = null;
-let isAddingNew = false;
+const adminBtn = document.getElementById("adminBtn");
+const modalBg = document.getElementById("modalBg");
+const modalSave = document.getElementById("modalSave");
 
-let prefixData = [
-  { id: 1, text: "주문 피해의 0.8%를 에너지 보호막으로 흡수", tag: "prefixA", value: "0.8%", level: "1", type: "생명력" },
-  { id: 2, text: "생명력 재생속도 20% 증가", tag: "prefixB", value: "20%", level: "1", type: "특수" }
+let modalMode = "edit"; // 'edit' or 'add'
+let modalListId = null;
+let currentEditOption = null;
+
+/* ------------------ 데이터 ------------------ */
+const prefixData = [
+  {
+    id: 1,
+    text: "주문 피해의 0.8%를 에너지 보호막으로 흡수",
+    tag: "속도.14",
+    value: "0.8%",
+    level: "1",
+    type: "생명력",
+  },
+  {
+    id: 2,
+    text: "생명력 재생속도 20% 증가",
+    tag: "어도.60",
+    value: "20%",
+    level: "1",
+    type: "마나",
+  },
 ];
 
-let suffixData = [
-  { id: 101, text: "이동 속도 12% 증가", tag: "suffixC", value: "12%", level: "1", type: "마나" },
-  { id: 102, text: "명중 시 적 실명", tag: "suffixD", value: "", level: "1", type: "팅크" }
+const suffixData = [
+  {
+    id: 101,
+    text: "이동 속도 12% 증가",
+    tag: "간.40%",
+    value: "12%",
+    level: "1",
+    type: "특수",
+  },
+  {
+    id: 102,
+    text: "명중 시 적 실명",
+    tag: "회피.60",
+    value: "",
+    level: "1",
+    type: "팅크",
+  },
 ];
 
 let selected = [];
 
-/* 옵션 렌더링 */
-function renderOptions(listId, data) {
-  const box = document.getElementById(listId);
-  box.innerHTML = "";
-
-  data.forEach(opt => {
-    const div = document.createElement("div");
-    div.className = "option";
-    div.dataset.id = opt.id;
-
-    const progress = document.createElement('div');
-    progress.className = 'delete-progress';
-    div.appendChild(progress);
-
-    const text = document.createElement("span");
-    text.textContent = opt.text;
-    div.appendChild(text);
-
-    /* 유형 라벨들 */
-    const tagBox = document.createElement('div');
-    tagBox.className = 'option-tags';
-
-    opt.type.split(',').forEach(typeName => {
-      const chip = document.createElement('div');
-      chip.className = 'option-tag';
-
-      if (typeName === "생명력") chip.classList.add("tag-life");
-      if (typeName === "마나") chip.classList.add("tag-mana");
-      if (typeName === "특수") chip.classList.add("tag-special");
-      if (typeName === "팅크") chip.classList.add("tag-tincture");
-
-      chip.textContent = typeName;
-      tagBox.appendChild(chip);
-    });
-
-    /* 수정/삭제 버튼 */
-    const btns = document.createElement('div');
-    btns.className = 'buttons';
-
-    const btnEdit = document.createElement('button');
-    btnEdit.className = 'edit';
-    btnEdit.onclick = (e) => { e.stopPropagation(); openModal(opt, listId); };
-
-    const btnDelete = document.createElement('button');
-    btnDelete.className = 'delete';
-
-    let deleteTimer = null;
-    let deleteHold = 0;
-    let holding = false;
-
-    btnDelete.onmousedown = (e) => {
-      e.stopPropagation();
-      holding = true;
-      deleteHold = 0;
-      progress.style.width = '0%';
-
-      deleteTimer = setInterval(() => {
-        deleteHold += 2.2;
-        if (deleteHold >= 100) {
-          progress.style.width = '100%';
-        } else {
-          progress.style.width = deleteHold + '%';
-        }
-      }, 16);
-    };
-
-    btnDelete.onmouseup = () => {
-      clearInterval(deleteTimer);
-      if (deleteHold >= 100) {
-        setTimeout(() => {
-          deleteOption(opt, data, listId);
-        }, 500);
-      }
-      holding = false;
-      progress.style.width = '0%';
-    };
-
-    btnDelete.onmouseleave = () => {
-      clearInterval(deleteTimer);
-      holding = false;
-      progress.style.width = '0%';
-    };
-
-    btns.appendChild(btnEdit);
-    btns.appendChild(btnDelete);
-
-    div.appendChild(tagBox);
-    div.appendChild(btns);
-
-    div.onclick = (e) => {
-      if (e.target.closest('button')) return;
-      toggleOption(opt);
-    };
-
-    enableDrag(div, data, listId);
-    box.appendChild(div);
-  });
-
-  updateAdminMode();
-  addAddButton(box, data, listId);
-}
-
-function addAddButton(box, data, listId) {
-  if (!adminMode) return;
-
-  const addBtn = document.createElement("div");
-  addBtn.className = "add-option";
-  addBtn.textContent = "+";
-
-  addBtn.onclick = () => {
-    openModal(null, listId);
-  };
-
-  box.appendChild(addBtn);
-}
-
-/* 선택 */
+/* ------------------ 선택 토글 / 결과 업데이트 ------------------ */
 function toggleOption(opt) {
-  if (selected.includes(opt.tag)) selected = selected.filter(v => v !== opt.tag);
+  if (selected.includes(opt.tag))
+    selected = selected.filter((t) => t !== opt.tag);
   else selected.push(opt.tag);
+
   updateActiveStates();
   updateResult();
 }
 
 function updateActiveStates() {
-  document.querySelectorAll('.option').forEach(div => {
-    const id = Number(div.dataset.id);
-    const opt = [...prefixData, ...suffixData].find(o => o.id === id);
-    if (opt && selected.includes(opt.tag)) div.classList.add('active');
-    else div.classList.remove('active');
+  document.querySelectorAll(".option").forEach((div) => {
+    const id = parseInt(div.dataset.id, 10);
+    const opt = [...prefixData, ...suffixData].find((o) => o.id === id);
+
+    if (opt && selected.includes(opt.tag)) div.classList.add("active");
+    else div.classList.remove("active");
   });
 }
 
 function updateResult() {
-  document.getElementById('result').value = selected.join(' | ');
+  const tags = [];
+  selected.forEach((tag) => {
+    const opt = [...prefixData, ...suffixData].find((o) => o.tag === tag);
+    if (opt) tags.push(opt.tag);
+  });
+  document.getElementById("result").value = tags.join(" | ");
 }
 
-/* 삭제 */
+/* ------------------ 삭제 처리 ------------------ */
 function deleteOption(opt, data, listId) {
   const idx = data.indexOf(opt);
   if (idx > -1) {
     data.splice(idx, 1);
-    renderOptions(listId, data);
-    selected = selected.filter(v => v !== opt.tag);
+    selected = selected.filter((t) => t !== opt.tag);
+    renderOptions("prefixList", prefixData);
+    renderOptions("suffixList", suffixData);
     updateResult();
   }
 }
 
-/* 모달 열기 */
-function openModal(opt, listId) {
-  currentTargetList = listId;
-  isAddingNew = (opt === null);
-  modalBg.style.display = 'flex';
+/* ------------------ 모달 열기 ------------------ */
+function openModal(opt, mode, listId) {
+  modalMode = mode;
+  modalListId = listId;
+  currentEditOption = opt;
 
-  document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+  const name = document.getElementById("modalName");
+  const tag = document.getElementById("modalTag");
+  const val = document.getElementById("modalValue");
+  const lvl = document.getElementById("modalLevel");
 
-  if (isAddingNew) {
-    modalTitle.textContent = "CREATE";
-    currentEditOption = null;
+  /* 타입 버튼 초기화 */
+  document
+    .querySelectorAll(".type-btn")
+    .forEach((b) => b.classList.remove("active"));
 
-    modalName.value = "";
-    modalTag.value = "";
-    modalValue.value = "";
-    modalLevel.value = "";
+  if (mode === "edit" && opt) {
+    document.getElementById("modalTitle").textContent = "EDIT";
+    modalSave.textContent = "저장";
 
-  } else {
-    modalTitle.textContent = "EDIT";
-    currentEditOption = opt;
+    name.value = opt.text;
+    tag.value = opt.tag;
+    val.value = opt.value;
+    lvl.value = opt.level;
 
-    modalName.value = opt.text;
-    modalTag.value = opt.tag;
-    modalValue.value = opt.value;
-    modalLevel.value = opt.level;
-
-    opt.type.split(',').forEach(t => {
-      const btn = document.querySelector(`.type-btn[data-type="${t}"]`);
-      if (btn) btn.classList.add("active");
+    const savedTypes = opt.type.split(",");
+    document.querySelectorAll(".type-btn").forEach((b) => {
+      if (savedTypes.includes(b.dataset.type)) b.classList.add("active");
     });
+  } else {
+    document.getElementById("modalTitle").textContent = "CREATE";
+    modalSave.textContent = "추가";
+
+    name.value = "";
+    tag.value = "";
+    val.value = "";
+    lvl.value = "";
   }
+
+  modalBg.style.display = "flex";
+
+  /* 다중 선택 토글 적용 */
+  document.querySelectorAll(".type-btn").forEach((btn) => {
+    btn.onclick = () => btn.classList.toggle("active");
+  });
 }
 
-/* 모달 닫기 */
-modalBg.onclick = (e) => {
-  if (e.target === modalBg) modalBg.style.display = 'none';
-};
-
-/* 유형 버튼 */
-document.querySelectorAll('.type-btn').forEach(btn => {
-  btn.onclick = () => {
-    btn.classList.toggle('active');
-  };
-});
-
-/* 저장/추가 */
+/* ------------------ 모달 저장/추가 ------------------ */
 modalSave.onclick = () => {
-  const name = modalName.value;
-  const tag = modalTag.value;
-  const value = modalValue.value;
-  const level = modalLevel.value;
+  const name = document.getElementById("modalName").value;
+  const tag = document.getElementById("modalTag").value;
+  const val = document.getElementById("modalValue").value;
+  const lvl = document.getElementById("modalLevel").value;
 
-  const types = [...document.querySelectorAll('.type-btn.active')].map(b => b.dataset.type).join(',');
+  const selectedTypes = [...document.querySelectorAll(".type-btn.active")].map(
+    (b) => b.dataset.type
+  );
+  const type = selectedTypes.join(",");
 
-  if (isAddingNew) {
-    const newId = Date.now();
-
-    const newObj = {
-      id: newId,
-      text: name,
-      tag: tag,
-      value: value,
-      level: level,
-      type: types
-    };
-
-    if (currentTargetList === "prefixList") prefixData.push(newObj);
-    else suffixData.push(newObj);
-
-  } else {
+  if (modalMode === "edit" && currentEditOption) {
     currentEditOption.text = name;
     currentEditOption.tag = tag;
-    currentEditOption.value = value;
-    currentEditOption.level = level;
-    currentEditOption.type = types;
+    currentEditOption.value = val;
+    currentEditOption.level = lvl;
+    currentEditOption.type = type;
+  } else if (modalMode === "add") {
+    const arr = modalListId === "prefixList" ? prefixData : suffixData;
+    const base = modalListId === "prefixList" ? 0 : 100;
+    const maxId = arr.reduce((m, o) => Math.max(m, o.id), base);
+
+    arr.push({
+      id: maxId + 1,
+      text: name || "새 옵션",
+      tag: tag || "tag" + (maxId + 1),
+      value: val,
+      level: lvl,
+      type: type,
+    });
   }
 
-  modalBg.style.display = 'none';
-  renderOptions('prefixList', prefixData);
-  renderOptions('suffixList', suffixData);
+  modalBg.style.display = "none";
+  renderOptions("prefixList", prefixData);
+  renderOptions("suffixList", suffixData);
   updateActiveStates();
   updateResult();
 };
 
-/* 관리자 모드 */
+/* ------------------ 모달 닫기 ------------------ */
+let modalDown = false;
+document
+  .querySelector(".modal")
+  .addEventListener("mousedown", () => (modalDown = true));
+document.addEventListener("mouseup", () => (modalDown = false));
+
+modalBg.addEventListener("mouseup", (e) => {
+  if (!modalDown && e.target === modalBg) modalBg.style.display = "none";
+});
+
+/* ------------------ 관리자 모드 ------------------ */
 adminBtn.onclick = () => {
   adminMode = !adminMode;
-  adminBtn.classList.toggle('on', adminMode);
-  renderOptions('prefixList', prefixData);
-  renderOptions('suffixList', suffixData);
+  adminBtn.classList.toggle("on", adminMode);
+  renderOptions("prefixList", prefixData);
+  renderOptions("suffixList", suffixData);
 };
 
 function updateAdminMode() {
-  document.querySelectorAll('.option').forEach(div => {
-    const btns = div.querySelector('.buttons');
-    if (btns) btns.style.display = adminMode ? 'flex' : 'none';
+  document.querySelectorAll(".option").forEach((div) => {
+    div.querySelectorAll("button").forEach((btn) => {
+      btn.style.display = adminMode ? "inline-block" : "none";
+    });
   });
 }
 
-/* 드래그 */
-function enableDrag(div, data, listId) {
-  let startY = 0;
-  let offsetY = 0;
+/* ------------------ 드래그 정렬 ------------------ */
+function attachDrag(div, listId) {
+  if (!adminMode) return;
+  const listEl = document.getElementById(listId);
   let dragging = false;
-  let originalIndex = 0;
+  let placeholder = null;
+  let offsetX = 0,
+    offsetY = 0;
 
-  div.addEventListener("mousedown", e => {
+  div.addEventListener("mousedown", (e) => {
     if (!adminMode) return;
+    if (e.button !== 0) return;
     if (e.target.closest("button")) return;
 
     dragging = true;
+    const rect = div.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+
+    placeholder = document.createElement("div");
+    placeholder.className = "option";
+    placeholder.style.visibility = "hidden";
+    placeholder.style.height = rect.height + "px";
+
+    listEl.insertBefore(placeholder, div.nextSibling);
+
     div.classList.add("dragging");
+    div.style.position = "fixed";
+    div.style.width = rect.width + "px";
+    div.style.left = rect.left + "px";
+    div.style.top = rect.top + "px";
+    div.style.zIndex = 9999;
+    div.style.pointerEvents = "none";
+    document.body.appendChild(div);
 
-    startY = e.clientY;
-    originalIndex = Array.from(div.parentNode.children).indexOf(div);
+    const move = (ev) => {
+      if (!dragging) return;
+      div.style.left = ev.clientX - offsetX + "px";
+      div.style.top = ev.clientY - offsetY + "px";
 
-    e.preventDefault();
-  });
+      const items = [...listEl.children].filter(
+        (el) =>
+          el.classList.contains("option") && el !== placeholder && el !== div
+      );
 
-  window.addEventListener("mousemove", e => {
-    if (!dragging) return;
+      for (const item of items) {
+        const r = item.getBoundingClientRect();
+        const mid = r.top + r.height / 2;
+        if (ev.clientY < mid) {
+          listEl.insertBefore(placeholder, item);
+          return;
+        }
+      }
 
-    offsetY = e.clientY - startY;
-    div.style.transform = `translateY(${offsetY}px)`;
-  });
+      const addBtn = listEl.querySelector(".add-option");
+      if (addBtn) listEl.insertBefore(placeholder, addBtn);
+      else listEl.appendChild(placeholder);
+    };
 
-  window.addEventListener("mouseup", e => {
-    if (!dragging) return;
-    dragging = false;
-    div.classList.remove("dragging");
-    div.style.transform = "";
+    const up = () => {
+      if (!dragging) return;
+      dragging = false;
 
-    const siblings = [...div.parentNode.querySelectorAll(".option")];
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", up);
 
-    let newIndex = originalIndex;
+      div.classList.remove("dragging");
+      div.style.position = "";
+      div.style.left = "";
+      div.style.top = "";
+      div.style.width = "";
+      div.style.zIndex = "";
+      div.style.pointerEvents = "";
 
-    siblings.forEach((s, i) => {
-      if (s === div) return;
-      const rect = s.getBoundingClientRect();
-      if (e.clientY > rect.top + rect.height / 2) newIndex = i;
-    });
+      listEl.insertBefore(div, placeholder);
+      placeholder.remove();
 
-    const moved = data.splice(originalIndex, 1)[0];
-    data.splice(newIndex, 0, moved);
+      const arr = listId === "prefixList" ? prefixData : suffixData;
+      const newOrder = [];
 
-    renderOptions(listId, data);
+      listEl.querySelectorAll(".option").forEach((el) => {
+        const id = parseInt(el.dataset.id, 10);
+        const opt = arr.find((o) => o.id === id);
+        if (opt) newOrder.push(opt);
+      });
+
+      arr.splice(0, arr.length, newOrder);
+    };
+
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", up);
   });
 }
 
-/* 초기 렌더 */
-renderOptions('prefixList', prefixData);
-renderOptions('suffixList', suffixData);
+/* ------------------ 옵션 리스트 렌더링 ------------------ */
+function renderOptions(listId, data) {
+  const box = document.getElementById(listId);
+  box.innerHTML = "";
+
+  data.forEach((opt) => {
+    const div = document.createElement("div");
+    div.className = "option";
+    div.dataset.id = opt.id;
+
+    const progress = document.createElement("div");
+    progress.className = "delete-progress";
+    div.appendChild(progress);
+
+    const text = document.createElement("span");
+    text.textContent = opt.text;
+    text.style.position = "relative";
+    text.style.zIndex = 2;
+    div.appendChild(text);
+
+    const tagBox = document.createElement("div");
+    tagBox.className = "option-tags";
+
+    opt.type.split(",").forEach((t) => {
+      const type = t.trim();
+      if (type !== "") {
+        const chip = document.createElement("div");
+        chip.className = "option-tag";
+
+        if (type === "생명력") chip.classList.add("tag-life");
+        if (type === "마나") chip.classList.add("tag-mana");
+        if (type === "특수") chip.classList.add("tag-special");
+        if (type === "팅크") chip.classList.add("tag-tincture");
+
+        chip.textContent = type;
+        tagBox.appendChild(chip);
+      }
+    });
+
+    div.appendChild(tagBox);
+
+    const btns = document.createElement("div");
+    btns.className = "buttons";
+
+    const btnEdit = document.createElement("button");
+    btnEdit.className = "edit";
+    btnEdit.onclick = (e) => {
+      e.stopPropagation();
+      openModal(opt, "edit", listId);
+    };
+
+    const btnDelete = document.createElement("button");
+    btnDelete.className = "delete";
+
+    let deleteTimer = null;
+    let holdTimer = null;
+    let progressVal = 0;
+    let filled = false;
+    let holding = false;
+
+    btnDelete.onmousedown = (e) => {
+      e.stopPropagation();
+      progressVal = 0;
+      filled = false;
+      holding = true;
+
+      deleteTimer = setInterval(() => {
+        if (!holding) return;
+        progressVal += 2;
+        if (progressVal > 100) progressVal = 100;
+        progress.style.width = progressVal + "%";
+
+        if (progressVal >= 100 && !filled) {
+          filled = true;
+          holdTimer = setTimeout(() => {
+            if (holding) deleteOption(opt, data, listId);
+          }, 300);
+        }
+      }, 20);
+    };
+
+    const cancel = () => {
+      holding = false;
+      clearInterval(deleteTimer);
+      clearTimeout(holdTimer);
+      progress.style.width = "0%";
+      filled = false;
+    };
+
+    btnDelete.onmouseup = cancel;
+    btnDelete.onmouseleave = cancel;
+
+    btns.appendChild(btnEdit);
+    btns.appendChild(btnDelete);
+    div.appendChild(btns);
+
+    div.onclick = (e) => {
+      if (e.target.closest("button")) return;
+      toggleOption(opt);
+    };
+
+    box.appendChild(div);
+    updateAdminMode();
+    attachDrag(div, listId);
+  });
+}
+
+/* ------------------ 초기 렌더링 ------------------ */
+renderOptions("prefixList", prefixData);
+renderOptions("suffixList", suffixData);

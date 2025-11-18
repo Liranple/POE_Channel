@@ -371,3 +371,10 @@ h1 {
     opacity: 1;
   }
 }
+
+.right-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto; /* 오른쪽으로 밀기 */
+}

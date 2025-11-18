@@ -48,6 +48,14 @@ const suffixData = [
 
 let selected = [];
 
+/* ------------------ 타입 버튼(생명/마나/특수/팅크) 클릭 이벤트: 전역 1회만 바인딩 ------------------ */
+const typeButtons = document.querySelectorAll(".type-btn");
+typeButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    btn.classList.toggle("active");
+  });
+});
+
 /* ------------------ 선택 토글 / 결과 업데이트 ------------------ */
 function toggleOption(opt) {
   if (selected.includes(opt.tag))
@@ -129,11 +137,8 @@ function openModal(opt, mode, listId) {
   }
 
   modalBg.style.display = "flex";
-
-  /* 다중 선택 토글 적용 */
-  document.querySelectorAll(".type-btn").forEach((btn) => {
-    btn.onclick = () => btn.classList.toggle("active");
-  });
+  // ⬆ 타입 버튼 클릭 핸들러는 이미 전역에서 1회만 바인딩되어 있으므로
+  // 여기서 다시 onclick을 설정할 필요 없음 (중복 토글 버그 방지)
 }
 
 /* ------------------ 모달 저장/추가 ------------------ */
@@ -289,7 +294,10 @@ function attachDrag(div, listId) {
         if (opt) newOrder.push(opt);
       });
 
-      arr.splice(0, arr.length, newOrder);
+      // 🔧 버그 수정: 배열 안에 배열이 들어가는 것 방지
+      // 기존: arr.splice(0, arr.length, newOrder);
+      // 수정: 아래처럼 스프레드로 펼쳐서 넣어야 함
+      arr.splice(0, arr.length, ...newOrder);
     };
 
     document.addEventListener("mousemove", move);
@@ -335,8 +343,6 @@ function renderOptions(listId, data) {
         tagBox.appendChild(chip);
       }
     });
-
-    div.appendChild(tagBox);
 
     const btns = document.createElement("div");
     btns.className = "buttons";
@@ -391,7 +397,14 @@ function renderOptions(listId, data) {
 
     btns.appendChild(btnEdit);
     btns.appendChild(btnDelete);
-    div.appendChild(btns);
+
+    const rightBox = document.createElement("div");
+    rightBox.className = "right-box";
+
+    rightBox.appendChild(tagBox);
+    rightBox.appendChild(btns);
+
+    div.appendChild(rightBox);
 
     div.onclick = (e) => {
       if (e.target.closest("button")) return;
@@ -402,6 +415,14 @@ function renderOptions(listId, data) {
     updateAdminMode();
     attachDrag(div, listId);
   });
+  // ▼▼▼ 여기 추가 버튼 넣기 ▼▼▼
+  if (adminMode) {
+    const addBtn = document.createElement("div");
+    addBtn.className = "add-option";
+    addBtn.textContent = "+";
+    addBtn.onclick = () => openModal(null, "add", listId);
+    box.appendChild(addBtn);
+  }
 }
 
 /* ------------------ 초기 렌더링 ------------------ */

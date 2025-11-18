@@ -306,7 +306,14 @@ h1 {
   border: 1px solid rgba(255, 255, 255, 0.25);
   white-space: nowrap;
 }
-
+.type-btn {
+  display: flex;
+  align-items: center;
+  padding-top: 4px;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: var(--text) !important;
+}
 .tag-life {
   background: #b83333;
   border-color: #d14c4c;
@@ -343,6 +350,26 @@ h1 {
   background: #8a5a2f;
   border-color: #b27a46;
   color: white;
+}
+.type-btn.active.type-life {
+  background: #b83333 !important;
+  border-color: #d14c4c !important;
+  color: white !important;
+}
+.type-btn.active.type-mana {
+  background: #2f4fb8 !important;
+  border-color: #4e6be0 !important;
+  color: white !important;
+}
+.type-btn.active.type-special {
+  background: #2fa84f !important;
+  border-color: #4ad46a !important;
+  color: white !important;
+}
+.type-btn.active.type-tincture {
+  background: #8a5a2f !important;
+  border-color: #b27a46 !important;
+  color: white !important;
 }
 
 #modalSave {

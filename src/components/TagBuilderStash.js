@@ -65,7 +65,7 @@ export const DEFAULT_PREFIX_DATA = [
   },
   {
     id: 9,
-    optionText: "지속시간 감소, 효과 증가",
+    optionText: "지속시간 감소, 효과 25% 증가",
     filterRegex: "과.25%.증",
     maxRollRegex: "간.23%.감",
     itemLevel: "80",

@@ -22,10 +22,10 @@ POE_Channel/
 │   └── components/
 │       ├── AppLayout.jsx        # 앱 레이아웃 (사이드바 + 메인)
 │       ├── Sidebar.jsx          # 사이드바 네비게이션
-│       ├── TagBuilder.jsx       # 플라스크 태그 빌더
 │       ├── TagBuilderStash.js   # 플라스크 데이터
 │       └── pages/
 │           ├── HomePage.jsx     # 홈 페이지
+│           ├── FlaskPage.jsx    # 플라스크 태그 빌더
 │           ├── CardsPage.jsx    # 카드 드랍처 페이지
 │           ├── JewelsPage.jsx   # 주얼 페이지
 │           ├── MapsPage.jsx     # 지도 페이지

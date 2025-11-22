@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import HomePage from "../components/pages/HomePage";
-import TagBuilder from "../components/TagBuilder";
+import FlaskPage from "../components/pages/FlaskPage";
 import CardsPage from "../components/pages/CardsPage";
 import JewelsPage from "../components/pages/JewelsPage";
 import MapsPage from "../components/pages/MapsPage";
@@ -27,7 +27,7 @@ export default function AppLayout() {
       case "home":
         return <HomePage />;
       case "flask":
-        return <TagBuilder />;
+        return <FlaskPage />;
       case "cards":
         return <CardsPage />;
       case "jewels":

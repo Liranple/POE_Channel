@@ -2,9 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 
-import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "./TagBuilderStash";
+import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../TagBuilderStash";
 
-export default function TagBuilder() {
+export default function FlaskPage() {
   const [adminMode, setAdminMode] = useState(false);
   const [selected, setSelected] = useState([]);
   const [prefixData, setPrefixData] = useState(DEFAULT_PREFIX_DATA);

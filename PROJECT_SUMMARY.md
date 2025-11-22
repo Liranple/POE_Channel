@@ -257,10 +257,10 @@ POE_Channel/
 │   └── components/
 │       ├── AppLayout.jsx        🆕 메인 레이아웃
 │       ├── Sidebar.jsx          🆕 사이드바
-│       ├── TagBuilder.jsx       ✅ 기존 유지
 │       ├── TagBuilderStash.js   ✅ 기존 유지
 │       └── pages/
 │           ├── HomePage.jsx     🆕
+│           ├── FlaskPage.jsx    ✅ 기존 TagBuilder 이동
 │           ├── CardsPage.jsx    🆕
 │           ├── JewelsPage.jsx   🆕
 │           ├── MapsPage.jsx     🆕

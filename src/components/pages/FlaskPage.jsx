@@ -17,11 +17,16 @@ export default function FlaskPage() {
   // 프리셋 추가 모달 상태
   const [presetModalVisible, setPresetModalVisible] = useState(false);
   const [newPresetName, setNewPresetName] = useState("");
+  const [showPresetWarning, setShowPresetWarning] = useState(false); // 경고 토스트 상태 추가
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState("edit");
   const [modalListId, setModalListId] = useState(null);
   const [currentEditOption, setCurrentEditOption] = useState(null);
+
+  // 프리셋 수정용 상태 추가
+  const [editingPreset, setEditingPreset] = useState(null);
+
   const [modalData, setModalData] = useState({
     optionText: "",
     filterRegex: "",
@@ -40,7 +45,11 @@ export default function FlaskPage() {
       if (savedPresets) {
         try {
           const parsed = JSON.parse(savedPresets);
-          setPresets(parsed);
+          // ID가 없는 구버전 데이터 호환성 처리
+          const migrated = parsed.map((p) =>
+            p.id ? p : { ...p, id: Date.now() + Math.random() }
+          );
+          setPresets(migrated);
         } catch (e) {
           console.error("Failed to load presets", e);
         }
@@ -112,7 +121,7 @@ export default function FlaskPage() {
     if (!resultText) return;
     navigator.clipboard.writeText(resultText).then(() => {
       setShowCopyToast(true);
-      setTimeout(() => setShowCopyToast(false), 2000);
+      setTimeout(() => setShowCopyToast(false), 2000); // 애니메이션 시간과 동일하게 설정
     });
   }, [resultText]);
 
@@ -122,21 +131,42 @@ export default function FlaskPage() {
 
   const openPresetModal = useCallback(() => {
     if (selected.length === 0) {
-      alert("저장할 옵션이 선택되지 않았습니다.");
+      setShowPresetWarning(true);
+      setTimeout(() => setShowPresetWarning(false), 2000);
       return;
     }
+    setEditingPreset(null); // 추가 모드
     setNewPresetName("");
     setPresetModalVisible(true);
   }, [selected]);
 
+  const openEditPresetModal = useCallback((preset) => {
+    setEditingPreset(preset); // 수정 모드
+    setNewPresetName(preset.name);
+    setPresetModalVisible(true);
+  }, []);
+
   const savePreset = useCallback(() => {
     if (!newPresetName.trim()) return;
 
-    const newPresets = [...presets, { name: newPresetName, selected }];
-    setPresets(newPresets);
-    localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
+    if (editingPreset) {
+      // 수정 로직
+      const newPresets = presets.map((p) =>
+        p.id === editingPreset.id ? { ...p, name: newPresetName } : p
+      );
+      setPresets(newPresets);
+      localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
+    } else {
+      // 추가 로직
+      const newPresets = [
+        ...presets,
+        { id: Date.now(), name: newPresetName, selected },
+      ];
+      setPresets(newPresets);
+      localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
+    }
     setPresetModalVisible(false);
-  }, [presets, selected, newPresetName]);
+  }, [presets, selected, newPresetName, editingPreset]);
 
   const handleLoadPreset = useCallback((presetSelected) => {
     setSelected(presetSelected);
@@ -144,11 +174,18 @@ export default function FlaskPage() {
 
   const handleDeletePreset = useCallback(
     (preset) => {
-      const newPresets = presets.filter((p) => p !== preset);
+      const newPresets = presets.filter((p) => p.id !== preset.id);
       setPresets(newPresets);
       localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
     },
     [presets]
+  );
+
+  const handleEditPreset = useCallback(
+    (preset) => {
+      openEditPresetModal(preset);
+    },
+    [openEditPresetModal]
   );
 
   const itemRequirement = useMemo(() => {
@@ -385,6 +422,7 @@ export default function FlaskPage() {
 
       // 드래그 중인 요소 스타일 설정 (GPU 가속 사용)
       div.classList.add("dragging");
+      document.body.classList.add("dragging-active"); // 전역 드래그 상태 추가
       div.style.position = "fixed";
       div.style.width = rect.width + "px";
       div.style.left = rect.left + "px";
@@ -518,6 +556,7 @@ export default function FlaskPage() {
 
         // 스타일 복원
         div.classList.remove("dragging");
+        document.body.classList.remove("dragging-active"); // 전역 드래그 상태 제거
         div.style.position = "";
         div.style.left = "";
         div.style.top = "";
@@ -555,6 +594,213 @@ export default function FlaskPage() {
     [adminMode]
   );
 
+  const handlePresetDragStart = useCallback(
+    (e, index) => {
+      if (!adminMode) return;
+
+      const isTouch = e.type === "touchstart";
+      if (!isTouch && e.button !== 0) return;
+
+      const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+      const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+
+      const div = e.currentTarget;
+      const listEl = div.parentElement;
+      const rect = div.getBoundingClientRect();
+
+      if (isTouch) {
+        document.body.style.overflow = "hidden";
+      }
+
+      const placeholder = document.createElement("div");
+      placeholder.className = "preset-item placeholder";
+      placeholder.style.width = rect.width + "px";
+      placeholder.style.height = rect.height + "px";
+      placeholder.style.flexShrink = "0";
+      placeholder.style.visibility = "hidden";
+
+      listEl.insertBefore(placeholder, div.nextSibling);
+
+      div.classList.add("dragging");
+      document.body.classList.add("dragging-active"); // 전역 드래그 상태 추가
+      div.style.position = "fixed";
+      div.style.width = rect.width + "px";
+      div.style.height = rect.height + "px";
+      div.style.left = rect.left + "px";
+      div.style.top = rect.top + "px";
+      div.style.zIndex = "9999";
+      div.style.pointerEvents = "none";
+      div.style.willChange = "transform";
+      document.body.appendChild(div);
+
+      let isDragging = true;
+      let animationId = null;
+
+      const initialLeft = rect.left;
+      const initialMouseX = clientX;
+      const initialMouseY = clientY;
+
+      let needsPlaceholderUpdate = false;
+      let currentMouseX = clientX;
+
+      const updatePlaceholder = () => {
+        if (!isDragging) return;
+
+        if (needsPlaceholderUpdate) {
+          needsPlaceholderUpdate = false;
+
+          const items = [...listEl.children].filter(
+            (el) =>
+              el !== placeholder &&
+              el !== div &&
+              el.classList.contains("preset-item")
+          );
+
+          const deltaX = currentMouseX - initialMouseX;
+          const currentAbsX = initialLeft + deltaX + rect.width / 2;
+
+          let insertBefore = null;
+          for (const item of items) {
+            const itemRect = item.getBoundingClientRect();
+            const itemMid = itemRect.left + itemRect.width / 2;
+            if (currentAbsX < itemMid) {
+              insertBefore = item;
+              break;
+            }
+          }
+
+          const performMove = (target) => {
+            if (placeholder.nextSibling === target) return;
+
+            const positions = new Map();
+            items.forEach((item) => {
+              positions.set(item, item.getBoundingClientRect().left);
+            });
+
+            listEl.insertBefore(placeholder, target);
+
+            items.forEach((item) => {
+              const oldLeft = positions.get(item);
+              const newLeft = item.getBoundingClientRect().left;
+
+              if (oldLeft !== newLeft) {
+                item.animate(
+                  [
+                    { transform: `translateX(${oldLeft - newLeft}px)` },
+                    { transform: "translateX(0)" },
+                  ],
+                  {
+                    duration: 300,
+                    easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+                  }
+                );
+              }
+            });
+          };
+
+          if (insertBefore) {
+            performMove(insertBefore);
+          } else {
+            const addBtn = listEl.querySelector(".add-preset-chip");
+            performMove(addBtn);
+          }
+        }
+        animationId = requestAnimationFrame(updatePlaceholder);
+      };
+
+      const handleMove = (ev) => {
+        if (!isDragging) return;
+
+        const cx = ev.type === "touchmove" ? ev.touches[0].clientX : ev.clientX;
+        const cy = ev.type === "touchmove" ? ev.touches[0].clientY : ev.clientY;
+
+        const deltaX = cx - initialMouseX;
+        const deltaY = cy - initialMouseY;
+
+        div.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0)`;
+        currentMouseX = cx;
+        needsPlaceholderUpdate = true;
+      };
+
+      const handleEnd = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        if (animationId) cancelAnimationFrame(animationId);
+
+        document.removeEventListener("mousemove", handleMove);
+        document.removeEventListener("mouseup", handleEnd);
+        document.removeEventListener("touchmove", handleMove);
+        document.removeEventListener("touchend", handleEnd);
+
+        document.body.style.overflow = "";
+
+        div.classList.remove("dragging");
+        document.body.classList.remove("dragging-active"); // 전역 드래그 상태 제거
+        div.style.position = "";
+        div.style.width = "";
+        div.style.height = "";
+        div.style.left = "";
+        div.style.top = "";
+        div.style.zIndex = "";
+        div.style.pointerEvents = "";
+        div.style.transform = "";
+        div.style.willChange = "";
+
+        listEl.insertBefore(div, placeholder);
+        placeholder.remove();
+
+        const newPresets = [];
+        listEl.querySelectorAll(".preset-item").forEach((el) => {
+          const idx = parseInt(el.dataset.index, 10);
+          if (!isNaN(idx) && presets[idx]) {
+            newPresets.push(presets[idx]);
+          }
+        });
+
+        if (newPresets.length === presets.length) {
+          setPresets(newPresets);
+          localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
+        }
+      };
+
+      document.addEventListener("mousemove", handleMove, { passive: true });
+      document.addEventListener("mouseup", handleEnd);
+      document.addEventListener("touchmove", handleMove, { passive: false });
+      document.addEventListener("touchend", handleEnd);
+
+      animationId = requestAnimationFrame(updatePlaceholder);
+    },
+    [adminMode, presets]
+  );
+
+  // 드래그 스크롤 관련
+  const scrollRef = useRef(null);
+  const isDraggingScroll = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+
+  const handleMouseDown = (e) => {
+    isDraggingScroll.current = true;
+    startX.current = e.pageX - scrollRef.current.offsetLeft;
+    scrollLeft.current = scrollRef.current.scrollLeft;
+  };
+
+  const handleMouseLeave = () => {
+    isDraggingScroll.current = false;
+  };
+
+  const handleMouseUp = () => {
+    isDraggingScroll.current = false;
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDraggingScroll.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX.current) * 2; // 스크롤 속도 조절
+    scrollRef.current.scrollLeft = scrollLeft.current - walk;
+  };
+
   return (
     <>
       <div className="wrap">
@@ -574,43 +820,53 @@ export default function FlaskPage() {
           </div>
         </header>
 
-        <div className="page-layout">
-          {/* 좌측 프리셋 사이드바 */}
-          <div className="preset-sidebar">
-            <div className="preset-header">
-              <h3>프리셋</h3>
-              <button className="add-preset-btn" onClick={openPresetModal}>
-                +
-              </button>
-            </div>
-            <div className="preset-list-vertical">
+        <div className={`page-layout ${adminMode ? "admin-mode" : ""}`}>
+          {/* 상단 프리셋 바 (가로 스크롤) */}
+          <div
+            className="preset-bar-container"
+            style={{ position: "relative" }}
+          >
+            {showPresetWarning && (
+              <div className="preset-warning-toast">
+                저장할 옵션이 선택되지 않았습니다
+              </div>
+            )}
+            <div className="preset-label">PRESETS</div>
+            <div
+              className="preset-scroll-area"
+              ref={scrollRef}
+              onMouseDown={handleMouseDown}
+              onMouseLeave={handleMouseLeave}
+              onMouseUp={handleMouseUp}
+              onMouseMove={handleMouseMove}
+            >
               {presets.length === 0 ? (
-                <div className="no-preset">저장된 프리셋이 없습니다</div>
+                <span className="no-preset-msg">저장된 프리셋이 없습니다</span>
               ) : (
                 presets.map((preset, idx) => (
                   <PresetItem
-                    key={idx}
+                    key={preset.id}
+                    index={idx}
                     preset={preset}
                     onLoad={handleLoadPreset}
                     onDelete={handleDeletePreset}
+                    onEdit={handleEditPreset}
+                    adminMode={adminMode}
+                    onDragStart={handlePresetDragStart}
                   />
                 ))
               )}
             </div>
+            <button className="add-preset-chip" onClick={openPresetModal}>
+              <span>+ New</span>
+            </button>
           </div>
 
-          {/* 우측 빌더 콘텐츠 */}
+          {/* 빌더 콘텐츠 */}
           <div className="builder-content">
             {/* 선택 결과 영역 */}
             <div className="card" style={{ marginBottom: 24 }}>
-              <div className="result-toolbar">
-                <div className="toolbar-left">{/* Max Roll 토글 제거됨 */}</div>
-                <div className="toolbar-right">
-                  <button className="tool-btn clear-btn" onClick={handleClear}>
-                    선택 해제
-                  </button>
-                </div>
-              </div>
+              {/* 툴바 제거됨 */}
 
               <div className="result-input-wrapper" onClick={handleCopy}>
                 <input
@@ -619,7 +875,19 @@ export default function FlaskPage() {
                   readOnly
                   placeholder="선택한 옵션 정규식이 여기 표시됩니다"
                   value={resultText}
+                  // style={{ paddingRight: "40px" }} // CSS에서 padding 처리함
                 />
+                {selected.length > 0 && (
+                  <button
+                    className="clear-btn-inside"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleClear();
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
                 {showCopyToast && (
                   <div className="copy-toast">복사되었습니다!</div>
                 )}
@@ -718,12 +986,19 @@ export default function FlaskPage() {
           }}
         >
           <div className="modal preset-modal">
-            <div className="modal-title">프리셋 저장</div>
+            <div className="modal-title">
+              {editingPreset ? "프리셋 이름 수정" : "프리셋 추가"}
+            </div>
             <div className="modal-field">
               <span>이름</span>
               <input
                 value={newPresetName}
                 onChange={(e) => setNewPresetName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newPresetName.trim()) {
+                    savePreset();
+                  }
+                }}
                 placeholder="프리셋 이름을 입력하세요"
                 autoFocus
               />
@@ -733,7 +1008,7 @@ export default function FlaskPage() {
               onClick={savePreset}
               disabled={!newPresetName.trim()}
             >
-              저장
+              {editingPreset ? "수정" : "추가"}
             </button>
           </div>
         </div>

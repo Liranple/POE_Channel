@@ -35,7 +35,7 @@ export default function OptionItem({
     >
       <div className="delete-progress" style={{ width: `${progress}%` }}></div>
       <span style={{ position: "relative", zIndex: 2 }}>
-        {opt.optionText}
+        <span className="option-text-inner">{opt.optionText}</span>
         {isMaxSelected && <span className="max-badge">MAX</span>}
       </span>
       <div className="right-box">

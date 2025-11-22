@@ -4,12 +4,19 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
 import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../TagBuilderStash";
 import OptionItem from "../OptionItem";
+import PresetItem from "../PresetItem";
 
 export default function FlaskPage() {
   const [adminMode, setAdminMode] = useState(false);
   const [selected, setSelected] = useState([]);
   const [prefixData, setPrefixData] = useState(DEFAULT_PREFIX_DATA);
   const [suffixData, setSuffixData] = useState(DEFAULT_SUFFIX_DATA);
+  const [showCopyToast, setShowCopyToast] = useState(false);
+  const [presets, setPresets] = useState([]);
+
+  // 프리셋 추가 모달 상태
+  const [presetModalVisible, setPresetModalVisible] = useState(false);
+  const [newPresetName, setNewPresetName] = useState("");
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState("edit");
@@ -26,27 +33,123 @@ export default function FlaskPage() {
   const modalBgRef = useRef(null);
   const modalDown = useRef(false);
 
+  // 로컬 스토리지에서 프리셋 로드
+  useEffect(() => {
+    const loadPresets = () => {
+      const savedPresets = localStorage.getItem("flaskPresets");
+      if (savedPresets) {
+        try {
+          const parsed = JSON.parse(savedPresets);
+          setPresets(parsed);
+        } catch (e) {
+          console.error("Failed to load presets", e);
+        }
+      }
+    };
+    loadPresets();
+  }, []);
+
   const toggleOption = useCallback(
     (opt) => {
-      if (selected.includes(opt.filterRegex)) {
-        setSelected(selected.filter((t) => t !== opt.filterRegex));
-      } else {
-        setSelected([...selected, opt.filterRegex]);
+      const normalRegex = opt.filterRegex;
+      const maxRegex = opt.maxRollRegex;
+
+      // 일반 정규식과 맥롤 정규식이 같으면 단순 토글 (Normal <-> Off)
+      if (normalRegex === maxRegex) {
+        if (selected.includes(normalRegex)) {
+          setSelected(selected.filter((t) => t !== normalRegex));
+        } else {
+          setSelected([...selected, normalRegex]);
+        }
+        return;
       }
+
+      const isNormalSelected = selected.includes(normalRegex);
+      const isMaxSelected = selected.includes(maxRegex);
+
+      let newSelected = selected.filter(
+        (t) => t !== normalRegex && t !== maxRegex
+      );
+
+      if (isNormalSelected) {
+        // Normal -> Max (if available) -> Off
+        if (maxRegex) {
+          newSelected.push(maxRegex);
+        }
+        // If no maxRegex, it goes to Off (already filtered out)
+      } else if (isMaxSelected) {
+        // Max -> Off
+        // Already filtered out
+      } else {
+        // Off -> Normal
+        newSelected.push(normalRegex);
+      }
+
+      setSelected(newSelected);
     },
     [selected]
   );
 
   const resultText = useMemo(() => {
+    // selected 배열 자체가 이미 올바른 정규식들을 담고 있음
+    // 순서를 보장하기 위해 prefix/suffix 데이터 순서대로 정렬
     const allData = [...prefixData, ...suffixData];
-    const tags = selected
-      .map((tag) => {
-        const opt = allData.find((o) => o.filterRegex === tag);
-        return opt ? opt.filterRegex : null;
-      })
-      .filter(Boolean);
-    return tags.join("|");
+    const sortedTags = [];
+
+    // 데이터 순서대로 순회하며 selected에 있는지 확인
+    allData.forEach((opt) => {
+      if (selected.includes(opt.filterRegex)) {
+        sortedTags.push(opt.filterRegex);
+      } else if (selected.includes(opt.maxRollRegex)) {
+        sortedTags.push(opt.maxRollRegex);
+      }
+    });
+
+    return sortedTags.join("|");
   }, [selected, prefixData, suffixData]);
+
+  const handleCopy = useCallback(() => {
+    if (!resultText) return;
+    navigator.clipboard.writeText(resultText).then(() => {
+      setShowCopyToast(true);
+      setTimeout(() => setShowCopyToast(false), 2000);
+    });
+  }, [resultText]);
+
+  const handleClear = useCallback(() => {
+    setSelected([]);
+  }, []);
+
+  const openPresetModal = useCallback(() => {
+    if (selected.length === 0) {
+      alert("저장할 옵션이 선택되지 않았습니다.");
+      return;
+    }
+    setNewPresetName("");
+    setPresetModalVisible(true);
+  }, [selected]);
+
+  const savePreset = useCallback(() => {
+    if (!newPresetName.trim()) return;
+
+    const newPresets = [...presets, { name: newPresetName, selected }];
+    setPresets(newPresets);
+    localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
+    setPresetModalVisible(false);
+  }, [presets, selected, newPresetName]);
+
+  const handleLoadPreset = useCallback((presetSelected) => {
+    setSelected(presetSelected);
+  }, []);
+
+  const handleDeletePreset = useCallback(
+    (preset) => {
+      const newPresets = presets.filter((p) => p !== preset);
+      setPresets(newPresets);
+      localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
+    },
+    [presets]
+  );
 
   const itemRequirement = useMemo(() => {
     if (selected.length === 0) {
@@ -55,7 +158,9 @@ export default function FlaskPage() {
 
     const allData = [...prefixData, ...suffixData];
     const selectedOptions = selected
-      .map((tag) => allData.find((o) => o.filterRegex === tag))
+      .map((tag) =>
+        allData.find((o) => o.filterRegex === tag || o.maxRollRegex === tag)
+      )
       .filter(Boolean);
 
     // 최대 레벨 찾기
@@ -247,20 +352,29 @@ export default function FlaskPage() {
     [modalData]
   );
 
-  // 커스텀 드래그 핸들러 (완벽한 실시간 추적)
-  const handleMouseDownForDrag = useCallback(
+  // 커스텀 드래그 핸들러 (완벽한 실시간 추적 - 모바일 터치 지원)
+  const handleDragStart = useCallback(
     (e, opt, listId, data, setData) => {
       if (!adminMode) return;
-      if (e.button !== 0) return;
+
+      // 이벤트 정규화 (마우스/터치)
+      const isTouch = e.type === "touchstart";
+      if (!isTouch && e.button !== 0) return;
       if (e.target.closest("button")) return;
+
+      const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+      const clientY = isTouch ? e.touches[0].clientY : e.clientY;
 
       const listEl = document.getElementById(listId);
       if (!listEl) return;
 
       const div = e.currentTarget;
       const rect = div.getBoundingClientRect();
-      const offsetX = e.clientX - rect.left;
-      const offsetY = e.clientY - rect.top;
+
+      // 터치 시 스크롤 방지
+      if (isTouch) {
+        document.body.style.overflow = "hidden";
+      }
 
       // placeholder 생성
       const placeholder = document.createElement("div");
@@ -276,7 +390,7 @@ export default function FlaskPage() {
       div.style.left = rect.left + "px";
       div.style.top = rect.top + "px";
       div.style.zIndex = "9999";
-      div.style.pointerEvents = "none";
+      div.style.pointerEvents = "none"; // 드래그 중인 요소가 이벤트를 가로채지 않도록
       div.style.willChange = "transform";
       document.body.appendChild(div);
 
@@ -286,12 +400,12 @@ export default function FlaskPage() {
       // 초기 위치 저장
       const initialLeft = rect.left;
       const initialTop = rect.top;
-      const initialMouseX = e.clientX;
-      const initialMouseY = e.clientY;
+      const initialMouseX = clientX;
+      const initialMouseY = clientY;
 
       // placeholder 업데이트 함수 (RAF로 최적화)
       let needsPlaceholderUpdate = false;
-      let currentMouseY = e.clientY;
+      let currentMouseY = clientY;
 
       const updatePlaceholder = () => {
         if (!isDragging) return;
@@ -365,27 +479,42 @@ export default function FlaskPage() {
         animationId = requestAnimationFrame(updatePlaceholder);
       };
 
-      const handleMouseMove = (ev) => {
+      const handleMove = (ev) => {
         if (!isDragging) return;
 
-        const deltaX = ev.clientX - initialMouseX;
-        const deltaY = ev.clientY - initialMouseY;
+        // 터치 이벤트인 경우 preventDefault로 스크롤 방지 (passive: false 필요)
+        if (ev.type === "touchmove") {
+          // ev.preventDefault(); // React 합성 이벤트가 아니라 직접 등록하므로 가능하지만, passive listener 문제 주의
+        }
+
+        const cx = ev.type === "touchmove" ? ev.touches[0].clientX : ev.clientX;
+        const cy = ev.type === "touchmove" ? ev.touches[0].clientY : ev.clientY;
+
+        const deltaX = cx - initialMouseX;
+        const deltaY = cy - initialMouseY;
 
         // 위치 즉시 업데이트 (GPU 가속 transform)
         div.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0)`;
 
         // placeholder 업데이트 플래그 설정
-        currentMouseY = ev.clientY;
+        currentMouseY = cy;
         needsPlaceholderUpdate = true;
       };
 
-      const handleMouseUp = () => {
+      const handleEnd = () => {
         if (!isDragging) return;
         isDragging = false;
 
         if (animationId) cancelAnimationFrame(animationId);
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
+
+        // 이벤트 리스너 제거
+        document.removeEventListener("mousemove", handleMove);
+        document.removeEventListener("mouseup", handleEnd);
+        document.removeEventListener("touchmove", handleMove);
+        document.removeEventListener("touchend", handleEnd);
+
+        // 스크롤 복구
+        document.body.style.overflow = "";
 
         // 스타일 복원
         div.classList.remove("dragging");
@@ -414,10 +543,11 @@ export default function FlaskPage() {
         setData(newOrder);
       };
 
-      document.addEventListener("mousemove", handleMouseMove, {
-        passive: true,
-      });
-      document.addEventListener("mouseup", handleMouseUp);
+      // 이벤트 리스너 등록 (passive: false for touchmove to allow preventDefault if needed, but here we just block body scroll)
+      document.addEventListener("mousemove", handleMove, { passive: true });
+      document.addEventListener("mouseup", handleEnd);
+      document.addEventListener("touchmove", handleMove, { passive: false });
+      document.addEventListener("touchend", handleEnd);
 
       // placeholder 업데이트 루프 시작
       animationId = requestAnimationFrame(updatePlaceholder);
@@ -444,96 +574,170 @@ export default function FlaskPage() {
           </div>
         </header>
 
-        {/* 선택 결과 영역 */}
-        <div className="card" style={{ marginBottom: 24 }}>
-          <input
-            id="result"
-            className="search-box"
-            readOnly
-            placeholder="선택한 옵션 정규식이 여기 표시됩니다"
-            value={resultText}
-          />
-          <div
-            style={{
-              marginTop: "10px",
-              textAlign: "center",
-              fontSize: "16px",
-              fontWeight: 600,
-              padding: "4px 0",
-              color:
-                selected.length === 0
-                  ? "#7a8a9a"
-                  : itemRequirement.isError
-                  ? "#ff6262"
-                  : "var(--accent)",
-            }}
-          >
-            {itemRequirement.text}
-          </div>
-        </div>
-
-        {/* 옵션 선택 영역 */}
-        <div className="card">
-          <div className="layout">
-            <div>
-              <div className="section-title">접두 옵션</div>
-              <div id="prefixList" className="list">
-                {prefixData.map((opt) => (
-                  <OptionItem
-                    key={opt.id}
-                    opt={opt}
-                    listId="prefixList"
-                    selected={selected}
-                    toggleOption={toggleOption}
-                    handleMouseDownForDrag={handleMouseDownForDrag}
-                    adminMode={adminMode}
-                    openModal={openModal}
-                    deleteOption={deleteOption}
-                    data={prefixData}
-                    setData={setPrefixData}
+        <div className="page-layout">
+          {/* 좌측 프리셋 사이드바 */}
+          <div className="preset-sidebar">
+            <div className="preset-header">
+              <h3>프리셋</h3>
+              <button className="add-preset-btn" onClick={openPresetModal}>
+                +
+              </button>
+            </div>
+            <div className="preset-list-vertical">
+              {presets.length === 0 ? (
+                <div className="no-preset">저장된 프리셋이 없습니다</div>
+              ) : (
+                presets.map((preset, idx) => (
+                  <PresetItem
+                    key={idx}
+                    preset={preset}
+                    onLoad={handleLoadPreset}
+                    onDelete={handleDeletePreset}
                   />
-                ))}
-                {adminMode && (
-                  <div
-                    className="add-option"
-                    onClick={() => openModal(null, "add", "prefixList")}
-                  >
-                    +
-                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* 우측 빌더 콘텐츠 */}
+          <div className="builder-content">
+            {/* 선택 결과 영역 */}
+            <div className="card" style={{ marginBottom: 24 }}>
+              <div className="result-toolbar">
+                <div className="toolbar-left">{/* Max Roll 토글 제거됨 */}</div>
+                <div className="toolbar-right">
+                  <button className="tool-btn clear-btn" onClick={handleClear}>
+                    선택 해제
+                  </button>
+                </div>
+              </div>
+
+              <div className="result-input-wrapper" onClick={handleCopy}>
+                <input
+                  id="result"
+                  className="search-box"
+                  readOnly
+                  placeholder="선택한 옵션 정규식이 여기 표시됩니다"
+                  value={resultText}
+                />
+                {showCopyToast && (
+                  <div className="copy-toast">복사되었습니다!</div>
                 )}
               </div>
+              <div
+                style={{
+                  marginTop: "10px",
+                  textAlign: "center",
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  padding: "4px 0",
+                  color:
+                    selected.length === 0
+                      ? "#7a8a9a"
+                      : itemRequirement.isError
+                      ? "#ff6262"
+                      : "var(--accent)",
+                }}
+              >
+                {itemRequirement.text}
+              </div>
             </div>
-            <div>
-              <div className="section-title">접미 옵션</div>
-              <div id="suffixList" className="list">
-                {suffixData.map((opt) => (
-                  <OptionItem
-                    key={opt.id}
-                    opt={opt}
-                    listId="suffixList"
-                    selected={selected}
-                    toggleOption={toggleOption}
-                    handleMouseDownForDrag={handleMouseDownForDrag}
-                    adminMode={adminMode}
-                    openModal={openModal}
-                    deleteOption={deleteOption}
-                    data={suffixData}
-                    setData={setSuffixData}
-                  />
-                ))}
-                {adminMode && (
-                  <div
-                    className="add-option"
-                    onClick={() => openModal(null, "add", "suffixList")}
-                  >
-                    +
+
+            {/* 옵션 선택 영역 */}
+            <div className="card">
+              <div className="layout">
+                <div>
+                  <div className="section-title">접두 옵션</div>
+                  <div id="prefixList" className="list">
+                    {prefixData.map((opt) => (
+                      <OptionItem
+                        key={opt.id}
+                        opt={opt}
+                        listId="prefixList"
+                        selected={selected}
+                        toggleOption={toggleOption}
+                        handleDragStart={handleDragStart}
+                        adminMode={adminMode}
+                        openModal={openModal}
+                        deleteOption={deleteOption}
+                        data={prefixData}
+                        setData={setPrefixData}
+                      />
+                    ))}
+                    {adminMode && (
+                      <div
+                        className="add-option"
+                        onClick={() => openModal(null, "add", "prefixList")}
+                      >
+                        +
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
+                <div>
+                  <div className="section-title">접미 옵션</div>
+                  <div id="suffixList" className="list">
+                    {suffixData.map((opt) => (
+                      <OptionItem
+                        key={opt.id}
+                        opt={opt}
+                        listId="suffixList"
+                        selected={selected}
+                        toggleOption={toggleOption}
+                        handleDragStart={handleDragStart}
+                        adminMode={adminMode}
+                        openModal={openModal}
+                        deleteOption={deleteOption}
+                        data={suffixData}
+                        setData={setSuffixData}
+                      />
+                    ))}
+                    {adminMode && (
+                      <div
+                        className="add-option"
+                        onClick={() => openModal(null, "add", "suffixList")}
+                      >
+                        +
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* 프리셋 추가 모달 (슬라이드 바) */}
+      {presetModalVisible && (
+        <div
+          className="modal-bg"
+          style={{ display: "flex", justifyContent: "center" }}
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setPresetModalVisible(false);
+          }}
+        >
+          <div className="modal preset-modal">
+            <div className="modal-title">프리셋 저장</div>
+            <div className="modal-field">
+              <span>이름</span>
+              <input
+                value={newPresetName}
+                onChange={(e) => setNewPresetName(e.target.value)}
+                placeholder="프리셋 이름을 입력하세요"
+                autoFocus
+              />
+            </div>
+            <button
+              id="modalSave"
+              onClick={savePreset}
+              disabled={!newPresetName.trim()}
+            >
+              저장
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 모달 */}
       {modalVisible && (
@@ -634,8 +838,24 @@ export default function FlaskPage() {
               </div>
             </div>
 
-            <button id="modalSave" onClick={handleModalSave}>
-              {modalMode === "edit" ? "저장" : "추가"}
+            <button
+              id="modalSave"
+              onClick={handleModalSave}
+              disabled={
+                !modalData.optionText ||
+                !modalData.filterRegex ||
+                !modalData.itemLevel ||
+                modalData.types.length === 0
+              }
+            >
+              {!modalData.optionText ||
+              !modalData.filterRegex ||
+              !modalData.itemLevel ||
+              modalData.types.length === 0
+                ? "모든 항목을 입력해주세요"
+                : modalMode === "edit"
+                ? "저장"
+                : "추가"}
             </button>
           </div>
         </div>

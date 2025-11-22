@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Sidebar from "../components/Sidebar";
 import HomePage from "../components/pages/HomePage";
 import FlaskPage from "../components/pages/FlaskPage";
@@ -22,7 +22,11 @@ const TABS = [
 export default function AppLayout() {
   const [activeTab, setActiveTab] = useState("flask");
 
-  const renderContent = () => {
+  const handleTabChange = useCallback((tabId) => {
+    setActiveTab(tabId);
+  }, []);
+
+  const content = useMemo(() => {
     switch (activeTab) {
       case "home":
         return <HomePage />;
@@ -43,12 +47,16 @@ export default function AppLayout() {
           </div>
         );
     }
-  };
+  }, [activeTab]);
 
   return (
     <div className="app-layout">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} tabs={TABS} />
-      <main className="main-content">{renderContent()}</main>
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        tabs={TABS}
+      />
+      <main className="main-content">{content}</main>
     </div>
   );
 }

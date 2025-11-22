@@ -1,6 +1,8 @@
 "use client";
 
-export default function Sidebar({ activeTab, onTabChange, tabs }) {
+import { memo } from "react";
+
+const Sidebar = memo(function Sidebar({ activeTab, onTabChange, tabs }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
@@ -20,4 +22,6 @@ export default function Sidebar({ activeTab, onTabChange, tabs }) {
       </nav>
     </aside>
   );
-}
+});
+
+export default Sidebar;

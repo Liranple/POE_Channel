@@ -1,0 +1,10 @@
+:root {
+  --bg: #0b1220;
+  --card: #071022;
+  --accent: #06b6d4;
+  --muted: #9aa9b8;
+  --text: #e6eef6;
+  --admin-off: #555;
+  --admin-on: #4ade80;
+  --delete-red: rgba(255, 98, 98, 0.7);
+}

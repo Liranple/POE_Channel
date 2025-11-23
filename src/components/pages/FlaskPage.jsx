@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
-import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../TagBuilderStash";
+import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../../data/FlaskData";
 import OptionItem from "../OptionItem";
 import PresetItem from "../PresetItem";
 
@@ -351,13 +351,15 @@ export default function FlaskPage() {
       const arr = modalListId === "prefixList" ? prefixData : suffixData;
       const setArr =
         modalListId === "prefixList" ? setPrefixData : setSuffixData;
-      const base = modalListId === "prefixList" ? 0 : 100;
-      const maxId = arr.reduce((m, o) => Math.max(m, o.id), base);
+      // ID는 각 배열 내에서 유일하면 됨 (기존 100단위 구분 제거)
+      const maxId = arr.reduce((m, o) => Math.max(m, o.id), 0);
+      const affix = modalListId === "prefixList" ? "prefix" : "suffix";
 
       setArr([
         ...arr,
         {
           id: maxId + 1,
+          affix: affix,
           optionText: optionText || "새 옵션",
           filterRegex: filterRegex || "tag" + (maxId + 1),
           maxRollRegex: maxRollRegex,

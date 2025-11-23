@@ -1,6 +1,7 @@
 export const DEFAULT_PREFIX_DATA = [
   {
     id: 1,
+    affix: "prefix",
     optionText: "낮은 생명력 상태일 때 즉시 회복",
     filterRegex: "허둥",
     maxRollRegex: "11%.감",
@@ -9,6 +10,7 @@ export const DEFAULT_PREFIX_DATA = [
   },
   {
     id: 2,
+    affix: "prefix",
     optionText: "회복량의 50%를 즉시 회복",
     filterRegex: "부글",
     maxRollRegex: "량.36%.감",
@@ -17,6 +19,7 @@ export const DEFAULT_PREFIX_DATA = [
   },
   {
     id: 3,
+    affix: "prefix",
     optionText: "회복량 증가, 회복 속도 감소",
     filterRegex: "포화",
     maxRollRegex: "량.70%.증",
@@ -25,6 +28,7 @@ export const DEFAULT_PREFIX_DATA = [
   },
   {
     id: 4,
+    affix: "prefix",
     optionText: "즉시 회복",
     filterRegex: "끓어",
     maxRollRegex: "끓어",
@@ -33,6 +37,7 @@ export const DEFAULT_PREFIX_DATA = [
   },
   {
     id: 5,
+    affix: "prefix",
     optionText: "치명타 명중 시 플라스크 1 충전",
     filterRegex: "의사",
     maxRollRegex: "시.35%",
@@ -41,6 +46,7 @@ export const DEFAULT_PREFIX_DATA = [
   },
   {
     id: 6,
+    affix: "prefix",
     optionText: "적에게 피격 시 충전 3 획득",
     filterRegex: "고행",
     maxRollRegex: "고행",
@@ -49,6 +55,7 @@ export const DEFAULT_PREFIX_DATA = [
   },
   {
     id: 7,
+    affix: "prefix",
     optionText: "충전 소모량 감소",
     filterRegex: "화학",
     maxRollRegex: "모량.28%.감",
@@ -57,6 +64,7 @@ export const DEFAULT_PREFIX_DATA = [
   },
   {
     id: 8,
+    affix: "prefix",
     optionText: "마나가 찼을 때 효과가 제거되지 않음",
     filterRegex: "인내",
     maxRollRegex: "인내",
@@ -65,6 +73,7 @@ export const DEFAULT_PREFIX_DATA = [
   },
   {
     id: 9,
+    affix: "prefix",
     optionText: "지속시간 감소, 효과 25% 증가",
     filterRegex: "과.25%.증",
     maxRollRegex: "간.23%.감",
@@ -73,6 +82,7 @@ export const DEFAULT_PREFIX_DATA = [
   },
   {
     id: 10,
+    affix: "prefix",
     optionText: "지속시간 증가",
     filterRegex: "실험",
     maxRollRegex: "간.40%.증",
@@ -81,6 +91,7 @@ export const DEFAULT_PREFIX_DATA = [
   },
   {
     id: 11,
+    affix: "prefix",
     optionText: "효과 증가, 마나 연소 속도 증가",
     filterRegex: "첨가",
     maxRollRegex: "도.37%.증",
@@ -91,7 +102,8 @@ export const DEFAULT_PREFIX_DATA = [
 
 export const DEFAULT_SUFFIX_DATA = [
   {
-    id: 101,
+    id: 1,
+    affix: "suffix",
     optionText: "출혈 · 타락한 피 면역 부여 (조건부)",
     filterRegex: "속풀",
     maxRollRegex: "(17.*출 17.*타)",
@@ -99,7 +111,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "생명력, 마나",
   },
   {
-    id: 102,
+    id: 2,
+    affix: "suffix",
     optionText: "냉각 · 동결 면역 부여 (조건부)",
     filterRegex: "녹이",
     maxRollRegex: "(17.*냉 17.*동)",
@@ -107,7 +120,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "생명력, 마나",
   },
   {
-    id: 103,
+    id: 3,
+    affix: "suffix",
     optionText: "방어도 증가",
     filterRegex: "딜로",
     maxRollRegex: "어도.60",
@@ -115,7 +129,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "특수",
   },
   {
-    id: 104,
+    id: 4,
+    affix: "suffix",
     optionText: "회피 증가",
     filterRegex: "임팔",
     maxRollRegex: "회피.60",
@@ -123,7 +138,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "특수",
   },
   {
-    id: 105,
+    id: 5,
+    affix: "suffix",
     optionText: "이동 속도 증가",
     filterRegex: "치타",
     maxRollRegex: "속도.14",
@@ -131,7 +147,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "특수",
   },
   {
-    id: 106,
+    id: 6,
+    affix: "suffix",
     optionText: "추가 원소 저항",
     filterRegex: "무지",
     maxRollRegex: "저항.20",
@@ -139,7 +156,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "특수",
   },
   {
-    id: 107,
+    id: 7,
+    affix: "suffix",
     optionText: "치명타 확률 증가",
     filterRegex: "절개",
     maxRollRegex: "률.55",
@@ -147,7 +165,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "특수",
   },
   {
-    id: 108,
+    id: 8,
+    affix: "suffix",
     optionText: "기절 긴급회피",
     filterRegex: "끈기",
     maxRollRegex: "55.*기절",
@@ -155,7 +174,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "특수",
   },
   {
-    id: 109,
+    id: 9,
+    affix: "suffix",
     optionText: "저주 효과 감소",
     filterRegex: "올빼",
     maxRollRegex: "저주.*65",
@@ -163,7 +183,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "특수",
   },
   {
-    id: 110,
+    id: 10,
+    affix: "suffix",
     optionText: "감전 긴급회피",
     filterRegex: "습지",
     maxRollRegex: "감전.*55",
@@ -171,7 +192,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "특수",
   },
   {
-    id: 111,
+    id: 11,
+    affix: "suffix",
     optionText: "원소 저항 관통",
     filterRegex: "압도$",
     maxRollRegex: "19%.관",
@@ -179,7 +201,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "팅크",
   },
   {
-    id: 112,
+    id: 12,
+    affix: "suffix",
     optionText: "치명타 피해 배율",
     filterRegex: "흉포",
     maxRollRegex: "배율.*33",
@@ -187,7 +210,8 @@ export const DEFAULT_SUFFIX_DATA = [
     type: "팅크",
   },
   {
-    id: 113,
+    id: 13,
+    affix: "suffix",
     optionText: "공격 속도 증가",
     filterRegex: "숙련",
     maxRollRegex: "속도.29",

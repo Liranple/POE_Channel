@@ -1,4 +1,7 @@
+import "../styles/variables.css";
 import "./globals.css";
+import "../styles/FlaskPage.css";
+import "../styles/JewelsPage.css";
 
 export const metadata = {
   title: "POE Channel — Path of Exile 도구 모음",

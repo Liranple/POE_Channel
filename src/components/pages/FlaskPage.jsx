@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import useDraggableScroll from "../../hooks/useDraggableScroll";
 
 import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../../data/FlaskData";
 import OptionItem from "../OptionItem";
@@ -803,6 +804,9 @@ export default function FlaskPage() {
     scrollRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
+  const prefixScroll = useDraggableScroll(!adminMode);
+  const suffixScroll = useDraggableScroll(!adminMode);
+
   return (
     <>
       <div className="wrap">
@@ -918,7 +922,7 @@ export default function FlaskPage() {
               <div className="layout">
                 <div>
                   <div className="section-title">접두 옵션</div>
-                  <div id="prefixList" className="list">
+                  <div id="prefixList" className="list" {...prefixScroll}>
                     {prefixData.map((opt) => (
                       <OptionItem
                         key={opt.id}
@@ -946,7 +950,7 @@ export default function FlaskPage() {
                 </div>
                 <div>
                   <div className="section-title">접미 옵션</div>
-                  <div id="suffixList" className="list">
+                  <div id="suffixList" className="list" {...suffixScroll}>
                     {suffixData.map((opt) => (
                       <OptionItem
                         key={opt.id}

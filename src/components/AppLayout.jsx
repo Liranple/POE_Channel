@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import HomePage from "../components/pages/HomePage";
 import FlaskPage from "../components/pages/FlaskPage";
@@ -21,6 +21,19 @@ const TABS = [
 
 export default function AppLayout() {
   const [activeTab, setActiveTab] = useState("flask");
+  const [theme, setTheme] = useState("dark");
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  }, []);
+
+  useEffect(() => {
+    if (theme === "light") {
+      document.documentElement.classList.add("theme-light");
+    } else {
+      document.documentElement.classList.remove("theme-light");
+    }
+  }, [theme]);
 
   const handleTabChange = useCallback((tabId) => {
     setActiveTab(tabId);
@@ -50,13 +63,44 @@ export default function AppLayout() {
   }, [activeTab]);
 
   return (
-    <div className="app-layout">
+    <div className={`app-layout ${theme === "light" ? "theme-light" : ""}`}>
       <Sidebar
         activeTab={activeTab}
         onTabChange={handleTabChange}
         tabs={TABS}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
-      <main className="main-content">{content}</main>
+      <main
+        className="main-content"
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <div style={{ flex: 1, paddingBottom: "60px" }}>{content}</div>
+        <footer
+          style={{
+            padding: "20px",
+            textAlign: "center",
+            color: "var(--muted)",
+            fontSize: "12px",
+            borderTop: "1px solid var(--sidebar-border)",
+            marginTop: "auto",
+            background: "transparent",
+          }}
+        >
+          <p style={{ margin: "0 0 4px 0", fontWeight: 600 }}>
+            © 2025 POE Channel. All rights reserved.
+          </p>
+          <p style={{ margin: 0, opacity: 0.7 }}>
+            This product isn&apos;t affiliated with or endorsed by Grinding Gear
+            Games in any way.
+          </p>
+        </footer>
+      </main>
     </div>
   );
 }

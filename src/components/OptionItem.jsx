@@ -52,8 +52,12 @@ export default function OptionItem({
       }`}
       data-id={opt.id}
       onClick={() => toggleOption(opt)}
-      onMouseDown={(e) => handleDragStart(e, opt, listId, data, setData)}
-      onTouchStart={(e) => handleDragStart(e, opt, listId, data, setData)}
+      onMouseDown={(e) =>
+        adminMode && handleDragStart(e, opt, listId, data, setData)
+      }
+      onTouchStart={(e) =>
+        adminMode && handleDragStart(e, opt, listId, data, setData)
+      }
     >
       <div className="delete-progress" style={{ width: `${progress}%` }}></div>
       <span style={{ position: "relative", zIndex: 2 }}>

@@ -1,4 +1,5 @@
 :root {
+  /* Dark Mode (Default) */
   --bg: #0b1220;
   --card: #071022;
   --accent: #06b6d4;
@@ -7,4 +8,189 @@
   --admin-off: #555;
   --admin-on: #4ade80;
   --delete-red: rgba(255, 98, 98, 0.7);
+
+  --html-bg: linear-gradient(180deg, #0c0d10, #1a1d22);
+  --sidebar-bg: linear-gradient(180deg, #0a0b0e 0%, #13151a 100%);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --card-bg: rgba(255, 255, 255, 0.02);
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.03);
+  --option-bg: rgba(255, 255, 255, 0.04);
+  --option-border: rgba(255, 255, 255, 0.05);
+  --modal-input-bg: rgba(255, 255, 255, 0.05);
+  --modal-input-border: rgba(255, 255, 255, 0.12);
+  --type-btn-bg: rgba(255, 255, 255, 0.08);
+  --type-btn-border: rgba(255, 255, 255, 0.15);
+  --type-btn-hover: rgba(255, 255, 255, 0.18);
+  --scrollbar-track: rgba(255, 255, 255, 0.03);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.25);
+
+  /* New Variables */
+  --option-hover-bg: rgba(255, 255, 255, 0.08);
+  --option-active-text: #022;
+  --option-active-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  --option-dragging-shadow: 0 14px 35px rgba(0, 0, 0, 0.6);
+
+  --add-option-border: rgba(180, 180, 180, 0.5);
+  --add-option-bg: rgba(255, 255, 255, 0.1);
+  --add-option-text: rgba(255, 255, 255, 0.5);
+  --add-option-hover-bg: rgba(255, 255, 255, 0.18);
+
+  --modal-shadow: 0 0 30px rgba(0, 0, 0, 0.55);
+
+  --tag-bg: rgba(255, 255, 255, 0.15);
+  --tag-border: rgba(255, 255, 255, 0.25);
+
+  --tool-btn-border: rgba(255, 255, 255, 0.1);
+  --tool-btn-bg: rgba(255, 255, 255, 0.05);
+  --tool-btn-hover-bg: rgba(255, 255, 255, 0.1);
+
+  --clear-btn-bg: rgba(255, 255, 255, 0.2);
+  --clear-btn-border: rgba(255, 255, 255, 0.2);
+  --clear-btn-hover-bg: rgba(255, 98, 98, 0.3);
+  --clear-btn-hover-border: rgba(255, 98, 98, 0.4);
+
+  --save-btn-bg: rgba(6, 182, 212, 0.1);
+  --save-btn-border: rgba(6, 182, 212, 0.3);
+  --save-btn-hover-bg: rgba(6, 182, 212, 0.2);
+  --disabled-bg: rgba(255, 255, 255, 0.1);
+  --disabled-text: rgba(255, 255, 255, 0.3);
+
+  --toggle-slider-bg: rgba(255, 255, 255, 0.1);
+  --toggle-slider-knob: #aaa;
+
+  --preset-list-bg: rgba(0, 0, 0, 0.2);
+  --preset-chip-bg: rgba(255, 255, 255, 0.08);
+  --preset-chip-hover-bg: rgba(255, 255, 255, 0.12);
+  --preset-chip-hover-border: rgba(255, 255, 255, 0.1);
+
+  --preset-bar-bg: rgba(255, 255, 255, 0.02);
+  --preset-bar-border: rgba(255, 255, 255, 0.05);
+  --preset-bar-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  --preset-item-bg: rgba(255, 255, 255, 0.05);
+  --preset-item-border: rgba(255, 255, 255, 0.08);
+  --preset-item-hover-bg: rgba(255, 255, 255, 0.1);
+  --preset-item-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+  --add-preset-chip-border: rgba(255, 255, 255, 0.2);
+  --add-preset-chip-text: rgba(255, 255, 255, 0.5);
+  --add-preset-chip-hover-bg: rgba(6, 182, 212, 0.05);
+
+  --active-max-bg: rgba(168, 85, 247, 0.15);
+  --active-max-border: #a855f7;
+  --active-max-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+  --active-max-tag-border: rgba(168, 85, 247, 0.4);
+
+  --max-badge-text: #022;
+  --max-badge-bg: #a855f7;
+  --max-badge-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  --sidebar-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  --sidebar-shadow-mobile: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --sidebar-tab-active-hover-bg: rgba(6, 182, 212, 0.2);
+  --sidebar-tab-active-icon-shadow: drop-shadow(0 0 8px rgba(6, 182, 212, 0.5));
+
+  --delete-icon-color: #ff6262;
+  --modal-overlay-bg: rgba(0, 0, 0, 0.45);
+}
+
+.theme-light {
+  --bg: #f3f4f6;
+  --card: #ffffff;
+  --accent: #0284c7;
+  --muted: #000000;
+  --text: #000000;
+  --admin-off: #94a3b8;
+  --admin-on: #22c55e;
+  --delete-red: rgba(239, 68, 68, 0.8);
+
+  --html-bg: linear-gradient(180deg, #f8fafc, #e2e8f0);
+  --sidebar-bg: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --card-bg: #ffffff;
+  --input-bg: #f1f5f9;
+  --input-border: #cbd5e1;
+  --option-bg: #f8fafc;
+  --option-border: #e2e8f0;
+  --modal-input-bg: #f1f5f9;
+  --modal-input-border: #cbd5e1;
+  --type-btn-bg: #f1f5f9;
+  --type-btn-border: #cbd5e1;
+  --type-btn-hover: #e2e8f0;
+  --scrollbar-track: rgba(0, 0, 0, 0.03);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+
+  /* New Variables Light Mode */
+  --option-hover-bg: #e2e8f0;
+  --option-active-text: #fff;
+  --option-active-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  --option-dragging-shadow: 0 14px 35px rgba(0, 0, 0, 0.15);
+
+  --add-option-border: #cbd5e1;
+  --add-option-bg: #f1f5f9;
+  --add-option-text: #64748b;
+  --add-option-hover-bg: #e2e8f0;
+
+  --modal-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+
+  --tag-bg: #e2e8f0;
+  --tag-border: #cbd5e1;
+
+  --tool-btn-border: #cbd5e1;
+  --tool-btn-bg: #f1f5f9;
+  --tool-btn-hover-bg: #e2e8f0;
+
+  --clear-btn-bg: #e2e8f0;
+  --clear-btn-border: #cbd5e1;
+  --clear-btn-hover-bg: rgba(239, 68, 68, 0.2);
+  --clear-btn-hover-border: rgba(239, 68, 68, 0.4);
+
+  --save-btn-bg: rgba(2, 132, 199, 0.1);
+  --save-btn-border: rgba(2, 132, 199, 0.3);
+  --save-btn-hover-bg: rgba(2, 132, 199, 0.2);
+  --disabled-bg: #e2e8f0;
+  --disabled-text: #94a3b8;
+
+  --toggle-slider-bg: #cbd5e1;
+  --toggle-slider-knob: #fff;
+
+  --preset-list-bg: #f1f5f9;
+  --preset-chip-bg: #ffffff;
+  --preset-chip-hover-bg: #f8fafc;
+  --preset-chip-hover-border: #e2e8f0;
+
+  --preset-bar-bg: #ffffff;
+  --preset-bar-border: #e2e8f0;
+  --preset-bar-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  --preset-item-bg: #f8fafc;
+  --preset-item-border: #e2e8f0;
+  --preset-item-hover-bg: #f1f5f9;
+  --preset-item-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+
+  --add-preset-chip-border: #cbd5e1;
+  --add-preset-chip-text: #64748b;
+  --add-preset-chip-hover-bg: rgba(2, 132, 199, 0.05);
+
+  --active-max-bg: rgba(168, 85, 247, 0.1);
+  --active-max-border: #a855f7;
+  --active-max-shadow: 0 0 10px rgba(168, 85, 247, 0.15);
+  --active-max-tag-border: rgba(168, 85, 247, 0.3);
+
+  --max-badge-text: #fff;
+  --max-badge-bg: #a855f7;
+  --max-badge-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+
+  --sidebar-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+  --sidebar-tab-active-hover-bg: rgba(2, 132, 199, 0.1);
+  --sidebar-tab-active-icon-shadow: drop-shadow(0 0 8px rgba(2, 132, 199, 0.3));
+
+  --delete-icon-color: #ef4444;
+  --modal-overlay-bg: rgba(0, 0, 0, 0.2);
+
+  --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  --button-text-on-accent: #ffffff;
 }

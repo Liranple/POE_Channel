@@ -49,18 +49,18 @@ h1 {
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--card-bg);
   padding: 14px;
   border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--card-shadow);
 }
 
 .search-box {
   flex: 1;
   padding: 18px 40px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   color: var(--text);
   font-size: 20px;
   min-height: 60px;
@@ -74,7 +74,7 @@ h1 {
   box-shadow: none;
 }
 .search-box:focus {
-  border-color: rgba(255, 255, 255, 0.03) !important;
+  border-color: var(--input-border) !important;
   outline: none !important;
   box-shadow: none !important;
 }
@@ -103,13 +103,17 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  scrollbar-width: none;
+}
+.list::-webkit-scrollbar {
+  display: none;
 }
 
 .option {
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--option-bg);
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--option-border);
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;
@@ -118,6 +122,7 @@ h1 {
   justify-content: space-between;
   align-items: center;
   height: 50px;
+  flex-shrink: 0; /* 화면이 줄어들어도 높이 유지 */
   position: relative;
 }
 .option:active {
@@ -154,18 +159,18 @@ body.dragging-active .add-preset-chip {
 }
 
 .option:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--option-hover-bg);
 }
 .option.active {
   background: var(--accent);
-  color: #022;
+  color: var(--option-active-text);
   font-weight: 500;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--option-active-shadow);
 }
 
 .option.dragging {
   transform: scale(1.05);
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--option-dragging-shadow);
   cursor: grabbing;
   will-change: transform;
   backface-visibility: hidden;
@@ -198,7 +203,7 @@ body.dragging-active .add-preset-chip {
 }
 .option button.delete::before {
   content: "🗑";
-  color: #ff6262;
+  color: var(--delete-icon-color);
 }
 
 .delete-progress {
@@ -218,8 +223,8 @@ body.dragging-active .add-preset-chip {
   margin-top: 4px;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 2px solid rgba(180, 180, 180, 0.5);
-  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--add-option-border);
+  background: var(--add-option-bg);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -227,10 +232,10 @@ body.dragging-active .add-preset-chip {
   height: 46px;
   font-size: 30px;
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--add-option-text);
 }
 .add-option:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--add-option-hover-bg);
 }
 
 .admin-container {
@@ -269,7 +274,7 @@ body.dragging-active .add-preset-chip {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--modal-overlay-bg);
   backdrop-filter: blur(3px);
   justify-content: flex-end;
   align-items: center;
@@ -277,7 +282,7 @@ body.dragging-active .add-preset-chip {
 }
 
 .modal {
-  background: linear-gradient(180deg, #0c0d10, #1a1d22);
+  background: var(--html-bg);
   padding: 26px;
   border-radius: 14px 0 0 14px;
   max-width: 420px;
@@ -286,8 +291,8 @@ body.dragging-active .add-preset-chip {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.55);
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: var(--modal-shadow);
+  border-left: 1px solid var(--sidebar-border);
   animation: slideIn 320ms cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
@@ -313,8 +318,8 @@ body.dragging-active .add-preset-chip {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--modal-input-border);
+  background: var(--modal-input-bg);
   color: var(--text);
   font-size: 16px;
   margin-top: 4px;
@@ -334,19 +339,19 @@ body.dragging-active .add-preset-chip {
   justify-content: center;
   align-items: center;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--type-btn-border);
+  background: var(--type-btn-bg);
   color: var(--text);
   font-size: 15px;
   cursor: pointer;
   transition: 0.15s;
 }
 .type-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--type-btn-hover);
 }
 .type-btn.active {
   background: var(--accent);
-  color: #022;
+  color: var(--button-text-on-accent);
   border-color: var(--accent);
   font-weight: 700;
 }
@@ -362,9 +367,9 @@ body.dragging-active .add-preset-chip {
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 12px;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--tag-bg);
   color: var(--text);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid var(--tag-border);
   white-space: nowrap;
   font-weight: 500;
 }
@@ -469,7 +474,7 @@ body.dragging-active .add-preset-chip {
   border: none;
   border-radius: 40px;
   background: var(--accent);
-  color: #022;
+  color: var(--button-text-on-accent);
   font-size: 18px;
   font-weight: 800;
   cursor: pointer;
@@ -479,8 +484,8 @@ body.dragging-active .add-preset-chip {
   filter: brightness(1.15);
 }
 #modalSave:disabled {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.3);
+  background: var(--disabled-bg);
+  color: var(--disabled-text);
   cursor: not-allowed;
   filter: none;
 }
@@ -506,15 +511,15 @@ body.dragging-active .add-preset-chip {
 .tool-btn {
   padding: 6px 12px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--tool-btn-border);
+  background: var(--tool-btn-bg);
   color: var(--text);
   font-size: 14px;
   cursor: pointer;
   transition: 0.2s;
 }
 .tool-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--tool-btn-hover-bg);
 }
 
 .clear-btn-inside {
@@ -522,9 +527,9 @@ body.dragging-active .add-preset-chip {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--clear-btn-bg);
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--clear-btn-border);
   color: var(--muted);
   font-size: 24px;
   width: 32px;
@@ -539,19 +544,19 @@ body.dragging-active .add-preset-chip {
   padding-top: 2px;
 }
 .clear-btn-inside:hover {
-  background: rgba(255, 98, 98, 0.3);
+  background: var(--clear-btn-hover-bg);
   color: #ff6262;
-  border-color: rgba(255, 98, 98, 0.4);
+  border-color: var(--clear-btn-hover-border);
 }
 
 .save-btn {
-  background: rgba(6, 182, 212, 0.1);
+  background: var(--save-btn-bg);
   color: var(--accent);
-  border-color: rgba(6, 182, 212, 0.3);
+  border-color: var(--save-btn-border);
   font-weight: 700;
 }
 .save-btn:hover {
-  background: rgba(6, 182, 212, 0.2);
+  background: var(--save-btn-hover-bg);
 }
 
 /* 토글 스위치 */
@@ -568,7 +573,7 @@ body.dragging-active .add-preset-chip {
 .toggle-switch .slider {
   width: 36px;
   height: 20px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--toggle-slider-bg);
   border-radius: 20px;
   position: relative;
   transition: 0.3s;
@@ -578,7 +583,7 @@ body.dragging-active .add-preset-chip {
   position: absolute;
   width: 16px;
   height: 16px;
-  background: #aaa;
+  background: var(--toggle-slider-knob);
   border-radius: 50%;
   top: 2px;
   left: 2px;
@@ -607,13 +612,13 @@ body.dragging-active .add-preset-chip {
   gap: 8px;
   margin-bottom: 12px;
   padding: 8px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--preset-list-bg);
   border-radius: 8px;
 }
 .preset-chip {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--preset-chip-bg);
   border-radius: 4px;
   padding-left: 8px;
   font-size: 13px;
@@ -621,8 +626,8 @@ body.dragging-active .add-preset-chip {
   border: 1px solid transparent;
 }
 .preset-chip:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--preset-chip-hover-bg);
+  border-color: var(--preset-chip-hover-border);
 }
 .preset-chip span {
   cursor: pointer;
@@ -725,14 +730,14 @@ body.dragging-active .add-preset-chip {
 
 /* 프리셋 바 (가로 스크롤 스타일) */
 .preset-bar-container {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--preset-bar-bg);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--preset-bar-border);
   padding: 12px 16px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--preset-bar-shadow);
   height: 55px;
 }
 
@@ -786,8 +791,8 @@ body.dragging-active .add-preset-chip {
   flex-shrink: 0;
   height: 36px;
   padding: 0 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--preset-item-bg);
+  border: 1px solid var(--preset-item-border);
   border-radius: 18px;
   display: flex;
   align-items: center;
@@ -799,9 +804,9 @@ body.dragging-active .add-preset-chip {
   position: relative;
 }
 .preset-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--preset-item-hover-bg);
   border-color: var(--accent);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--preset-item-shadow);
 }
 .preset-item:active {
   transform: translateY(0);
@@ -853,9 +858,9 @@ body.dragging-active .add-preset-chip {
   height: 36px;
   padding: 0 16px;
   border-radius: 18px;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border: 1px dashed var(--add-preset-chip-border);
   background: transparent;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--add-preset-chip-text);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -867,7 +872,7 @@ body.dragging-active .add-preset-chip {
 .add-preset-chip:hover {
   border-color: var(--accent);
   color: var(--accent);
-  background: rgba(6, 182, 212, 0.05);
+  background: var(--add-preset-chip-hover-bg);
 }
 
 .no-preset-msg {

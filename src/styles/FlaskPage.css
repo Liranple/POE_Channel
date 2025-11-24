@@ -381,21 +381,21 @@ body.dragging-active .add-preset-chip {
   color: var(--text) !important;
 }
 .tag-life {
-  background: #b83333;
-  border-color: #d14c4c;
+  background: #b83333 !important;
+  border-color: #d14c4c !important;
 }
 .tag-mana {
-  background: #2f4fb8;
-  border-color: #4e6be0;
+  background: #2f4fb8 !important;
+  border-color: #4e6be0 !important;
 }
 /* 더 진한 초록색으로 변경 */
 .tag-special {
-  background: #187a2c;
-  border-color: #1e9a36;
+  background: #187a2c !important;
+  border-color: #1e9a36 !important;
 }
 .tag-tincture {
-  background: #8a5a2f;
-  border-color: #b27a46;
+  background: #8a5a2f !important;
+  border-color: #b27a46 !important;
 }
 
 .type-life {

@@ -1,5 +1,27 @@
 import useHoldDelete from "../hooks/useHoldDelete";
 
+const JEWEL_TYPE_MAP = {
+  // English keys (for backward compatibility)
+  basicstr: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicstr.webp",
+  basicdex: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
+  basicint: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicint.webp",
+  MurderousEye:
+    "https://cdn.poedb.tw/image/Art/2DItems/Jewels/MurderousEye.webp",
+  SearchingEye:
+    "https://cdn.poedb.tw/image/Art/2DItems/Jewels/SearchingEye.webp",
+  RivetedEye: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/RivetedEye.webp",
+  GhastlyEye: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GhastlyEye.webp",
+
+  // Korean keys
+  진홍: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicstr.webp",
+  진청록: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
+  코발트: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicint.webp",
+  살인적인: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/MurderousEye.webp",
+  탐색하는: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/SearchingEye.webp",
+  최면거는: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/RivetedEye.webp",
+  무시무시한: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GhastlyEye.webp",
+};
+
 export default function OptionItem({
   opt,
   listId,
@@ -46,12 +68,24 @@ export default function OptionItem({
             .filter(Boolean)
             .sort((a, b) => {
               const order = ["생명력", "마나", "특수", "팅크"];
+              // Jewel types order doesn't matter much, but let's keep them together
               return order.indexOf(a) - order.indexOf(b);
             })
             .map((type, idx) => {
               let className = "option-tag";
               let label = type;
-              if (type === "생명력") {
+              let style = {};
+
+              if (JEWEL_TYPE_MAP[type]) {
+                className += ` tag-jewel`;
+                label = (
+                  <img
+                    src={JEWEL_TYPE_MAP[type]}
+                    alt={type}
+                    style={{ width: "24px", height: "24px", display: "block" }}
+                  />
+                );
+              } else if (type === "생명력") {
                 className += " tag-life";
                 label = "HP";
               } else if (type === "마나") {
@@ -65,7 +99,7 @@ export default function OptionItem({
                 label = "TK";
               }
               return (
-                <div key={idx} className={className}>
+                <div key={idx} className={className} style={style}>
                   {label}
                 </div>
               );

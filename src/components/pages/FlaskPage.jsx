@@ -1003,6 +1003,7 @@ export default function FlaskPage() {
                 }}
                 placeholder="프리셋 이름을 입력하세요"
                 autoFocus
+                autoComplete="off"
               />
             </div>
             <button
@@ -1055,6 +1056,8 @@ export default function FlaskPage() {
                 onChange={(e) =>
                   setModalData({ ...modalData, optionText: e.target.value })
                 }
+                placeholder="옵션의 이름을 입력하세요"
+                autoComplete="off"
               />
             </div>
 
@@ -1066,6 +1069,8 @@ export default function FlaskPage() {
                 onChange={(e) =>
                   setModalData({ ...modalData, filterRegex: e.target.value })
                 }
+                placeholder="기본 정규식을 입력하세요"
+                autoComplete="off"
               />
             </div>
 
@@ -1077,6 +1082,8 @@ export default function FlaskPage() {
                 onChange={(e) =>
                   setModalData({ ...modalData, maxRollRegex: e.target.value })
                 }
+                placeholder="Max roll 정규식을 입력하세요"
+                autoComplete="off"
               />
             </div>
 
@@ -1088,6 +1095,8 @@ export default function FlaskPage() {
                 onChange={(e) =>
                   setModalData({ ...modalData, itemLevel: e.target.value })
                 }
+                placeholder="아이템 레벨을 입력하세요"
+                autoComplete="off"
               />
             </div>
 

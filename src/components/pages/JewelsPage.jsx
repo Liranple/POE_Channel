@@ -609,7 +609,7 @@ export default function JewelsPage() {
         if (!isDragging) return;
 
         const cx = ev.type === "touchmove" ? ev.touches[0].clientX : ev.clientX;
-        const cy = ev.type === "touchmove" ? ev.touches[0].clientY : ev.clientY;
+        const cy = ev.type === "touchmove" ? ev.touches[0].clientY : e.clientY;
 
         const deltaX = cx - initialMouseX;
         const deltaY = cy - initialMouseY;
@@ -697,30 +697,29 @@ export default function JewelsPage() {
     scrollRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
-  const prefixScroll = useDraggableScroll(!adminMode);
-  const suffixScroll = useDraggableScroll(!adminMode);
-  const corruptedScroll = useDraggableScroll(!adminMode);
+  // const prefixScroll = useDraggableScroll(!adminMode);
+  // const suffixScroll = useDraggableScroll(!adminMode);
+  // const corruptedScroll = useDraggableScroll(!adminMode);
 
   return (
-    <>
-      <div className="wrap">
-        <header>
-          <h1>★ 주얼 태그 빌더</h1>
-          <div className="admin-container">
-            <span style={{ color: "var(--text)", fontWeight: 700 }}>
-              관리자 모드
-            </span>
-            <button
-              id="adminBtn"
-              className={`admin-toggle ${adminMode ? "on" : ""}`}
-              onClick={() => setAdminMode(!adminMode)}
-            >
-              <span className="circle"></span>
-            </button>
-          </div>
-        </header>
-
-        <div className={`page-layout ${adminMode ? "admin-mode" : ""}`}>
+    <div className="jewels-page-wrapper">
+      <div className="sticky-top-area">
+        <div className="wrap" style={{ paddingBottom: 0 }}>
+          <header>
+            <h1>★ 주얼 태그 빌더</h1>
+            <div className="admin-container">
+              <span style={{ color: "var(--text)", fontWeight: 700 }}>
+                관리자 모드
+              </span>
+              <button
+                id="adminBtn"
+                className={`admin-toggle ${adminMode ? "on" : ""}`}
+                onClick={() => setAdminMode(!adminMode)}
+              >
+                <span className="circle"></span>
+              </button>
+            </div>
+          </header>
           <div
             className="preset-bar-container"
             style={{ position: "relative" }}
@@ -761,37 +760,43 @@ export default function JewelsPage() {
             </button>
           </div>
 
-          <div className="builder-content">
-            <div className="card" style={{ marginBottom: 24 }}>
-              <div className="result-input-wrapper" onClick={handleCopy}>
-                <input
-                  id="result"
-                  className="search-box"
-                  readOnly
-                  placeholder="선택한 옵션 정규식이 여기 표시됩니다"
-                  value={resultText}
-                />
-                {selected.length > 0 && (
-                  <button
-                    className="clear-btn-inside"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleClear();
-                    }}
-                  >
-                    ×
-                  </button>
-                )}
-                {showCopyToast && (
-                  <div className="copy-toast">복사되었습니다!</div>
-                )}
-              </div>
+          <div className="card result-card" style={{ marginBottom: 0 }}>
+            <div className="result-input-wrapper" onClick={handleCopy}>
+              <input
+                id="result"
+                className="search-box"
+                readOnly
+                placeholder="선택한 옵션 정규식이 여기 표시됩니다"
+                value={resultText}
+              />
+              {selected.length > 0 && (
+                <button
+                  className="clear-btn-inside"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClear();
+                  }}
+                >
+                  ×
+                </button>
+              )}
+              {showCopyToast && (
+                <div className="copy-toast">복사되었습니다!</div>
+              )}
             </div>
+          </div>
+        </div>
+      </div>
 
+      <div className="wrap">
+        <div
+          className={`page-layout jewels-page ${adminMode ? "admin-mode" : ""}`}
+        >
+          <div className="builder-content">
             {/* 타락 옵션 영역 */}
             <div className="card corrupted-section">
               <div className="section-title">타락 옵션</div>
-              <div id="corruptedList" className="list" {...corruptedScroll}>
+              <div id="corruptedList" className="list">
                 {corruptedData.map((opt) => (
                   <OptionItem
                     key={opt.id}
@@ -818,11 +823,11 @@ export default function JewelsPage() {
               </div>
             </div>
 
-            <div className="card">
+            <div className="options-container">
               <div className="layout">
-                <div>
+                <div className="card">
                   <div className="section-title">접두 옵션</div>
-                  <div id="prefixList" className="list" {...prefixScroll}>
+                  <div id="prefixList" className="list">
                     {prefixData.map((opt) => (
                       <OptionItem
                         key={opt.id}
@@ -848,9 +853,9 @@ export default function JewelsPage() {
                     )}
                   </div>
                 </div>
-                <div>
+                <div className="card">
                   <div className="section-title">접미 옵션</div>
-                  <div id="suffixList" className="list" {...suffixScroll}>
+                  <div id="suffixList" className="list">
                     {suffixData.map((opt) => (
                       <OptionItem
                         key={opt.id}
@@ -1028,6 +1033,6 @@ export default function JewelsPage() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

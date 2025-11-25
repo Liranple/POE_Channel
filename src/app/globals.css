@@ -154,7 +154,7 @@ body {
   flex: 1;
   overflow: auto;
   background: transparent;
-  padding: 20px;
+  /* padding: 20px; removed to allow sticky elements to reach top */
   scrollbar-gutter: stable; /* 스크롤바 밀림 방지 */
 }
 

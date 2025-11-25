@@ -15,6 +15,7 @@ const JEWEL_TYPE_MAP = {
   // Korean keys
   진홍: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicstr.webp",
   진청록: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
+  진청록색: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
   코발트: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicint.webp",
   살인적인: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/MurderousEye.webp",
   탐색하는: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/SearchingEye.webp",
@@ -76,29 +77,32 @@ export default function OptionItem({
               return order.indexOf(a) - order.indexOf(b);
             })
             .map((type, idx) => {
+              const normalizedType = type.normalize
+                ? type.normalize("NFC")
+                : type;
               let className = "option-tag";
-              let label = type;
+              let label = normalizedType;
               let style = {};
 
-              if (JEWEL_TYPE_MAP[type]) {
+              if (JEWEL_TYPE_MAP[normalizedType]) {
                 className += ` tag-jewel`;
                 label = (
                   <img
-                    src={JEWEL_TYPE_MAP[type]}
-                    alt={type}
+                    src={JEWEL_TYPE_MAP[normalizedType]}
+                    alt={normalizedType}
                     style={{ width: "24px", height: "24px", display: "block" }}
                   />
                 );
-              } else if (type === "생명력") {
+              } else if (normalizedType === "생명력") {
                 className += " tag-life";
                 label = "HP";
-              } else if (type === "마나") {
+              } else if (normalizedType === "마나") {
                 className += " tag-mana";
                 label = "MP";
-              } else if (type === "특수") {
+              } else if (normalizedType === "특수") {
                 className += " tag-special";
                 label = "SP";
-              } else if (type === "팅크") {
+              } else if (normalizedType === "팅크") {
                 className += " tag-tincture";
                 label = "TK";
               }

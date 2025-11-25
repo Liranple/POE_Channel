@@ -808,25 +808,24 @@ export default function FlaskPage() {
   const suffixScroll = useDraggableScroll(!adminMode);
 
   return (
-    <>
-      <div className="wrap">
-        <header>
-          <h1>★ 플라스크 태그 빌더</h1>
-          <div className="admin-container">
-            <span style={{ color: "var(--text)", fontWeight: 700 }}>
-              관리자 모드
-            </span>
-            <button
-              id="adminBtn"
-              className={`admin-toggle ${adminMode ? "on" : ""}`}
-              onClick={() => setAdminMode(!adminMode)}
-            >
-              <span className="circle"></span>
-            </button>
-          </div>
-        </header>
-
-        <div className={`page-layout ${adminMode ? "admin-mode" : ""}`}>
+    <div className="flask-page-wrapper">
+      <div className="sticky-top-area">
+        <div className="wrap" style={{ paddingBottom: 0 }}>
+          <header>
+            <h1>★ 플라스크 태그 빌더</h1>
+            <div className="admin-container">
+              <span style={{ color: "var(--text)", fontWeight: 700 }}>
+                관리자 모드
+              </span>
+              <button
+                id="adminBtn"
+                className={`admin-toggle ${adminMode ? "on" : ""}`}
+                onClick={() => setAdminMode(!adminMode)}
+              >
+                <span className="circle"></span>
+              </button>
+            </div>
+          </header>
           {/* 상단 프리셋 바 (가로 스크롤) */}
           <div
             className="preset-bar-container"
@@ -868,59 +867,65 @@ export default function FlaskPage() {
             </button>
           </div>
 
+          {/* 선택 결과 영역 */}
+          <div className="card result-card" style={{ marginBottom: 0 }}>
+            {/* 툴바 제거됨 */}
+
+            <div className="result-input-wrapper" onClick={handleCopy}>
+              <input
+                id="result"
+                className="search-box"
+                readOnly
+                placeholder="선택한 옵션 정규식이 여기 표시됩니다"
+                value={resultText}
+                // style={{ paddingRight: "40px" }} // CSS에서 padding 처리함
+              />
+              {selected.length > 0 && (
+                <button
+                  className="clear-btn-inside"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClear();
+                  }}
+                >
+                  ×
+                </button>
+              )}
+              {showCopyToast && (
+                <div className="copy-toast">복사되었습니다!</div>
+              )}
+            </div>
+            <div
+              style={{
+                marginTop: "10px",
+                textAlign: "center",
+                fontSize: "16px",
+                fontWeight: 600,
+                padding: "4px 0",
+                color:
+                  selected.length === 0
+                    ? "#7a8a9a"
+                    : itemRequirement.isError
+                    ? "#ff6262"
+                    : "var(--accent)",
+              }}
+            >
+              {itemRequirement.text}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wrap">
+        <div
+          className={`page-layout flask-page ${adminMode ? "admin-mode" : ""}`}
+        >
           {/* 빌더 콘텐츠 */}
           <div className="builder-content">
-            {/* 선택 결과 영역 */}
-            <div className="card" style={{ marginBottom: 24 }}>
-              {/* 툴바 제거됨 */}
-
-              <div className="result-input-wrapper" onClick={handleCopy}>
-                <input
-                  id="result"
-                  className="search-box"
-                  readOnly
-                  placeholder="선택한 옵션 정규식이 여기 표시됩니다"
-                  value={resultText}
-                  // style={{ paddingRight: "40px" }} // CSS에서 padding 처리함
-                />
-                {selected.length > 0 && (
-                  <button
-                    className="clear-btn-inside"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleClear();
-                    }}
-                  >
-                    ×
-                  </button>
-                )}
-                {showCopyToast && (
-                  <div className="copy-toast">복사되었습니다!</div>
-                )}
-              </div>
-              <div
-                style={{
-                  marginTop: "10px",
-                  textAlign: "center",
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  padding: "4px 0",
-                  color:
-                    selected.length === 0
-                      ? "#7a8a9a"
-                      : itemRequirement.isError
-                      ? "#ff6262"
-                      : "var(--accent)",
-                }}
-              >
-                {itemRequirement.text}
-              </div>
-            </div>
-
             {/* 옵션 선택 영역 */}
-            <div className="card">
+            <div className="options-container">
               <div className="layout">
-                <div>
+                <div className="card">
                   <div className="section-title">접두 옵션</div>
                   <div id="prefixList" className="list" {...prefixScroll}>
                     {prefixData.map((opt) => (
@@ -948,7 +953,7 @@ export default function FlaskPage() {
                     )}
                   </div>
                 </div>
-                <div>
+                <div className="card">
                   <div className="section-title">접미 옵션</div>
                   <div id="suffixList" className="list" {...suffixScroll}>
                     {suffixData.map((opt) => (
@@ -1150,6 +1155,6 @@ export default function FlaskPage() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

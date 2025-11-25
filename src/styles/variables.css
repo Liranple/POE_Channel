@@ -94,6 +94,9 @@
 
   --delete-icon-color: #ff6262;
   --modal-overlay-bg: rgba(0, 0, 0, 0.45);
+
+  --sticky-shadow-color: #0c0d10;
+  --box-shadow-common: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .theme-light {
@@ -193,4 +196,7 @@
 
   --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   --button-text-on-accent: #ffffff;
+
+  --sticky-shadow-color: #f8fafc;
+  --box-shadow-common: 0 4px 12px rgba(0, 0, 0, 0.05);
 }

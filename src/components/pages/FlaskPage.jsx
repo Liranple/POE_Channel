@@ -896,12 +896,8 @@ export default function FlaskPage() {
               )}
             </div>
             <div
+              className="info-text-row"
               style={{
-                marginTop: "10px",
-                textAlign: "center",
-                fontSize: "16px",
-                fontWeight: 600,
-                padding: "4px 0",
                 color:
                   selected.length === 0
                     ? "#7a8a9a"

@@ -1,7 +1,7 @@
 /* ==================== Page Content Styles ==================== */
 
 .jewels-page-wrapper .page-content {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   animation: fadeIn 0.3s ease-out;
   padding: 20px;
@@ -32,7 +32,7 @@
 }
 
 .jewels-page-wrapper .wrap {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   animation: fadeIn 0.3s ease-out;
   padding: 0 20px 20px 20px;
@@ -294,6 +294,12 @@ body.dragging-active .add-preset-chip {
   box-shadow: var(--modal-shadow);
   border-left: 1px solid var(--sidebar-border);
   animation: slideIn 320ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.preset-modal {
+  height: auto;
+  border-radius: 14px;
+  border: 1px solid var(--sidebar-border);
 }
 
 .modal-title {

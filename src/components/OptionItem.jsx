@@ -105,6 +105,12 @@ export default function OptionItem({
               } else if (normalizedType === "팅크") {
                 className += " tag-tincture";
                 label = "TK";
+              } else if (normalizedType === "Top") {
+                className += " tag-top";
+                label = "Top";
+              } else if (normalizedType === "Uber") {
+                className += " tag-uber";
+                label = "Uber";
               }
               return (
                 <div key={idx} className={className} style={style}>

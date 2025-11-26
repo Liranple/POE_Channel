@@ -1,20 +1,20 @@
 /* ==================== Page Content Styles ==================== */
 
-.flask-page-wrapper .page-content {
+.maps-page-wrapper .page-content {
   max-width: 1200px;
   margin: 0 auto;
   animation: fadeIn 0.3s ease-out;
   padding: 20px;
 }
 
-.flask-page-wrapper .page-content h1 {
+.maps-page-wrapper .page-content h1 {
   font-size: 32px;
   font-weight: 800;
   color: var(--accent);
   margin-bottom: 16px;
 }
 
-.flask-page-wrapper .page-content p {
+.maps-page-wrapper .page-content p {
   font-size: 16px;
   color: var(--muted);
   line-height: 1.6;
@@ -23,43 +23,41 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    /* transform: translateY(10px); removed to fix background-attachment: fixed issue */
   }
   to {
     opacity: 1;
-    /* transform: translateY(0); removed */
   }
 }
 
-.flask-page-wrapper .wrap {
+.maps-page-wrapper .wrap {
   max-width: 1200px;
   margin: 0 auto;
   animation: fadeIn 0.3s ease-out;
   padding: 0 20px 20px 20px;
 }
 
-.flask-page-wrapper header {
+.maps-page-wrapper header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 18px;
 }
 
-.flask-page-wrapper h1 {
+.maps-page-wrapper h1 {
   font-size: 18px;
   margin: 0;
 }
 
-.flask-page-wrapper .card {
+.maps-page-wrapper .card {
   background: var(--card-bg);
   padding: 14px;
   border-radius: 10px;
   box-shadow: none;
 }
 
-.flask-page-wrapper .search-box {
+.maps-page-wrapper .search-box {
   flex: 1;
-  padding: 18px 40px; /* 좌우 패딩 동일하게 설정하여 텍스트 중앙 정렬 */
+  padding: 18px 40px;
   border-radius: 8px;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
@@ -70,20 +68,18 @@
   text-align: center;
   font-weight: 700;
   width: 100%;
-  outline: none; /* 포커스 시 테두리 제거 */
-  user-select: none; /* 텍스트 선택 방지 */
+  outline: none;
+  user-select: none;
   cursor: pointer;
-  box-shadow: none; /* 그림자 제거 */
+  box-shadow: none;
 }
-.flask-page-wrapper .search-box:focus {
-  border-color: var(
-    --input-border
-  ) !important; /* 포커스 시 테두리 색상 변경 방지 */
+.maps-page-wrapper .search-box:focus {
+  border-color: var(--input-border) !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
-.flask-page .layout {
+.maps-page-wrapper .layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
@@ -97,7 +93,7 @@
   padding-left: 2px;
 }
 
-.flask-page .list {
+.maps-page-wrapper .list {
   max-height: none;
   overflow: visible;
   margin-top: 10px;
@@ -106,34 +102,33 @@
   gap: 8px;
 }
 
-.flask-page-wrapper .option {
+.maps-page-wrapper .option {
   padding: 10px 12px;
   background: var(--option-bg);
   border-radius: 8px;
   border: 1px solid var(--option-border);
-  cursor: pointer; /* 기본 커서 포인터로 변경 */
+  cursor: pointer;
   font-size: 15px;
-  font-weight: 500; /* 기본 폰트 웨이트 500 설정 */
+  font-weight: 500;
   line-height: 1.4;
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 50px;
-  flex-shrink: 0; /* 화면이 줄어들어도 높이 유지 */
+  flex-shrink: 0;
   position: relative;
 }
-.flask-page-wrapper .option:active {
-  /* cursor: grabbing; 제거 - admin 모드에서만 적용 */
-  transform: scale(0.99); /* 클릭 효과 추가 */
+.maps-page-wrapper .option:active {
+  transform: scale(0.99);
 }
 
 /* Admin Mode Styles */
-.flask-page-wrapper .admin-mode .option {
+.maps-page-wrapper .admin-mode .option {
   cursor: grab;
 }
-.flask-page-wrapper .admin-mode .option:active {
+.maps-page-wrapper .admin-mode .option:active {
   cursor: grabbing;
-  transform: none; /* 관리자 모드에서 클릭 효과 제거 */
+  transform: none;
 }
 
 /* Global Dragging Styles */
@@ -144,7 +139,6 @@ body.dragging-active {
 body.dragging-active * {
   cursor: grabbing !important;
 }
-/* 드래그 중 호버 효과 방지 */
 body.dragging-active .option,
 body.dragging-active .preset-item,
 body.dragging-active .preset-action-btn,
@@ -157,21 +151,20 @@ body.dragging-active .add-preset-chip {
   top: -1px;
 }
 
-.option:hover {
+.maps-page-wrapper .option:hover {
   background: var(--option-hover-bg);
 }
-.option.active {
+.maps-page-wrapper .option.active {
   background: var(--accent);
   color: var(--option-active-text);
-  font-weight: 500; /* 활성화 시에도 500 유지 */
+  font-weight: 500;
   box-shadow: var(--option-active-shadow);
 }
 
-.option.dragging {
+.maps-page-wrapper .option.dragging {
   transform: scale(1.05);
   box-shadow: var(--option-dragging-shadow);
   cursor: grabbing;
-  /* GPU 가속 최적화 */
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -179,29 +172,29 @@ body.dragging-active .add-preset-chip {
   -webkit-transform-style: preserve-3d;
 }
 
-.option .buttons {
+.maps-page-wrapper .option .buttons {
   display: flex;
   gap: 6px;
   margin-left: auto;
   pointer-events: all;
 }
-.option button {
+.maps-page-wrapper .option button {
   display: none;
   padding: 6px;
   border: none;
   border-radius: 4px;
-  cursor: pointer; /* 버튼은 포인터 유지 */
+  cursor: pointer;
   font-size: 20px;
   background: none;
   color: var(--text);
 }
-.option button.edit:hover {
+.maps-page-wrapper .option button.edit:hover {
   color: var(--accent);
 }
-.option button.edit::before {
+.maps-page-wrapper .option button.edit::before {
   content: "✎";
 }
-.option button.delete::before {
+.maps-page-wrapper .option button.delete::before {
   content: "🗑";
   color: var(--delete-icon-color);
 }
@@ -377,79 +370,123 @@ body.dragging-active .add-preset-chip {
   color: var(--text);
   border: 1px solid var(--tag-border);
   white-space: nowrap;
-  font-weight: 500; /* 라벨 폰트 웨이트 500 설정 */
-}
-.type-btn {
-  display: flex;
-  align-items: center;
-  padding-top: 4px;
-  background: var(--type-btn-bg) !important;
-  border-color: var(--type-btn-border) !important;
-  color: var(--text) !important;
-}
-.tag-life {
-  background: #b83333 !important;
-  border-color: #d14c4c !important;
-  color: white !important;
-}
-.tag-mana {
-  background: #2f4fb8 !important;
-  border-color: #4e6be0 !important;
-  color: white !important;
-}
-/* 더 진한 초록색으로 변경 */
-.tag-special {
-  background: #187a2c !important;
-  border-color: #1e9a36 !important;
-  color: white !important;
-}
-.tag-tincture {
-  background: #8a5a2f !important;
-  border-color: #b27a46 !important;
-  color: white !important;
+  font-weight: 500;
 }
 
-.type-life {
+.option.active-max .option-tag {
+  border-color: var(--active-max-tag-border);
+}
+
+.max-badge {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--max-badge-text);
+  background: var(--max-badge-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  vertical-align: middle;
+  box-shadow: var(--max-badge-shadow);
+  position: absolute;
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Type Colors */
+.tag-생명력,
+.type-생명력 {
   background: #b83333;
   border-color: #d14c4c;
   color: white;
 }
-.type-mana {
+.tag-마나,
+.type-마나 {
   background: #2f4fb8;
   border-color: #4e6be0;
   color: white;
 }
-/* 더 진한 초록색으로 변경 */
-.type-special {
-  background: #187a2c;
-  border-color: #1e9a36;
+.tag-특수,
+.type-특수 {
+  background: #5c33b8;
+  border-color: #764cd1;
   color: white;
 }
-.type-tincture {
-  background: #8a5a2f;
-  border-color: #b27a46;
+.tag-저항,
+.type-저항 {
+  background: #b88a33;
+  border-color: #d1a34c;
   color: white;
 }
-.type-btn.active.type-life {
+.tag-방어,
+.type-방어 {
+  background: #338ab8;
+  border-color: #4ca3d1;
+  color: white;
+}
+.tag-치명타,
+.type-치명타 {
+  background: #33b85c;
+  border-color: #4cd176;
+  color: white;
+}
+.tag-속도,
+.type-속도 {
+  background: #b8338a;
+  border-color: #d14ca3;
+  color: white;
+}
+.tag-Top,
+.tag-top,
+.type-Top {
+  background: #b83333;
+  border-color: #d14c4c;
+  color: white;
+}
+.tag-Uber,
+.tag-uber,
+.type-Uber {
+  background: #6a0dad;
+  border-color: #8a2be2;
+  color: white;
+}
+
+.type-btn.active.type-생명력 {
   background: #b83333 !important;
   border-color: #d14c4c !important;
-  color: white !important;
 }
-.type-btn.active.type-mana {
+.type-btn.active.type-마나 {
   background: #2f4fb8 !important;
   border-color: #4e6be0 !important;
-  color: white !important;
 }
-/* 더 진한 초록색으로 변경 */
-.type-btn.active.type-special {
-  background: #187a2c !important;
-  border-color: #1e9a36 !important;
-  color: white !important;
+.type-btn.active.type-특수 {
+  background: #5c33b8 !important;
+  border-color: #764cd1 !important;
 }
-.type-btn.active.type-tincture {
-  background: #8a5a2f !important;
-  border-color: #b27a46 !important;
-  color: white !important;
+.type-btn.active.type-저항 {
+  background: #b88a33 !important;
+  border-color: #d1a34c !important;
+}
+.type-btn.active.type-방어 {
+  background: #338ab8 !important;
+  border-color: #4ca3d1 !important;
+}
+.type-btn.active.type-치명타 {
+  background: #33b85c !important;
+  border-color: #4cd176 !important;
+}
+.type-btn.active.type-속도 {
+  background: #b8338a !important;
+  border-color: #d14ca3 !important;
+}
+.type-btn.active.type-Top {
+  background: #b83333 !important;
+  border-color: #d14c4c !important;
+}
+.type-btn.active.type-Uber {
+  background: #6a0dad !important;
+  border-color: #8a2be2 !important;
 }
 
 #modalSave {
@@ -511,21 +548,21 @@ body.dragging-active .add-preset-chip {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  background: var(--clear-btn-bg); /* 배경 밝기 증가 */
-  border-radius: 50%; /* 원형 */
+  background: var(--clear-btn-bg);
+  border-radius: 50%;
   border: 1px solid var(--clear-btn-border);
   color: var(--muted);
-  font-size: 24px; /* 크기 증가 */
-  width: 32px; /* 크기 증가 */
-  height: 32px; /* 크기 증가 */
+  font-size: 24px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: 0.2s;
   z-index: 10;
-  opacity: 1; /* 투명도 제거 */
-  padding-top: 2px; /* 텍스트 수직 정렬 보정 */
+  opacity: 1;
+  padding-top: 2px;
 }
 .clear-btn-inside:hover {
   background: var(--clear-btn-hover-bg);
@@ -640,32 +677,14 @@ body.dragging-active .add-preset-chip {
 }
 .result-input-wrapper input {
   cursor: pointer;
-  outline: none; /* 포커스 시 테두리 제거 */
-  box-shadow: none; /* 포커스 시 그림자 제거 */
+  outline: none;
+  box-shadow: none;
 }
 .result-input-wrapper input:focus {
   outline: none !important;
-  border-color: rgba(
-    255,
-    255,
-    255,
-    0.03
-  ) !important; /* 포커스 시 테두리 색상 변경 방지 */
+  border-color: rgba(255, 255, 255, 0.03) !important;
   box-shadow: none !important;
 }
-
-.info-text-row {
-  margin-top: 12px;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 4px 0;
-  min-height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .copy-toast {
   position: absolute;
   top: 50%;
@@ -721,13 +740,13 @@ body.dragging-active .add-preset-chip {
   margin-left: auto;
 }
 
-/* ==================== 플라스크 페이지 레이아웃 ==================== */
+/* ==================== 지도 페이지 레이아웃 ==================== */
 
 .page-layout {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  gap: 24px;
+  min-height: calc(100vh - 100px);
 }
 
 .builder-content {
@@ -735,25 +754,10 @@ body.dragging-active .add-preset-chip {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  /* overflow: hidden; removed */
-}
-
-.flask-page .card:last-child {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.flask-page .layout > div {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
 }
 
 /* 프리셋 바 (가로 스크롤 스타일) */
-.flask-page-wrapper .preset-bar-container {
+.maps-page-wrapper .preset-bar-container {
   background: var(--preset-bar-bg);
   border-radius: 12px;
   border: 1px solid var(--preset-bar-border);
@@ -766,7 +770,7 @@ body.dragging-active .add-preset-chip {
   margin-bottom: 12px;
 }
 
-.flask-page-wrapper .preset-label {
+.maps-page-wrapper .preset-label {
   font-size: 14px;
   padding-bottom: 4px;
   font-weight: 700;
@@ -776,12 +780,12 @@ body.dragging-active .add-preset-chip {
   align-items: center;
   gap: 8px;
 }
-.flask-page-wrapper .preset-label::before {
+.maps-page-wrapper .preset-label::before {
   content: "★";
   font-size: 16px;
 }
 
-.flask-page-wrapper .preset-scroll-area {
+.maps-page-wrapper .preset-scroll-area {
   flex: 1;
   display: flex;
   gap: 10px;
@@ -791,12 +795,12 @@ body.dragging-active .add-preset-chip {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-.flask-page-wrapper .preset-scroll-area::-webkit-scrollbar {
+.maps-page-wrapper .preset-scroll-area::-webkit-scrollbar {
   display: none;
 }
 
 /* 프리셋 경고 메시지 (토스트 스타일) */
-.flask-page-wrapper .preset-warning-toast {
+.maps-page-wrapper .preset-warning-toast {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -813,7 +817,7 @@ body.dragging-active .add-preset-chip {
   white-space: nowrap;
   z-index: 10;
 }
-.flask-page-wrapper .preset-item {
+.maps-page-wrapper .preset-item {
   flex-shrink: 0;
   height: 36px;
   padding: 0 12px;
@@ -829,17 +833,17 @@ body.dragging-active .add-preset-chip {
   overflow: hidden; /* 게이지 넘침 방지 */
   position: relative; /* 게이지 위치 기준 */
 }
-.flask-page-wrapper .preset-item:hover {
+.maps-page-wrapper .preset-item:hover {
   background: var(--preset-item-hover-bg);
   border-color: var(--accent);
   /* transform: translateY(-1px); 제거: 레이아웃 흔들림 방지 */
   box-shadow: var(--preset-item-shadow);
 }
-.flask-page-wrapper .preset-item:active {
+.maps-page-wrapper .preset-item:active {
   transform: translateY(0);
 }
 
-.flask-page-wrapper .preset-name {
+.maps-page-wrapper .preset-name {
   font-size: 13px;
   color: var(--text);
   font-weight: 500;
@@ -848,14 +852,14 @@ body.dragging-active .add-preset-chip {
   line-height: 1; /* 수직 정렬 보정 */
 }
 
-.flask-page-wrapper .preset-actions {
+.maps-page-wrapper .preset-actions {
   display: flex;
   align-items: center;
   gap: 2px;
   margin-left: 6px;
 }
 
-.flask-page-wrapper .preset-action-btn {
+.maps-page-wrapper .preset-action-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -868,15 +872,15 @@ body.dragging-active .add-preset-chip {
   justify-content: center;
   opacity: 0.7;
 }
-.preset-action-btn.delete {
-  color: #ff6262; /* 고정 색상 사용 */
-  opacity: 1; /* 투명도 제거 */
+.maps-page-wrapper .preset-action-btn.delete {
+  color: #ff6262;
+  opacity: 1;
 }
-.preset-action-btn.edit {
+.maps-page-wrapper .preset-action-btn.edit {
   color: var(--text);
-  opacity: 1; /* 투명도 제거 */
+  opacity: 1;
 }
-.preset-action-btn.edit:hover {
+.maps-page-wrapper .preset-action-btn.edit:hover {
   color: var(--accent);
 }
 
@@ -910,50 +914,18 @@ body.dragging-active .add-preset-chip {
   opacity: 0.7;
 }
 
-.builder-content {
+.scrollable-area {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  width: 100%; /* 전체 너비 사용 */
-  background: transparent;
+  overflow-y: auto;
+  padding-bottom: 20px;
+  scrollbar-width: none;
+}
+.scrollable-area::-webkit-scrollbar {
+  display: none;
 }
 
-/* Max Roll 스타일 */
-.option.active-max {
-  background: var(--active-max-bg); /* Purple tint */
-  border-color: var(--active-max-border);
-  box-shadow: var(--active-max-shadow);
-  font-weight: 500; /* Max Roll 시에도 500 유지 */
-}
-.option.active-max .option-tag {
-  border-color: var(--active-max-tag-border);
-}
-
-.max-badge {
-  display: inline-block;
-  margin-left: 8px;
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--max-badge-text);
-  background: var(--max-badge-bg);
-  padding: 2px 6px;
-  border-radius: 4px;
-  vertical-align: middle;
-  box-shadow: var(--max-badge-shadow);
-  position: absolute; /* 텍스트 흐름 영향 제거 */
-  right: -40px; /* 텍스트 오른쪽 바깥으로 배치 */
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* 프리셋 모달 (슬라이드 바 스타일) */
-.preset-modal {
-  height: auto;
-  min-height: 200px;
-  border-radius: 14px;
-  max-width: 400px;
-  margin: auto;
+.maps-page-wrapper .card {
+  flex-shrink: 0;
 }
 
 /* ==================== 반응형 디자인 ==================== */
@@ -967,7 +939,7 @@ body.dragging-active .add-preset-chip {
 
   .preset-sidebar {
     width: 100%;
-    max-height: 200px; /* 모바일에서는 높이 제한 */
+    max-height: 200px;
   }
 
   .builder-content {
@@ -990,7 +962,7 @@ body.dragging-active .add-preset-chip {
   }
 
   .modal-bg {
-    align-items: flex-end; /* 바텀 시트 스타일 */
+    align-items: flex-end;
   }
 
   @keyframes slideUp {
@@ -1002,15 +974,13 @@ body.dragging-active .add-preset-chip {
     }
   }
 
-  /* 모바일에서 드래그 앤 드롭 시 터치 액션 제어 */
   .option {
-    touch-action: pan-y; /* 수직 스크롤 허용, 수평 제스처는 브라우저가 처리하지 않음 (드래그 로직에서 처리) */
-    /* 하지만 드래그 로직에서 preventDefault를 사용하지 않으므로 pan-y가 적절 */
+    touch-action: pan-y;
   }
 }
 
 /* ==================== 스티키 헤더 영역 ==================== */
-.flask-page-wrapper .sticky-top-area {
+.maps-page-wrapper .sticky-top-area {
   position: sticky;
   top: 0;
   z-index: 100;
@@ -1021,4 +991,61 @@ body.dragging-active .add-preset-chip {
   padding-bottom: 20px;
   border-bottom: 1px solid var(--sidebar-border);
   margin-bottom: 20px;
+}
+
+/* ==================== Map Stats Inputs ==================== */
+
+.maps-page-wrapper .map-stats-container {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  min-height: 34px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.maps-page-wrapper .map-stat-input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 12px;
+  transition: 0.2s;
+}
+
+.maps-page-wrapper .map-stat-input-group:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+}
+
+.maps-page-wrapper .map-stat-label {
+  font-size: 13px;
+  color: var(--muted);
+  margin-right: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.maps-page-wrapper .map-stat-input {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 16px; /* Increased size */
+  width: 50px; /* Increased width */
+  text-align: center;
+  outline: none;
+  font-weight: 700;
+}
+
+.maps-page-wrapper .map-stat-input::placeholder {
+  color: rgba(255, 255, 255, 0.1);
+}
+
+/* Remove scrollbar (spin buttons) from number input */
+.maps-page-wrapper .map-stat-input::-webkit-inner-spin-button,
+.maps-page-wrapper .map-stat-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

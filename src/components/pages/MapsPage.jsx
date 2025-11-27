@@ -10,7 +10,7 @@ import "../../styles/MapsPage.css";
 
 export default function MapsPage() {
   const [adminMode, setAdminMode] = useState(false);
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState({}); // Changed to object: { [regex]: 'include' | 'exclude' }
   const [prefixData, setPrefixData] = useState(DEFAULT_PREFIX_DATA);
   const [suffixData, setSuffixData] = useState(DEFAULT_SUFFIX_DATA);
   const [showCopyToast, setShowCopyToast] = useState(false);
@@ -37,6 +37,18 @@ export default function MapsPage() {
     maps: "",
   });
 
+  const [andFlags, setAndFlags] = useState({
+    quantity: false,
+    packSize: false,
+    scarabs: false,
+    currency: false,
+    maps: false,
+  });
+
+  const toggleAndFlag = (key) => {
+    setAndFlags((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   const [modalData, setModalData] = useState({
     optionText: "",
     filterRegex: "",
@@ -53,10 +65,23 @@ export default function MapsPage() {
       if (savedPresets) {
         try {
           const parsed = JSON.parse(savedPresets);
-          // ID가 없는 구버전 데이터 호환성 처리
-          const migrated = parsed.map((p) =>
-            p.id ? p : { ...p, id: Date.now() + Math.random() }
-          );
+          // ID가 없는 구버전 데이터 호환성 처리 및 options 배열 -> 객체 마이그레이션
+          const migrated = parsed.map((p) => {
+            let newOptions = p.options;
+            if (Array.isArray(p.options)) {
+              newOptions = {};
+              p.options.forEach((opt) => {
+                newOptions[opt] = "include";
+              });
+            }
+            return p.id
+              ? { ...p, options: newOptions }
+              : {
+                  ...p,
+                  id: Date.now() + Math.random(),
+                  options: newOptions,
+                };
+          });
           setPresets(migrated);
         } catch (e) {
           console.error("Failed to load presets", e);
@@ -69,18 +94,32 @@ export default function MapsPage() {
   const toggleOption = useCallback(
     (opt) => {
       const normalRegex = opt.filterRegex;
+      const currentState = selected[normalRegex];
 
-      if (selected.includes(normalRegex)) {
-        setSelected(selected.filter((t) => t !== normalRegex));
+      let newState;
+      if (!currentState) {
+        newState = "include";
+      } else if (currentState === "include") {
+        newState = "exclude";
       } else {
-        setSelected([...selected, normalRegex]);
+        newState = undefined; // Remove
       }
+
+      setSelected((prev) => {
+        const next = { ...prev };
+        if (newState) {
+          next[normalRegex] = newState;
+        } else {
+          delete next[normalRegex];
+        }
+        return next;
+      });
     },
     [selected]
   );
 
   const handleClear = () => {
-    setSelected([]);
+    setSelected({});
     setMapStats({
       quantity: "",
       packSize: "",
@@ -88,43 +127,127 @@ export default function MapsPage() {
       currency: "",
       maps: "",
     });
+    setAndFlags({
+      quantity: false,
+      packSize: false,
+      scarabs: false,
+      currency: false,
+      maps: false,
+    });
   };
 
   const generateMapStatRegex = (prefix, valueStr) => {
-    const value = parseInt(valueStr, 10);
-    if (isNaN(value) || value < 10) return "";
+    const val = parseInt(valueStr, 10);
+    if (isNaN(val) || val < 10) return "";
 
-    const N = Math.floor(value / 10);
-    const n = value % 10;
+    // 1000 이상은 1...% 로 통일
+    if (val >= 1000) return prefix + "1...%";
 
-    let regexPart = "";
-    if (n === 0) {
-      regexPart = `([${N}-9].|[1-9]..)%`;
-    } else {
-      const nextN = N + 1;
-      if (nextN >= 10) {
-        regexPart = `(${N}[${n}-9]|[1-9]..)%`;
+    let parts = [];
+
+    if (val < 100) {
+      // 10 ~ 99
+      const t = Math.floor(val / 10);
+      const u = val % 10;
+
+      if (t === 9) {
+        if (u === 0) parts.push(`9.`);
+        else if (u === 9) parts.push(`99`);
+        else parts.push(`9[${u}-9]`);
       } else {
-        regexPart = `(${N}[${n}-9]|[${nextN}-9].|[1-9]..)%`;
+        if (u === 0) parts.push(`[${t}-9].`);
+        else if (u === 9) {
+          parts.push(`${t}9`);
+          parts.push(`[${t + 1}-9].`);
+        } else {
+          parts.push(`${t}[${u}-9]`);
+          parts.push(`[${t + 1}-9].`);
+        }
       }
+      parts.push(`[1-9]..`); // 100~999
+    } else {
+      // 100 ~ 999
+      const h = Math.floor(val / 100);
+      const t = Math.floor((val % 100) / 10);
+      const u = val % 10;
+
+      if (u === 0) {
+        if (t === 0) parts.push(`${h}..`);
+        else parts.push(`${h}[${t}-9].`);
+      } else if (u === 9) {
+        parts.push(`${h}${t}9`);
+        if (t < 9) parts.push(`${h}[${t + 1}-9].`);
+      } else {
+        parts.push(`${h}${t}[${u}-9]`);
+        if (t < 9) parts.push(`${h}[${t + 1}-9].`);
+      }
+
+      if (h < 9) parts.push(`[${h + 1}-9]..`);
     }
-    return prefix + regexPart;
+
+    return prefix + "(" + parts.join("|") + ")%";
   };
 
   const resultText = useMemo(() => {
-    const mapStatRegexes = [
-      generateMapStatRegex("량.*", mapStats.quantity),
-      generateMapStatRegex("모.*", mapStats.packSize),
-      generateMapStatRegex("갑.*", mapStats.scarabs),
-      generateMapStatRegex("화.*", mapStats.currency),
-      generateMapStatRegex("지도.*", mapStats.maps),
-    ].filter(Boolean);
+    const stats = [
+      { key: "quantity", prefix: "량.*", val: mapStats.quantity },
+      { key: "packSize", prefix: "모.*", val: mapStats.packSize },
+      { key: "scarabs", prefix: "갑.*", val: mapStats.scarabs },
+      { key: "currency", prefix: "화.*", val: mapStats.currency },
+      { key: "maps", prefix: "지도.*", val: mapStats.maps },
+    ];
 
-    const allRegexes = [...selected, ...mapStatRegexes];
-    if (allRegexes.length === 0) return "";
-    const unique = Array.from(new Set(allRegexes));
-    return `"${unique.join("|")}"`;
-  }, [selected, mapStats]);
+    const mapAnds = [];
+    const mapOrs = [];
+
+    stats.forEach(({ key, prefix, val }) => {
+      const regex = generateMapStatRegex(prefix, val);
+      if (regex) {
+        if (andFlags[key]) {
+          mapAnds.push(regex);
+        } else {
+          mapOrs.push(regex);
+        }
+      }
+    });
+
+    const includes = [];
+    const excludes = [];
+
+    Object.entries(selected).forEach(([regex, mode]) => {
+      if (mode === "include") {
+        includes.push(regex);
+      } else if (mode === "exclude") {
+        excludes.push(regex);
+      }
+    });
+
+    const parts = [];
+
+    // 1. Map Stats
+    // AND stats (space separated)
+    if (mapAnds.length > 0) {
+      parts.push(mapAnds.join(" "));
+    }
+    // OR stats (pipe separated)
+    if (mapOrs.length > 0) {
+      parts.push(mapOrs.join("|"));
+    }
+
+    // 2. Included Options (OR group)
+    if (includes.length > 0) {
+      const uniqueIncludes = Array.from(new Set(includes));
+      parts.push(uniqueIncludes.join("|"));
+    }
+
+    // 3. Excluded Options (NOT OR group)
+    if (excludes.length > 0) {
+      const uniqueExcludes = Array.from(new Set(excludes));
+      parts.push("!" + uniqueExcludes.join("|"));
+    }
+
+    return parts.join(" ");
+  }, [selected, mapStats, andFlags]);
 
   const handleCopy = async () => {
     if (!resultText) return;
@@ -146,7 +269,13 @@ export default function MapsPage() {
       // 수정 모드
       updatedPresets = presets.map((p) =>
         p.id === editingPreset.id
-          ? { ...p, name: newPresetName, options: selected, mapStats }
+          ? {
+              ...p,
+              name: newPresetName,
+              options: selected,
+              mapStats,
+              andFlags,
+            }
           : p
       );
     } else {
@@ -156,6 +285,7 @@ export default function MapsPage() {
         name: newPresetName,
         options: selected,
         mapStats,
+        andFlags,
       };
       updatedPresets = [...presets, newPreset];
     }
@@ -169,9 +299,30 @@ export default function MapsPage() {
 
   // 프리셋 로드
   const handleLoadPreset = (preset) => {
-    setSelected(preset.options || []);
+    if (Array.isArray(preset.options)) {
+      // Migration for old presets
+      const newOptions = {};
+      preset.options.forEach((opt) => {
+        newOptions[opt] = "include";
+      });
+      setSelected(newOptions);
+    } else {
+      setSelected(preset.options || {});
+    }
+
     if (preset.mapStats) {
       setMapStats(preset.mapStats);
+    }
+    if (preset.andFlags) {
+      setAndFlags(preset.andFlags);
+    } else {
+      setAndFlags({
+        quantity: false,
+        packSize: false,
+        scarabs: false,
+        currency: false,
+        maps: false,
+      });
     }
   };
 
@@ -192,7 +343,7 @@ export default function MapsPage() {
   // 프리셋 모달 열기 (추가)
   const openPresetModal = () => {
     if (
-      selected.length === 0 &&
+      Object.keys(selected).length === 0 &&
       !Object.values(mapStats).some((v) => v >= 10)
     ) {
       setShowPresetWarning(true);
@@ -519,7 +670,19 @@ export default function MapsPage() {
             {/* Map Stats Inputs */}
             <div className="map-stats-container">
               <div className="map-stat-input-group">
-                <span className="map-stat-label">수량</span>
+                <div
+                  className="map-stat-label-wrapper"
+                  onClick={() => toggleAndFlag("quantity")}
+                >
+                  <span
+                    className={`logic-badge ${
+                      andFlags.quantity ? "and" : "or"
+                    }`}
+                  >
+                    {andFlags.quantity ? "AND" : "OR"}
+                  </span>
+                  <span className="map-stat-name">수량</span>
+                </div>
                 <input
                   className="map-stat-input"
                   type="number"
@@ -532,7 +695,19 @@ export default function MapsPage() {
                 />
               </div>
               <div className="map-stat-input-group">
-                <span className="map-stat-label">규모</span>
+                <div
+                  className="map-stat-label-wrapper"
+                  onClick={() => toggleAndFlag("packSize")}
+                >
+                  <span
+                    className={`logic-badge ${
+                      andFlags.packSize ? "and" : "or"
+                    }`}
+                  >
+                    {andFlags.packSize ? "AND" : "OR"}
+                  </span>
+                  <span className="map-stat-name">규모</span>
+                </div>
                 <input
                   className="map-stat-input"
                   type="number"
@@ -545,7 +720,17 @@ export default function MapsPage() {
                 />
               </div>
               <div className="map-stat-input-group">
-                <span className="map-stat-label">갑충</span>
+                <div
+                  className="map-stat-label-wrapper"
+                  onClick={() => toggleAndFlag("scarabs")}
+                >
+                  <span
+                    className={`logic-badge ${andFlags.scarabs ? "and" : "or"}`}
+                  >
+                    {andFlags.scarabs ? "AND" : "OR"}
+                  </span>
+                  <span className="map-stat-name">갑충</span>
+                </div>
                 <input
                   className="map-stat-input"
                   type="number"
@@ -558,7 +743,19 @@ export default function MapsPage() {
                 />
               </div>
               <div className="map-stat-input-group">
-                <span className="map-stat-label">화폐</span>
+                <div
+                  className="map-stat-label-wrapper"
+                  onClick={() => toggleAndFlag("currency")}
+                >
+                  <span
+                    className={`logic-badge ${
+                      andFlags.currency ? "and" : "or"
+                    }`}
+                  >
+                    {andFlags.currency ? "AND" : "OR"}
+                  </span>
+                  <span className="map-stat-name">화폐</span>
+                </div>
                 <input
                   className="map-stat-input"
                   type="number"
@@ -571,7 +768,17 @@ export default function MapsPage() {
                 />
               </div>
               <div className="map-stat-input-group">
-                <span className="map-stat-label">지도</span>
+                <div
+                  className="map-stat-label-wrapper"
+                  onClick={() => toggleAndFlag("maps")}
+                >
+                  <span
+                    className={`logic-badge ${andFlags.maps ? "and" : "or"}`}
+                  >
+                    {andFlags.maps ? "AND" : "OR"}
+                  </span>
+                  <span className="map-stat-name">지도</span>
+                </div>
                 <input
                   className="map-stat-input"
                   type="number"

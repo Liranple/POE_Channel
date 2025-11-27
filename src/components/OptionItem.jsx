@@ -39,18 +39,36 @@ export default function OptionItem({
     deleteOption(opt, data, setData, listId)
   );
 
-  const isNormalSelected = selected.includes(opt.filterRegex);
-  const isMaxSelected =
-    opt.maxRollRegex &&
-    opt.maxRollRegex !== opt.filterRegex &&
-    selected.includes(opt.maxRollRegex);
-  const isSelected = isNormalSelected || isMaxSelected;
+  let isNormalSelected = false;
+  let isExcluded = false;
+  let isMaxSelected = false;
+
+  if (Array.isArray(selected)) {
+    // Legacy mode (FlaskPage, JewelsPage, etc.)
+    isNormalSelected = selected.includes(opt.filterRegex);
+    isMaxSelected =
+      opt.maxRollRegex &&
+      opt.maxRollRegex !== opt.filterRegex &&
+      selected.includes(opt.maxRollRegex);
+  } else {
+    // New mode (MapsPage) - selected is an object
+    const selectionState = selected[opt.filterRegex];
+    isNormalSelected = selectionState === "include";
+    isExcluded = selectionState === "exclude";
+
+    // For MapsPage, maxRollRegex logic might need to be adapted if used.
+    // Currently MapsPage doesn't seem to use maxRollRegex in the same way as FlaskPage.
+    // But if it did, we'd check the map.
+    if (opt.maxRollRegex && opt.maxRollRegex !== opt.filterRegex) {
+      isMaxSelected = selected[opt.maxRollRegex] === "include";
+    }
+  }
 
   return (
     <div
       className={`option ${isNormalSelected ? "active" : ""} ${
-        isMaxSelected ? "active-max" : ""
-      }`}
+        isExcluded ? "exclude" : ""
+      } ${isMaxSelected ? "active-max" : ""}`}
       data-id={opt.id}
       onClick={() => toggleOption(opt)}
       onMouseDown={(e) =>
@@ -63,6 +81,7 @@ export default function OptionItem({
       <div className="delete-progress" style={{ width: `${progress}%` }}></div>
       <span style={{ position: "relative", zIndex: 2 }}>
         <span className="option-text-inner">{opt.optionText}</span>
+        {isExcluded && <span className="not-badge">NOT</span>}
         {isMaxSelected && <span className="max-badge">MAX</span>}
       </span>
       <div className="right-box">

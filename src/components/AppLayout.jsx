@@ -80,7 +80,7 @@ export default function AppLayout() {
           flexDirection: "column",
         }}
       >
-        <div style={{ flex: 1, paddingBottom: "60px" }}>{content}</div>
+        <div style={{ paddingBottom: "20px" }}>{content}</div>
         <footer
           style={{
             padding: "20px",
@@ -88,7 +88,6 @@ export default function AppLayout() {
             color: "var(--muted)",
             fontSize: "12px",
             borderTop: "1px solid var(--sidebar-border)",
-            marginTop: "auto",
             background: "transparent",
           }}
         >

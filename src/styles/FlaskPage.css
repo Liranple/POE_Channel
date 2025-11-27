@@ -930,12 +930,12 @@ body.dragging-active .add-preset-chip {
   border-color: var(--active-max-tag-border);
 }
 
-.max-badge {
+.flask-page-wrapper .max-badge {
   display: inline-block;
   margin-left: 8px;
   font-size: 10px;
   font-weight: 800;
-  color: var(--max-badge-text);
+  color: white;
   background: var(--max-badge-bg);
   padding: 2px 6px;
   border-radius: 4px;

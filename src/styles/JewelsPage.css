@@ -731,7 +731,6 @@ body.dragging-active .add-preset-chip {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  min-height: calc(100vh - 100px);
 }
 
 /* 프리셋 바 (가로 스크롤 스타일) */

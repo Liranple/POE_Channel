@@ -81,7 +81,7 @@
   box-shadow: none !important;
 }
 
-.jewels-page .layout {
+.jewels-page-wrapper .layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
@@ -99,7 +99,7 @@
   padding-left: 2px;
 }
 
-.jewels-page .list {
+.jewels-page-wrapper .list {
   max-height: none;
   overflow: visible;
   margin-top: 10px;
@@ -109,7 +109,8 @@
 }
 /* .list::-webkit-scrollbar removed */
 
-.jewels-page-wrapper .option {
+.jewels-page-wrapper .option,
+.option.dragging {
   padding: 10px 12px;
   background: var(--option-bg);
   border-radius: 8px;
@@ -124,8 +125,14 @@
   height: 50px;
   flex-shrink: 0; /* 화면이 줄어들어도 높이 유지 */
   position: relative;
+  /* 렌더링 최적화 및 깜빡임 방지 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
 }
-.jewels-page-wrapper .option:active {
+.jewels-page-wrapper .option:active,
+.option.dragging:active {
   transform: scale(0.99);
 }
 
@@ -179,13 +186,15 @@ body.dragging-active .add-preset-chip {
   -webkit-transform-style: preserve-3d;
 }
 
-.option .buttons {
+.option .buttons,
+.option.dragging .buttons {
   display: flex;
   gap: 6px;
   margin-left: auto;
   pointer-events: all;
 }
-.option button {
+.option button,
+.option.dragging button {
   display: none;
   padding: 6px;
   border: none;
@@ -195,13 +204,16 @@ body.dragging-active .add-preset-chip {
   background: none;
   color: var(--text);
 }
-.option button.edit:hover {
+.option button.edit:hover,
+.option.dragging button.edit:hover {
   color: var(--accent);
 }
-.option button.edit::before {
+.option button.edit::before,
+.option.dragging button.edit::before {
   content: "✎";
 }
-.option button.delete::before {
+.option button.delete::before,
+.option.dragging button.delete::before {
   content: "🗑";
   color: var(--delete-icon-color);
 }
@@ -381,94 +393,66 @@ body.dragging-active .add-preset-chip {
 }
 
 /* Jewel Types */
-.tag-basicstr,
-.type-basicstr,
-.tag-진홍,
 .type-진홍 {
   background: #b83333;
   border-color: #d14c4c;
   color: white;
 }
-.tag-basicdex,
-.type-basicdex,
-.tag-진청록,
 .type-진청록 {
   background: #187a2c;
   border-color: #1e9a36;
   color: white;
 }
-.tag-basicint,
-.type-basicint,
-.tag-코발트,
 .type-코발트 {
   background: #2f4fb8;
   border-color: #4e6be0;
   color: white;
 }
-.tag-MurderousEye,
-.type-MurderousEye,
-.tag-살인적인,
 .type-살인적인 {
   background: #1a3a1a;
   border-color: #2a4a2a;
   color: white;
 }
-.tag-SearchingEye,
-.type-SearchingEye,
-.tag-탐색하는,
 .type-탐색하는 {
   background: #1a1a3a;
   border-color: #2a2a4a;
   color: white;
 }
-.tag-RivetedEye,
-.type-RivetedEye,
-.tag-최면거는,
 .type-최면거는 {
   background: #3a1a1a;
   border-color: #4a2a2a;
   color: white;
 }
-.tag-GhastlyEye,
-.type-GhastlyEye,
-.tag-무시무시한,
 .type-무시무시한 {
   background: #3a3a3a;
   border-color: #4a4a4a;
   color: white;
 }
 
-.type-btn.active.type-basicstr,
 .type-btn.active.type-진홍 {
   background: #b83333 !important;
   border-color: #d14c4c !important;
 }
-.type-btn.active.type-basicdex,
 .type-btn.active.type-진청록 {
   background: #187a2c !important;
   border-color: #1e9a36 !important;
 }
-.type-btn.active.type-basicint,
 .type-btn.active.type-코발트 {
   background: #2f4fb8 !important;
   border-color: #4e6be0 !important;
 }
-.type-btn.active.type-MurderousEye,
 .type-btn.active.type-살인적인 {
   background: #c94d9c !important;
   border-color: #dd5dae !important;
 }
-.type-btn.active.type-SearchingEye,
 .type-btn.active.type-탐색하는 {
   background: #b0c7d6 !important;
   border-color: #d6e6f1 !important;
 }
-.type-btn.active.type-RivetedEye,
 .type-btn.active.type-최면거는 {
   background: #3083cb !important;
   border-color: #62a1d8 !important;
 }
-.type-btn.active.type-GhastlyEye,
 .type-btn.active.type-무시무시한 {
   background: #834343 !important;
   border-color: #975555 !important;
@@ -910,7 +894,7 @@ body.dragging-active .add-preset-chip {
   display: none;
 }
 
-.jewels-page .card {
+.jewels-page-wrapper .card {
   flex-shrink: 0;
 }
 

@@ -102,7 +102,8 @@
   gap: 8px;
 }
 
-.maps-page-wrapper .option {
+.maps-page-wrapper .option,
+.option.dragging {
   padding: 10px 12px;
   background: var(--option-bg);
   border-radius: 8px;
@@ -117,8 +118,14 @@
   height: 50px;
   flex-shrink: 0;
   position: relative;
+  /* 렌더링 최적화 및 깜빡임 방지 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
 }
-.maps-page-wrapper .option:active {
+.maps-page-wrapper .option:active,
+.option.dragging:active {
   transform: scale(0.99);
 }
 
@@ -151,17 +158,20 @@ body.dragging-active .add-preset-chip {
   top: -1px;
 }
 
-.maps-page-wrapper .option:hover {
+.maps-page-wrapper .option:hover,
+.option.dragging:hover {
   background: var(--option-hover-bg);
 }
-.maps-page-wrapper .option.active {
+.maps-page-wrapper .option.active,
+.option.dragging.active {
   background: var(--accent);
   color: var(--option-active-text);
   font-weight: 500;
   box-shadow: var(--option-active-shadow);
 }
 
-.maps-page-wrapper .option.exclude {
+.maps-page-wrapper .option.exclude,
+.option.dragging.exclude {
   border: 2px solid #ff4d4d;
   background: rgba(255, 77, 77, 0.1);
 }
@@ -183,7 +193,8 @@ body.dragging-active .add-preset-chip {
   transform: translateY(-50%);
 }
 
-.maps-page-wrapper .option.dragging {
+.maps-page-wrapper .option.dragging,
+.option.dragging {
   transform: scale(1.05);
   box-shadow: var(--option-dragging-shadow);
   cursor: grabbing;
@@ -194,13 +205,15 @@ body.dragging-active .add-preset-chip {
   -webkit-transform-style: preserve-3d;
 }
 
-.maps-page-wrapper .option .buttons {
+.maps-page-wrapper .option .buttons,
+.option.dragging .buttons {
   display: flex;
   gap: 6px;
   margin-left: auto;
   pointer-events: all;
 }
-.maps-page-wrapper .option button {
+.maps-page-wrapper .option button,
+.option.dragging button {
   display: none;
   padding: 6px;
   border: none;
@@ -210,13 +223,16 @@ body.dragging-active .add-preset-chip {
   background: none;
   color: var(--text);
 }
-.maps-page-wrapper .option button.edit:hover {
+.maps-page-wrapper .option button.edit:hover,
+.option.dragging button.edit:hover {
   color: var(--accent);
 }
-.maps-page-wrapper .option button.edit::before {
+.maps-page-wrapper .option button.edit::before,
+.option.dragging button.edit::before {
   content: "✎";
 }
-.maps-page-wrapper .option button.delete::before {
+.maps-page-wrapper .option button.delete::before,
+.option.dragging button.delete::before {
   content: "🗑";
   color: var(--delete-icon-color);
 }
@@ -417,48 +433,6 @@ body.dragging-active .add-preset-chip {
 }
 
 /* Type Colors */
-.tag-생명력,
-.type-생명력 {
-  background: #b83333;
-  border-color: #d14c4c;
-  color: white;
-}
-.tag-마나,
-.type-마나 {
-  background: #2f4fb8;
-  border-color: #4e6be0;
-  color: white;
-}
-.tag-특수,
-.type-특수 {
-  background: #5c33b8;
-  border-color: #764cd1;
-  color: white;
-}
-.tag-저항,
-.type-저항 {
-  background: #b88a33;
-  border-color: #d1a34c;
-  color: white;
-}
-.tag-방어,
-.type-방어 {
-  background: #338ab8;
-  border-color: #4ca3d1;
-  color: white;
-}
-.tag-치명타,
-.type-치명타 {
-  background: #33b85c;
-  border-color: #4cd176;
-  color: white;
-}
-.tag-속도,
-.type-속도 {
-  background: #b8338a;
-  border-color: #d14ca3;
-  color: white;
-}
 .tag-Top,
 .tag-top,
 .type-Top {
@@ -474,34 +448,6 @@ body.dragging-active .add-preset-chip {
   color: white;
 }
 
-.type-btn.active.type-생명력 {
-  background: #b83333 !important;
-  border-color: #d14c4c !important;
-}
-.type-btn.active.type-마나 {
-  background: #2f4fb8 !important;
-  border-color: #4e6be0 !important;
-}
-.type-btn.active.type-특수 {
-  background: #5c33b8 !important;
-  border-color: #764cd1 !important;
-}
-.type-btn.active.type-저항 {
-  background: #b88a33 !important;
-  border-color: #d1a34c !important;
-}
-.type-btn.active.type-방어 {
-  background: #338ab8 !important;
-  border-color: #4ca3d1 !important;
-}
-.type-btn.active.type-치명타 {
-  background: #33b85c !important;
-  border-color: #4cd176 !important;
-}
-.type-btn.active.type-속도 {
-  background: #b8338a !important;
-  border-color: #d14ca3 !important;
-}
 .type-btn.active.type-Top {
   background: #b83333 !important;
   border-color: #d14c4c !important;

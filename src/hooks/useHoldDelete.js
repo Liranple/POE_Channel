@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
 export default function useHoldDelete(onDelete, deleteDelay = 1000) {
   const [progress, setProgress] = useState(0);
@@ -65,15 +65,20 @@ export default function useHoldDelete(onDelete, deleteDelay = 1000) {
     return () => cancelDelete();
   }, [cancelDelete]);
 
-  return {
-    progress,
-    handlers: {
+  const handlers = useMemo(
+    () => ({
       onMouseDown: startDelete,
       onMouseUp: cancelDelete,
       onMouseLeave: cancelDelete,
       onTouchStart: startDelete,
       onTouchEnd: cancelDelete,
       onTouchCancel: cancelDelete,
-    },
+    }),
+    [startDelete, cancelDelete]
+  );
+
+  return {
+    progress,
+    handlers,
   };
 }

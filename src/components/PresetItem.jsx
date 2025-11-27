@@ -1,6 +1,7 @@
+import { memo } from "react";
 import useHoldDelete from "../hooks/useHoldDelete";
 
-export default function PresetItem({
+const PresetItem = memo(function PresetItem({
   preset,
   index,
   onLoad,
@@ -13,7 +14,7 @@ export default function PresetItem({
 
   const handleClick = () => {
     if (!adminMode) {
-      onLoad(preset.selected);
+      onLoad(preset);
     }
   };
 
@@ -55,4 +56,6 @@ export default function PresetItem({
       )}
     </div>
   );
-}
+});
+
+export default PresetItem;

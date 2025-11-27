@@ -83,7 +83,7 @@
   box-shadow: none !important;
 }
 
-.flask-page .layout {
+.flask-page-wrapper .layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
@@ -97,7 +97,7 @@
   padding-left: 2px;
 }
 
-.flask-page .list {
+.flask-page-wrapper .list {
   max-height: none;
   overflow: visible;
   margin-top: 10px;
@@ -106,7 +106,8 @@
   gap: 8px;
 }
 
-.flask-page-wrapper .option {
+.flask-page-wrapper .option,
+.option.dragging {
   padding: 10px 12px;
   background: var(--option-bg);
   border-radius: 8px;
@@ -121,8 +122,14 @@
   height: 50px;
   flex-shrink: 0; /* 화면이 줄어들어도 높이 유지 */
   position: relative;
+  /* 렌더링 최적화 및 깜빡임 방지 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
 }
-.flask-page-wrapper .option:active {
+.flask-page-wrapper .option:active,
+.option.dragging:active {
   /* cursor: grabbing; 제거 - admin 모드에서만 적용 */
   transform: scale(0.99); /* 클릭 효과 추가 */
 }
@@ -179,13 +186,15 @@ body.dragging-active .add-preset-chip {
   -webkit-transform-style: preserve-3d;
 }
 
-.option .buttons {
+.option .buttons,
+.option.dragging .buttons {
   display: flex;
   gap: 6px;
   margin-left: auto;
   pointer-events: all;
 }
-.option button {
+.option button,
+.option.dragging button {
   display: none;
   padding: 6px;
   border: none;
@@ -195,13 +204,16 @@ body.dragging-active .add-preset-chip {
   background: none;
   color: var(--text);
 }
-.option button.edit:hover {
+.option button.edit:hover,
+.option.dragging button.edit:hover {
   color: var(--accent);
 }
-.option button.edit::before {
+.option button.edit::before,
+.option.dragging button.edit::before {
   content: "✎";
 }
-.option button.delete::before {
+.option button.delete::before,
+.option.dragging button.delete::before {
   content: "🗑";
   color: var(--delete-icon-color);
 }
@@ -738,7 +750,7 @@ body.dragging-active .add-preset-chip {
   /* overflow: hidden; removed */
 }
 
-.flask-page .card:last-child {
+.flask-page-wrapper .card:last-child {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -746,7 +758,7 @@ body.dragging-active .add-preset-chip {
   overflow: hidden;
 }
 
-.flask-page .layout > div {
+.flask-page-wrapper .layout > div {
   display: flex;
   flex-direction: column;
   min-height: 0;

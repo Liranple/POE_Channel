@@ -1,0 +1,157 @@
+/* ==================== Cards Page Styles ==================== */
+
+.cards-page-wrapper .page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease-out;
+  padding: 20px;
+}
+
+.cards-page-wrapper .page-content h1 {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+
+.cards-table-container {
+  background: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--box-shadow-common);
+  border: 1px solid var(--sidebar-border);
+}
+
+.cards-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.cards-table th,
+.cards-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.cards-table th {
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cards-table tr:last-child td {
+  border-bottom: none;
+}
+
+.cards-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Column Widths */
+.col-name {
+  width: 25%;
+}
+.col-reward {
+  width: 35%;
+}
+.col-location {
+  width: 40%;
+}
+
+/* Cell Content */
+.card-name,
+.card-reward {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: help;
+  position: relative;
+  display: inline-block;
+  transition: color 0.2s;
+}
+
+.card-name:hover,
+.card-reward:hover {
+  color: var(--accent);
+}
+
+.location-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.location-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sidebar-border);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.location-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Tooltip Styles */
+.tooltip-image {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--sidebar-border);
+  background: var(--card);
+  max-width: 300px;
+  max-height: 400px;
+  object-fit: contain;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.tooltip-image.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cards-table th,
+  .cards-table td {
+    padding: 12px;
+  }
+
+  .col-name {
+    width: 30%;
+  }
+  .col-reward {
+    width: 30%;
+  }
+  .col-location {
+    width: 40%;
+  }
+
+  .card-name,
+  .card-reward {
+    font-size: 14px;
+  }
+
+  .location-item {
+    font-size: 13px;
+    padding: 3px 8px;
+  }
+}

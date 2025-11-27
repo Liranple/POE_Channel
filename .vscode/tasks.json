@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "append_css",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-c",
+				"Add-Content -Path src/app/globals.css -Value \"`n/* ==================== Dragging Fixes ==================== */`n`n/* Ensure dragged items maintain styles even if React re-renders and removes the .dragging class */`nbody > .option {`n  transform: scale(1.05);`n  box-shadow: var(--option-dragging-shadow);`n  cursor: grabbing;`n  will-change: transform;`n  backface-visibility: hidden;`n  -webkit-backface-visibility: hidden;`n  transform-style: preserve-3d;`n  -webkit-transform-style: preserve-3d;`n  background: var(--option-bg);`n  border: 1px solid var(--option-border);`n  z-index: 9999 !important;`n  padding: 10px 12px;`n  border-radius: 8px;`n  display: flex;`n  justify-content: space-between;`n  align-items: center;`n  height: 50px;`n  flex-shrink: 0;`n  position: fixed; /* Ensure it stays fixed even if inline style is somehow lost (unlikely but safe) */`n}`n`nbody > .option button.delete::before {`n  content: '🗑';`n  color: var(--delete-icon-color) !important;`n}`n`nbody > .option .buttons {`n  display: flex;`n  gap: 6px;`n  margin-left: auto;`n  pointer-events: all;`n}`n`nbody > .option button {`n  display: inline-block !important; /* Force buttons to show */`n  padding: 6px;`n  border: none;`n  border-radius: 4px;`n  cursor: pointer;`n  font-size: 20px;`n  background: none;`n  color: var(--text);`n}`n`nbody > .option button.edit::before {`n  content: '✎';`n}`n\""
+			],
+			"isBackground": false,
+			"group": "build"
+		}
+	]
+}

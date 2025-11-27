@@ -235,3 +235,57 @@ export const DEFAULT_CORRUPTED_DATA = [
     type: "진홍, 진청록, 코발트, 살인적인, 탐색하는, 최면거는, 무시무시한",
   },
 ];
+
+export const JEWEL_TYPES = [
+  {
+    id: "진홍",
+    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicstr.webp",
+  },
+  {
+    id: "진청록",
+    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
+  },
+  {
+    id: "코발트",
+    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicint.webp",
+  },
+  {
+    id: "살인적인",
+    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/MurderousEye.webp",
+  },
+  {
+    id: "탐색하는",
+    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/SearchingEye.webp",
+  },
+  {
+    id: "최면거는",
+    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/RivetedEye.webp",
+  },
+  {
+    id: "무시무시한",
+    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GhastlyEye.webp",
+  },
+];
+
+export const JEWEL_TYPE_MAP = {
+  // English keys (for backward compatibility)
+  basicstr: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicstr.webp",
+  basicdex: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
+  basicint: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicint.webp",
+  MurderousEye:
+    "https://cdn.poedb.tw/image/Art/2DItems/Jewels/MurderousEye.webp",
+  SearchingEye:
+    "https://cdn.poedb.tw/image/Art/2DItems/Jewels/SearchingEye.webp",
+  RivetedEye: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/RivetedEye.webp",
+  GhastlyEye: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GhastlyEye.webp",
+
+  // Korean keys
+  진홍: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicstr.webp",
+  진청록: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
+  진청록색: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
+  코발트: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicint.webp",
+  살인적인: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/MurderousEye.webp",
+  탐색하는: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/SearchingEye.webp",
+  최면거는: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/RivetedEye.webp",
+  무시무시한: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GhastlyEye.webp",
+};

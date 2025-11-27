@@ -59,25 +59,24 @@ export default function FlaskPage() {
     loadPresets();
   }, []);
 
-  const toggleOption = useCallback(
-    (opt) => {
-      const normalRegex = opt.filterRegex;
-      const maxRegex = opt.maxRollRegex;
+  const toggleOption = useCallback((opt) => {
+    const normalRegex = opt.filterRegex;
+    const maxRegex = opt.maxRollRegex;
 
+    setSelected((prevSelected) => {
       // 일반 정규식과 맥롤 정규식이 같으면 단순 토글 (Normal <-> Off)
       if (normalRegex === maxRegex) {
-        if (selected.includes(normalRegex)) {
-          setSelected(selected.filter((t) => t !== normalRegex));
+        if (prevSelected.includes(normalRegex)) {
+          return prevSelected.filter((t) => t !== normalRegex);
         } else {
-          setSelected([...selected, normalRegex]);
+          return [...prevSelected, normalRegex];
         }
-        return;
       }
 
-      const isNormalSelected = selected.includes(normalRegex);
-      const isMaxSelected = selected.includes(maxRegex);
+      const isNormalSelected = prevSelected.includes(normalRegex);
+      const isMaxSelected = prevSelected.includes(maxRegex);
 
-      let newSelected = selected.filter(
+      let newSelected = prevSelected.filter(
         (t) => t !== normalRegex && t !== maxRegex
       );
 
@@ -95,10 +94,9 @@ export default function FlaskPage() {
         newSelected.push(normalRegex);
       }
 
-      setSelected(newSelected);
-    },
-    [selected]
-  );
+      return newSelected;
+    });
+  }, []);
 
   const resultText = useMemo(() => {
     // selected 배열 자체가 이미 올바른 정규식들을 담고 있음
@@ -169,18 +167,17 @@ export default function FlaskPage() {
     setPresetModalVisible(false);
   }, [presets, selected, newPresetName, editingPreset]);
 
-  const handleLoadPreset = useCallback((presetSelected) => {
-    setSelected(presetSelected);
+  const handleLoadPreset = useCallback((preset) => {
+    setSelected(preset.selected);
   }, []);
 
-  const handleDeletePreset = useCallback(
-    (preset) => {
-      const newPresets = presets.filter((p) => p.id !== preset.id);
-      setPresets(newPresets);
+  const handleDeletePreset = useCallback((preset) => {
+    setPresets((prev) => {
+      const newPresets = prev.filter((p) => p.id !== preset.id);
       localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
-    },
-    [presets]
-  );
+      return newPresets;
+    });
+  }, []);
 
   const handleEditPreset = useCallback(
     (preset) => {
@@ -272,18 +269,15 @@ export default function FlaskPage() {
     };
   }, [selected, prefixData, suffixData]);
 
-  const deleteOption = useCallback(
-    (opt, data, setData, listId) => {
-      const idx = data.indexOf(opt);
-      if (idx > -1) {
-        const newData = [...data];
-        newData.splice(idx, 1);
-        setData(newData);
-        setSelected(selected.filter((t) => t !== opt.filterRegex));
-      }
-    },
-    [selected]
-  );
+  const deleteOption = useCallback((opt, data, setData, listId) => {
+    const idx = data.indexOf(opt);
+    if (idx > -1) {
+      const newData = [...data];
+      newData.splice(idx, 1);
+      setData(newData);
+      setSelected((prev) => prev.filter((t) => t !== opt.filterRegex));
+    }
+  }, []);
 
   const openModal = useCallback((opt, mode, listId) => {
     setModalMode(mode);

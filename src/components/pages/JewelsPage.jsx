@@ -6,42 +6,12 @@ import {
   DEFAULT_PREFIX_DATA,
   DEFAULT_SUFFIX_DATA,
   DEFAULT_CORRUPTED_DATA,
+  JEWEL_TYPES,
 } from "../../data/JewelData";
 import OptionItem from "../OptionItem";
 import PresetItem from "../PresetItem";
 import useDraggableScroll from "../../hooks/useDraggableScroll";
 import "../../styles/JewelsPage.css";
-
-const JEWEL_TYPES = [
-  {
-    id: "진홍",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicstr.webp",
-  },
-  {
-    id: "진청록",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
-  },
-  {
-    id: "코발트",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicint.webp",
-  },
-  {
-    id: "살인적인",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/MurderousEye.webp",
-  },
-  {
-    id: "탐색하는",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/SearchingEye.webp",
-  },
-  {
-    id: "최면거는",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/RivetedEye.webp",
-  },
-  {
-    id: "무시무시한",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GhastlyEye.webp",
-  },
-];
 
 export default function JewelsPage() {
   const [adminMode, setAdminMode] = useState(false);
@@ -93,18 +63,17 @@ export default function JewelsPage() {
     loadPresets();
   }, []);
 
-  const toggleOption = useCallback(
-    (opt) => {
-      const normalRegex = opt.filterRegex;
+  const toggleOption = useCallback((opt) => {
+    const normalRegex = opt.filterRegex;
 
-      if (selected.includes(normalRegex)) {
-        setSelected(selected.filter((t) => t !== normalRegex));
+    setSelected((prevSelected) => {
+      if (prevSelected.includes(normalRegex)) {
+        return prevSelected.filter((t) => t !== normalRegex);
       } else {
-        setSelected([...selected, normalRegex]);
+        return [...prevSelected, normalRegex];
       }
-    },
-    [selected]
-  );
+    });
+  }, []);
 
   const resultText = useMemo(() => {
     const allData = [...prefixData, ...suffixData, ...corruptedData];
@@ -168,18 +137,17 @@ export default function JewelsPage() {
     setPresetModalVisible(false);
   }, [presets, selected, newPresetName, editingPreset]);
 
-  const handleLoadPreset = useCallback((presetSelected) => {
-    setSelected(presetSelected);
+  const handleLoadPreset = useCallback((preset) => {
+    setSelected(preset.selected);
   }, []);
 
-  const handleDeletePreset = useCallback(
-    (preset) => {
-      const newPresets = presets.filter((p) => p.id !== preset.id);
-      setPresets(newPresets);
+  const handleDeletePreset = useCallback((preset) => {
+    setPresets((prev) => {
+      const newPresets = prev.filter((p) => p.id !== preset.id);
       localStorage.setItem("jewelPresets", JSON.stringify(newPresets));
-    },
-    [presets]
-  );
+      return newPresets;
+    });
+  }, []);
 
   const handleEditPreset = useCallback(
     (preset) => {
@@ -188,18 +156,15 @@ export default function JewelsPage() {
     [openEditPresetModal]
   );
 
-  const deleteOption = useCallback(
-    (opt, data, setData, listId) => {
-      const idx = data.indexOf(opt);
-      if (idx > -1) {
-        const newData = [...data];
-        newData.splice(idx, 1);
-        setData(newData);
-        setSelected(selected.filter((t) => t !== opt.filterRegex));
-      }
-    },
-    [selected]
-  );
+  const deleteOption = useCallback((opt, data, setData, listId) => {
+    const idx = data.indexOf(opt);
+    if (idx > -1) {
+      const newData = [...data];
+      newData.splice(idx, 1);
+      setData(newData);
+      setSelected((prev) => prev.filter((t) => t !== opt.filterRegex));
+    }
+  }, []);
 
   const openModal = useCallback((opt, mode, listId) => {
     setModalMode(mode);

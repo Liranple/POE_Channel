@@ -1,0 +1,105 @@
+.reward-tooltip-container {
+  width: max-content;
+  min-width: 300px;
+  max-width: 650px;
+  font-family: "Fontin", "Noto Sans KR", sans-serif;
+  text-align: center;
+  position: relative;
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.8));
+  z-index: 1000;
+}
+
+.reward-tooltip-header {
+  height: 43px; /* Adjust based on actual image height */
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  color: #aa9e82; /* Currency text color */
+  padding: 0 40px 3px 40px; /* Space for corners, bottom padding moves text up */
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.reward-tooltip-header.currency {
+  background-image: url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderCurrencyLeft.webp),
+    url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderCurrencyRight.webp),
+    url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderCurrencyMiddle.webp);
+  background-position: left top, right top, center top;
+  background-repeat: no-repeat, no-repeat, repeat-x;
+  background-size: auto 100%;
+}
+
+.reward-tooltip-header.unique {
+  background-image: url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderUniqueLeft.webp),
+    url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderUniqueRight.webp),
+    url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderUniqueMiddle.webp);
+  background-position: left top, right top, center top;
+  background-repeat: no-repeat, no-repeat, repeat-x;
+  background-size: auto 100%;
+  color: #af6025;
+  flex-direction: column;
+  padding: 5px 40px;
+  height: auto;
+  min-height: 43px;
+}
+
+.reward-tooltip-header-name .reward-tooltip-header-base {
+  font-size: 20px;
+}
+
+.reward-tooltip-content {
+  background-color: #000; /* Pitch black for POE tooltips usually */
+  border: 1px solid #787878; /* Standard grey border */
+  border-top: none; /* Header acts as top border */
+  padding: 10px;
+  color: #7f7f7f; /* Default grey text */
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.reward-tooltip-content span {
+  transition: none !important;
+}
+
+.reward-tooltip-tags {
+  color: #7f7f7f;
+}
+
+.reward-tooltip-properties {
+  color: #7f7f7f;
+}
+
+.reward-tooltip-icon {
+  display: block;
+  margin: 10px auto;
+  max-width: 80px; /* Adjust as needed */
+  height: auto;
+}
+
+.reward-tooltip-separator {
+  height: 2px;
+  width: 50%;
+  background: linear-gradient(90deg, transparent, #787878, transparent);
+  margin: 3px auto;
+}
+
+.reward-tooltip-container.unique .reward-tooltip-separator {
+  width: 150px;
+  background: linear-gradient(90deg, transparent, #af6025, transparent);
+}
+
+.reward-tooltip-container.unique .reward-tooltip-explanation {
+  color: #af6025;
+}
+
+.reward-tooltip-description {
+  margin: 5px 0 6px 0;
+}
+
+.reward-tooltip-explanation {
+  font-style: italic;
+  margin-bottom: 5px;
+  color: #7f7f7f;
+}

@@ -75,9 +75,33 @@
   transition: color 0.2s;
 }
 
+.card-name {
+  color: #0ebaff;
+}
+
 .card-name:hover,
 .card-reward:hover {
   color: var(--accent);
+}
+
+.card-reward.unique {
+  color: #ef6916; /* Unique item color */
+}
+
+.card-reward.currency {
+  color: #aa9e82; /* Currency color */
+}
+
+.card-reward.card {
+  color: #0ebaff; /* Card reward color */
+}
+
+.card-reward.gem {
+  color: #1ba29b; /* Gem reward color */
+}
+
+.card-reward.base {
+  color: #c8c8c8; /* Base item color */
 }
 
 .location-list {
@@ -107,6 +131,10 @@
 }
 
 /* Tooltip Styles */
+.tooltip-container {
+  transition: none !important;
+}
+
 .tooltip-image {
   position: fixed;
   z-index: 1000;

@@ -11,6 +11,33 @@
 			],
 			"isBackground": false,
 			"group": "build"
+		},
+		{
+			"label": "append_css",
+			"type": "shell",
+			"command": "echo \"/* Separator */\n.divination-card-separator {\n  position: absolute;\n  top: 435px;\n  left: 50%;\n  transform: translateX(-50%);\n  width: 300px;\n  height: 1px;\n  background: linear-gradient(90deg, transparent, #555, transparent);\n  z-index: 20;\n}\" >> src/styles/DivinationCard.css",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "none"
+		},
+		{
+			"label": "append_css_small_text",
+			"type": "shell",
+			"command": "echo \"\n.divination-card-flavor.small-text {\n  font-size: 13px;\n}\" >> src/styles/DivinationCard.css",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "none"
+		},
+		{
+			"label": "css-update",
+			"type": "shell",
+			"command": "echo \"CSS update\"",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
 		}
 	]
 }

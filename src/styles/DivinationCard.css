@@ -1,0 +1,134 @@
+.divination-card-wrapper {
+  position: relative;
+  width: 400px; /* Adjust based on the frame image aspect ratio */
+  height: 600px; /* Adjust based on the frame image aspect ratio */
+  /* The frame image will be the background or an overlay */
+  font-family: "Fontin", "Noto Sans KR", serif; /* POE uses Fontin usually */
+  user-select: none;
+  overflow: hidden;
+  border-radius: 16px; /* Approximate radius for the card corners */
+  background-color: transparent;
+}
+
+.divination-card-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.divination-card-art {
+  position: absolute;
+  top: 45px; /* Adjust based on header height */
+  left: 26px; /* Adjust based on frame border */
+  width: 352px; /* Adjust */
+  height: 260px; /* Adjust */
+  object-fit: cover;
+  z-index: 5;
+  background-color: black;
+  /* Masking or clipping might be needed if the art is rectangular but frame has rounded corners */
+}
+
+.divination-card-header {
+  position: absolute;
+  top: 17px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 20;
+  color: #222; /* Dark text for header */
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.divination-card-stack {
+  position: absolute;
+  top: 279px; /* Adjust */
+  left: 40px; /* Adjust */
+  width: 60px;
+  text-align: center;
+  z-index: 20;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  background: transparent;
+  padding: 2px 8px;
+}
+
+.divination-card-reward-area {
+  position: absolute;
+  top: 300px;
+  left: 30px;
+  width: 340px;
+  height: 127px; /* Ends at separator (415px) */
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.divination-card-flavor-area {
+  position: absolute;
+  top: 417px; /* Starts after separator */
+  left: 35px;
+  width: 330px;
+  height: 160px; /* Fills remaining space */
+  padding: 20px; /* Add vertical padding */
+  box-sizing: border-box; /* Ensure padding is included in height */
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.divination-card-reward {
+  font-size: 18px;
+  color: #aaa; /* Greyish text */
+  font-weight: 500;
+  white-space: pre-wrap;
+}
+
+.divination-card-reward.unique {
+  color: #ef6916; /* Unique item color */
+}
+
+.divination-card-reward.currency {
+  color: #aa9e82; /* Currency color */
+}
+
+.divination-card-reward.card {
+  color: #0ebaff; /* Card reward color */
+}
+
+.divination-card-reward.gem {
+  color: #1ba29b; /* Gem reward color */
+}
+
+.divination-card-reward.base {
+  color: #c8c8c8; /* Base item color */
+}
+
+.divination-card-flavor {
+  font-size: 18px;
+  color: #af6025; /* Flavor text color */
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.divination-card-separator {
+  position: absolute;
+  top: 425px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #555, transparent);
+  z-index: 20;
+}

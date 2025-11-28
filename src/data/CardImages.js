@@ -1,37 +1,59 @@
 export const CARD_IMAGES = {
-  // 카드 이름: "이미지 URL"
+  // 카드 이름: "이미지 URL" (기존 툴팁용 - 이제 사용 안 할 수도 있음)
   "거울의 집": "",
-  약제사: "",
-  짝사랑: "",
-  천벌: "",
-  "근원을 알 수 없는 화염": "",
-  "헌신의 대가": "",
-  "아버지의 사랑": "",
-  역사: "",
-  "실성한 고양이": "",
-  의사: "",
-  악마: "",
-  불멸자: "",
-  마귀: "",
-  "형제의 선물": "",
-  "루나리스의 자손": "",
-  "신성한 정의": "",
-  "형제가 보인다": "",
-  "끝없는 어둠": "",
-  사기꾼: "",
-  "한 수 밀림": "",
-  "7년 간의 불운": "",
-  "얼음을 가르는 사랑": "",
-  "토끼 발": "",
-  간호사: "",
-  "부와 권력": "",
-  "숨막히는 죄책감": "",
-  "마지막 저항": "",
-  "외로운 전사": "",
-  "마지막 한 번의 기회": "",
-  세피로트: "",
-  호수: "",
-  "빛나는 발견물": "",
+  // ...
+};
+
+export const CARD_ART_IMAGES = {
+  // 카드 이름: "삽화 이미지 URL"
+  "거울의 집":
+    "https://web.poecdn.com/image/divination-card/HouseOfMirrors.png",
+  약제사: "https://web.poecdn.com/image/divination-card/TheApothecary.png",
+  짝사랑: "https://web.poecdn.com/image/divination-card/UnrequitedLove.png",
+  천벌: "https://web.poecdn.com/image/divination-card/Damnation.png",
+  "근원을 알 수 없는 화염":
+    "https://web.poecdn.com/image/divination-card/FireOfUnknownOrigin.png",
+  "헌신의 대가":
+    "https://web.poecdn.com/image/divination-card/ThePriceOfDevotion.png",
+  "아버지의 사랑":
+    "https://web.poecdn.com/image/divination-card/FathersLove.png",
+  역사: "https://web.poecdn.com/image/divination-card/History.png",
+  "실성한 고양이":
+    "https://web.poecdn.com/image/divination-card/TheInsaneCat.png",
+  의사: "https://web.poecdn.com/image/divination-card/TheDoctor.png",
+  악마: "https://web.poecdn.com/image/divination-card/TheDemon.png",
+  불멸자: "https://web.poecdn.com/image/divination-card/TheImmortal.png",
+  마귀: "https://web.poecdn.com/image/divination-card/TheFiend.png",
+  "형제의 선물": "https://web.poecdn.com/image/divination-card/BrotherGift.png",
+  "루나리스의 자손":
+    "https://web.poecdn.com/image/divination-card/TheProgenyofLunaris.png",
+  "신성한 정의":
+    "https://web.poecdn.com/image/divination-card/DivineJustice.png",
+  "형제가 보인다":
+    "https://web.poecdn.com/image/divination-card/ISeeBrothers.png",
+  "끝없는 어둠":
+    "https://web.poecdn.com/image/divination-card/TheEndlessDarkness.png",
+  사기꾼: "https://web.poecdn.com/image/divination-card/TheCheater.png",
+  "한 수 밀림": "https://web.poecdn.com/image/divination-card/Outfoxed.png",
+  "7년 간의 불운":
+    "https://web.poecdn.com/image/divination-card/SevenYearsBadLuck.png",
+  "얼음을 가르는 사랑":
+    "https://web.poecdn.com/image/divination-card/LoveThroughIce.png",
+  "토끼 발": "https://web.poecdn.com/image/divination-card/TheRabbitsFoot.png",
+  간호사: "https://web.poecdn.com/image/divination-card/TheNurse.png",
+  "부와 권력":
+    "https://web.poecdn.com/image/divination-card/WealthAndPower.png",
+  "숨막히는 죄책감":
+    "https://web.poecdn.com/image/divination-card/ChokingGuilt.png",
+  "마지막 저항": "https://web.poecdn.com/image/divination-card/LastStand.png",
+  "외로운 전사":
+    "https://web.poecdn.com/image/divination-card/LonelyWarrior.png",
+  "마지막 한 번의 기회":
+    "https://web.poecdn.com/image/divination-card/OneLastScore.png",
+  세피로트: "https://web.poecdn.com/image/divination-card/TheSephirot.png",
+  호수: "https://web.poecdn.com/image/divination-card/TheLake.png",
+  "빛나는 발견물":
+    "https://web.poecdn.com/image/divination-card/LuminousTrove.png",
 };
 
 export const REWARD_IMAGES = {

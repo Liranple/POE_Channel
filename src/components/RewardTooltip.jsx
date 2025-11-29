@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+/* eslint-disable @next/next/no-img-element */
 import { REWARD_DATA } from "../data/RewardData";
 import "../styles/RewardTooltip.css";
 
@@ -12,7 +13,9 @@ const ParsedText = React.memo(({ text }) => {
     if (part === "\n") return <br key={index} />;
     if (part === "<sep>")
       return <div key={index} className="reward-tooltip-separator"></div>;
-    const match = part.match(/<(grey|white|unique|blue|red)>([\s\S]*?)<\/\1>/);
+    const match = part.match(
+      /<(grey|white|unique|blue|red|yellow|green)>([\s\S]*?)<\/\1>/
+    );
     if (match) {
       const [_, colorType, content] = match;
       const colors = {
@@ -21,6 +24,8 @@ const ParsedText = React.memo(({ text }) => {
         unique: "#af6025",
         blue: "#8888ff",
         red: "#d20000",
+        yellow: "#eBc850",
+        green: "#1BA29B",
       };
       const contentParts = content.split("\n").map((line, i, arr) => (
         <React.Fragment key={i}>
@@ -37,6 +42,7 @@ const ParsedText = React.memo(({ text }) => {
     return part;
   });
 });
+ParsedText.displayName = "ParsedText";
 
 export default function RewardTooltip({ rewardName }) {
   const rawData = REWARD_DATA[rewardName];
@@ -66,11 +72,12 @@ export default function RewardTooltip({ rewardName }) {
     instruction,
     icon,
     iconSize,
+    headerEffect,
   } = data;
 
   return (
     <div className={`reward-tooltip-container ${type}`}>
-      <div className={`reward-tooltip-header ${type}`}>
+      <div className={`reward-tooltip-header ${type} ${headerEffect || ""}`}>
         <div className="reward-tooltip-header-name">{name}</div>
         {baseType && (
           <div className="reward-tooltip-header-base">{baseType}</div>

@@ -239,53 +239,51 @@ export const DEFAULT_CORRUPTED_DATA = [
 export const JEWEL_TYPES = [
   {
     id: "진홍",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicstr.webp",
+    img: "/images/items/basicstr.webp",
   },
   {
     id: "진청록",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
+    img: "/images/items/basicdex.webp",
   },
   {
     id: "코발트",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicint.webp",
+    img: "/images/items/basicint.webp",
   },
   {
     id: "살인적인",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/MurderousEye.webp",
+    img: "/images/items/MurderousEye.webp",
   },
   {
     id: "탐색하는",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/SearchingEye.webp",
+    img: "/images/items/SearchingEye.webp",
   },
   {
     id: "최면거는",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/RivetedEye.webp",
+    img: "/images/items/RivetedEye.webp",
   },
   {
     id: "무시무시한",
-    img: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GhastlyEye.webp",
+    img: "/images/items/GhastlyEye.webp",
   },
 ];
 
 export const JEWEL_TYPE_MAP = {
   // English keys (for backward compatibility)
-  basicstr: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicstr.webp",
-  basicdex: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
-  basicint: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicint.webp",
-  MurderousEye:
-    "https://cdn.poedb.tw/image/Art/2DItems/Jewels/MurderousEye.webp",
-  SearchingEye:
-    "https://cdn.poedb.tw/image/Art/2DItems/Jewels/SearchingEye.webp",
-  RivetedEye: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/RivetedEye.webp",
-  GhastlyEye: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GhastlyEye.webp",
+  basicstr: "/images/items/basicstr.webp",
+  basicdex: "/images/items/basicdex.webp",
+  basicint: "/images/items/basicint.webp",
+  MurderousEye: "/images/items/MurderousEye.webp",
+  SearchingEye: "/images/items/SearchingEye.webp",
+  RivetedEye: "/images/items/RivetedEye.webp",
+  GhastlyEye: "/images/items/GhastlyEye.webp",
 
   // Korean keys
-  진홍: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicstr.webp",
-  진청록: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
-  진청록색: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicdex.webp",
-  코발트: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/basicint.webp",
-  살인적인: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/MurderousEye.webp",
-  탐색하는: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/SearchingEye.webp",
-  최면거는: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/RivetedEye.webp",
-  무시무시한: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GhastlyEye.webp",
+  진홍: "/images/items/basicstr.webp",
+  진청록: "/images/items/basicdex.webp",
+  진청록색: "/images/items/basicdex.webp",
+  코발트: "/images/items/basicint.webp",
+  살인적인: "/images/items/MurderousEye.webp",
+  탐색하는: "/images/items/SearchingEye.webp",
+  최면거는: "/images/items/RivetedEye.webp",
+  무시무시한: "/images/items/GhastlyEye.webp",
 };

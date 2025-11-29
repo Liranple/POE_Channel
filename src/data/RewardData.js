@@ -1,15 +1,18 @@
 import { GRAND_SPECTRUM_DATA } from "./GrandSpectrumData";
+import { SUBLIME_VISION_DATA } from "./SublimeVisionData";
+import { CATALYST_DATA } from "./CatalystData";
+import { EXPERIMENTAL_ACCESSORIES_DATA } from "./ExperimentalAccessoriesData";
 
 export const REWARD_DATA = {
   "칼란드라의 거울": {
     name: "칼란드라의 거울",
     type: "currency",
     tags: ["화폐"],
-    properties: ["중첩 개수: <white>1 / 10</white>"],
+    properties: ["중첩 개수 : <white>1 / 10</white>"],
     description: "<blue>아이템과 똑같은 복제본 생성</blue>",
     explanation:
       "해당 아이템을 우클릭한 뒤, 장착할 수 있는 비-고유 아이템을 좌클릭해 적용할 수 있습니다. \n복제된 아이템은 속성 부여를 개조할 수 없습니다.",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Currency/CurrencyDuplicate.webp",
+    icon: "/images/items/CurrencyDuplicate.webp",
     iconSize: "60px",
   },
   "마법사의 피": {
@@ -30,16 +33,16 @@ export const REWARD_DATA = {
       "<blue>마법 특수 플라스크 효과 제거 불가</blue>",
     ],
     explanation: "힘의 강이 당신의 핏줄에 흐릅니다.",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Belts/InjectorBelt.webp",
+    icon: "/images/items/InjectorBelt.webp",
     iconSize: "100px",
   },
   "거울 파편 x 19": {
     name: "거울 파편",
     type: "currency",
     tags: ["화폐"],
-    properties: ["중첩 개수: <white>19 / 20</white>"],
+    properties: ["중첩 개수 : <white>19 / 20</white>"],
     explanation: "파편 20개를 모으면 칼란드라의 거울이 됩니다.",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Currency/MirrorShard.webp",
+    icon: "/images/items/MirrorShard.webp",
     iconSize: "60px",
   },
   "원형의 성서": {
@@ -60,7 +63,7 @@ export const REWARD_DATA = {
       '"이것이 바로 진실이다. 내 믿음 한가운데에 존재하는 거짓. 막사리우스는 이노센스가 최초로\n선택한 자가 아니었다. 그자가 바로 이노센스였다. 사기꾼이자 거짓말쟁이,\n권력만 탐하는 존재." - 이단자, 리키아',
     instruction:
       "<grey>성역 공략을 시작할 때마다 유물 제단에 이 아이템을 놓으십시오</grey>",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Relics/RelicUnique4x1.webp",
+    icon: "/images/items/RelicUnique4x1.webp",
     iconSize: "180px",
   },
   니미스: {
@@ -79,7 +82,7 @@ export const REWARD_DATA = {
       "<blue>투사체가 무작위 방향으로 발사됨</blue>",
     ],
     explanation: "너무 많은 것도 문제지만\n너무 없는 것도 문제다.",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Rings/UberEaterofWorlds.webp",
+    icon: "/images/items/UberEaterofWorlds.webp",
     iconSize: "60px",
   },
   "<blue>+20%</blue> <red>2고정</red> 마법사의 피": {
@@ -104,26 +107,10 @@ export const REWARD_DATA = {
       "<red>타락</red>",
     ],
     explanation: "힘의 강이 당신의 핏줄에 흐릅니다.",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Belts/InjectorBelt.webp",
+    icon: "/images/items/InjectorBelt.webp",
     iconSize: "100px",
   },
-  "숭고한 환영": {
-    name: "숭고한 환영",
-    baseType: "분광 주얼",
-    type: "unique",
-    tags: ["주얼"],
-    properties: [
-      "중복 사용 제한 : <white>1</white>",
-      "---",
-      "<blue>[오라 보너스 속성]</blue>",
-    ],
-    explanation:
-      "그녀에게는 이 세계로 부족하니,\n내가 더 나은 세계를 만들리라. 완벽을 추구하는 것 외에는\n아무것도 중요하지 않다.",
-    instruction:
-      "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/SublimeVision.webp",
-    iconSize: "60px",
-  },
+  "숭고한 환영": SUBLIME_VISION_DATA,
   "히네코라의 머리카락 x 2": {
     name: "히네코라의 머리카락",
     type: "currency",
@@ -133,7 +120,7 @@ export const REWARD_DATA = {
       "<blue>사용 시 해당 아이템에 다음에 사용할 화폐 아이템의 결과를 예측할 수 있습니다.</blue>\n<blue>어떤 방식으로든 해당 아이템에 속성을 부여하면 예측 능력이 제거됩니다.</blue>",
     explanation:
       "해당 아이템을 우클릭한 뒤, 아이템에 좌클릭해 적용할 수 있습니다.",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Currency/HinekorasLock.webp",
+    icon: "/images/items/HinekorasLock.webp",
     iconSize: "60px",
   },
   "<red>타락</red> 마법사의 피": {
@@ -156,7 +143,7 @@ export const REWARD_DATA = {
       "<red>타락</red>",
     ],
     explanation: "힘의 강이 당신의 핏줄에 흐릅니다.",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Belts/InjectorBelt.webp",
+    icon: "/images/items/InjectorBelt.webp",
     iconSize: "100px",
   },
   헤드헌터: {
@@ -177,7 +164,7 @@ export const REWARD_DATA = {
     ],
     explanation:
       '"인간의 영혼은 뼈라는 동굴에 속하여\n살결을 통해 난 창문으로 배우고 판단한다. 심장은 고깃덩이일 뿐이다.\n인간이 실재하는 곳은 머리라고 할 수 있다."\n- 카옴의 자문관 라비앙가',
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Belts/Headhunter.webp",
+    icon: "/images/items/Headhunter.webp",
     iconSize: "100px",
   },
   "<red>2고정</red> 헤드헌터": {
@@ -201,7 +188,7 @@ export const REWARD_DATA = {
     ],
     explanation:
       '"인간의 영혼은 뼈라는 동굴에 속하여\n살결을 통해 난 창문으로 배우고 판단한다. 심장은 고깃덩이일 뿐이다.\n인간이 실재하는 곳은 머리라고 할 수 있다."\n- 카옴의 자문관 라비앙가',
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Belts/Headhunter.webp",
+    icon: "/images/items/Headhunter.webp",
     iconSize: "100px",
   },
   "<red>타락</red> 헤드헌터": {
@@ -224,19 +211,19 @@ export const REWARD_DATA = {
     ],
     explanation:
       '"인간의 영혼은 뼈라는 동굴에 속하여\n살결을 통해 난 창문으로 배우고 판단한다. 심장은 고깃덩이일 뿐이다.\n인간이 실재하는 곳은 머리라고 할 수 있다."\n- 카옴의 자문관 라비앙가',
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Belts/Headhunter.webp",
+    icon: "/images/items/Headhunter.webp",
     iconSize: "100px",
   },
   "신성한 오브 x 5": {
     name: "신성한 오브",
     type: "currency",
     tags: ["화폐"],
-    properties: ["중첩 개수: <white>5 / 20</white>"],
+    properties: ["중첩 개수 : <white>5 / 20</white>"],
     description:
       "<blue>아이템에 부여된 무작위 속성의 수치를 무작위로 결정</blue>",
     explanation:
       "해당 아이템을 우클릭한 뒤, 마법, 희귀, 고유 아이템을 좌클릭해 적용할 수 있습니다.",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Currency/CurrencyModValues.webp",
+    icon: "/images/items/CurrencyModValues.webp",
     iconSize: "60px",
   },
   "죽어가는 해": {
@@ -262,7 +249,7 @@ export const REWARD_DATA = {
       "모조리 다 죽어야 해.\n자, 불에 타서 죽을지, 폭발해서 죽을지 네가 정해.",
     instruction:
       "<grey>마시려면 우클릭하십시오. 허리띠에 장착 중일 때만 충전이 유지됩니다.\n몬스터를 처치하면 충전량이 차오릅니다.</grey>",
-    icon: "	https://cdn.poedb.tw/image/Art/2DItems/Flasks/ShapersFlask.webp",
+    icon: "/images/items/ShapersFlask.webp",
     iconSize: "60px",
   },
   "<red>타락</red> 장대한 파장": GRAND_SPECTRUM_DATA,
@@ -270,18 +257,19 @@ export const REWARD_DATA = {
     name: "분열의 오브",
     type: "currency",
     tags: ["화폐"],
-    properties: ["중첩 개수: <white>2 / 20</white>"],
+    properties: ["중첩 개수 : <white>2 / 20</white>"],
     description:
       "<blue>속성이 4개 이상인 희귀 아이템 1개의 무작위 속성 1개를 분열시켜 고정합니다.</blue>",
     explanation:
       "해당 아이템을 우클릭한 뒤, 희귀 아이템을 좌클릭해 적용할 수 있습니다. 영향을 받은 아이템, 결합된 아이템, 분열된 아이템에는 사용할 수 없습니다.",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Currency/FracturingOrbCombined.webp",
+    icon: "/images/items/FracturingOrbCombined.webp",
     iconSize: "60px",
   },
   "공허의 탄생": {
     name: "공허의 탄생",
     baseType: "지옥불 검",
     type: "unique",
+    headerEffect: "elder-shaper",
     tags: ["양손 검"],
     properties: [
       "물리 피해 : <blue>74.4-154.8</blue>",
@@ -289,7 +277,7 @@ export const REWARD_DATA = {
       "초당 공격 횟수 : <blue>(1.42-1.46)</blue>",
       "무기 범위 : <white>1.3</white>미터",
       "---",
-      "요구 사항 레벨 <white>67  113</white> 힘, <white>113</white> 민첩",
+      "요구 사항 레벨 <white>67</white>, <white>113</white> 힘, <white>113</white> 민첩",
       "---",
       "<blue>공격 스킬의 원소 피해 </blue><white>30</white><blue>% 증가</blue>",
       "---",
@@ -302,7 +290,229 @@ export const REWARD_DATA = {
       '<grey>("감전"이 받는 피해를 2초 동안 50%까지 증가시킵니다. 증가 정도는 감전을 부여한 번개 피해량에 따라 달라집니다)</grey>',
     ],
     explanation: "무에서 탄생한 무기는 또 다른 무만을 만들어낼 수 있을 뿐이다.",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Weapons/TwoHandWeapons/TwoHandSwords/Starforge.webp",
+    icon: "/images/items/Starforge.webp",
     iconSize: "100px",
+  },
+  "6레벨 각성한 보조 젬": {
+    name: "각성한 보조",
+    type: "gem",
+    properties: [
+      "<yellow>보조</yellow>",
+      "레벨: <white>6 (최대)</white>",
+      "소모 및 점유 배율 : <white>100%</white>",
+      "---",
+      "요구 사항 레벨 <white>82</white>",
+      "---",
+      "<green>스킬에 적용됩니다.</green>",
+      "---",
+      "<blue>[각성한 보조 젬 보너스 옵션]</blue>",
+      "\n",
+      "<white>퀄리티로 인한 추가 효과 :</white>",
+      "<blue>[퀄리티 보너스 옵션]</blue>",
+      "---",
+      "<red>타락</red>",
+    ],
+    explanation:
+      "보조 젬입니다. 캐릭터가 아닌, 홈을 통해 연결된 젬이 보유한 스킬에 영향을 줍니다. 강화하고 싶은 스킬 젬과 연결된 빈 홈에 장착하십시오. 제거하려면 홈을 우클릭하십시오.",
+    iconSize: "60px",
+  },
+  "장막의 엑잘티드 오브": {
+    name: "장막의 엑잘티드 오브",
+    type: "currency",
+    tags: ["화폐"],
+    properties: ["중첩 개수 : <white>1 / 20</white>"],
+    description:
+      "<blue>희귀 아이템의 무작위 속성을 1개 제거하고 무작위 장막 속성을 1개 추가합니다</blue>",
+    explanation:
+      "해당 아이템을 우클릭한 뒤, 희귀 아이템을 좌클릭해 적용할 수 있습니다.",
+    icon: "/images/items/VeiledExaltedOrb.webp",
+    iconSize: "60px",
+  },
+  "거울 파편": {
+    name: "거울 파편",
+    type: "currency",
+    tags: ["화폐"],
+    properties: ["중첩 개수 : <white>1 / 20</white>"],
+    explanation: "파편 20개를 모으면 칼란드라의 거울이 됩니다.",
+    icon: "/images/items/MirrorShard.webp",
+    iconSize: "60px",
+  },
+  "<red>2고정</red> 기이한 본능": {
+    name: "기이한 본능",
+    baseType: "진청록색 주얼",
+    type: "unique",
+    tags: ["주얼"],
+    properties: [
+      "중복 사용 제한 : <white>1</white>",
+      "반경 : <white>작음</white>",
+      "---",
+      "<red>타락 고정 속성</red>",
+      "<red>타락 고정 속성</red>",
+      "---",
+      "<blue>반경 내 할당된 소형 패시브 스킬이 아무것도 부여하지 않음</blue>",
+      "<blue>반경 내 할당되지 않은 소형 패시브 스킬에 모든 보너스 적용</blue>",
+      '<grey>(주요 스킬, 숙련, 핵심노드, 주얼 슬롯이 아닌 "패시브 스킬"은 소형으로 나타납니다)</grey>',
+      "---",
+      "<red>타락</red>",
+    ],
+    explanation:
+      '"나도 내가 어떻게 아는지 모르겠다. 그저 안다는 사실만 알 뿐."',
+    instruction:
+      "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
+    icon: "/images/items/UnnaturalInstinct.webp",
+    iconSize: "60px",
+  },
+  "기습 시약 x 10": CATALYST_DATA,
+  "4레벨 계몽 보조 젬": {
+    name: "계몽 보조",
+    type: "gem",
+    properties: [
+      "<yellow>특출난 보조</yellow>",
+      "레벨: <white>4 (최대)</white>",
+      "소모 및 점유 배율 : <white>88%</white>",
+      "---",
+      "요구 사항 레벨 <white>60</white>, <white>96</white> 지능",
+      "---",
+      "<green>모든 스킬 젬에 적용됩니다. 이 젬이 2레벨 이상이면 보조 대상 스킬 젬에 소모 및 점유 배율이</green>",
+      "<green>적용됩니다. 젬과 관련되지 않은 스킬은 적용되지 않습니다.</green>",
+      "---",
+      "\n",
+      "<white>퀄리티로 인한 추가 효과 :</white>",
+      "<blue>이 젬의 경험치 획득 </blue><white>(0-100)</white><blue>% 증가</blue>",
+      "---",
+      "<red>타락</red>",
+    ],
+    explanation:
+      "보조 젬입니다. 캐릭터가 아닌, 홈을 통해 연결된 젬이 보유한 스킬에 영향을 줍니다. 강화하고 싶은 스킬 젬과 연결된 빈 홈에 장착하십시오. 제거하려면 홈을 우클릭하십시오.",
+    icon: "/images/items/Enlighten.webp",
+    iconSize: "60px",
+  },
+  "교살의 손아귀": {
+    name: "교살의 손아귀",
+    baseType: "오닉스 목걸이",
+    type: "unique",
+    tags: ["목걸이"],
+    properties: [
+      "요구 사항 레벨 <white>52</white>",
+      "---",
+      "<blue>모든 능력치 </blue><white>+(10-16)</white>",
+      "---",
+      "<blue>추가 인챈트 속성 부여 </blue><white>3</white><blue>회 가능</blue>",
+    ],
+    explanation: "죽음이 다가오면 선명해지는 것이 있다.",
+    icon: "/images/items/GiftOfGloph.webp",
+    iconSize: "60px",
+  },
+  포기: {
+    name: "포기",
+    baseType: "에조미어 거대 방패",
+    type: "unique",
+    tags: ["방패"],
+    properties: [
+      "막기 확률 : <blue>30%</blue>",
+      "방어도 : <blue>(1174-1540)</blue>",
+      "이동 속도 : <white>-3%</white>",
+      "---",
+      "요구 사항 레벨 <white>64</white>, <white>159</white> 힘",
+      "---",
+      "<blue>생명력 최대치 </blue><white>+(30-40)</white>",
+      "---",
+      "<blue>방어도 </blue><white>+(165-205)</white><blue>% 증가</blue>",
+      "<blue>생명력 최대치 </blue><white>+(65-80)</white>",
+      "<blue>막아낼 시 생명력 </blue><white>(250-500)</white><blue> 회복</blue>",
+      "<blue>막기 확률 </blue><white>+6</white><blue>%</blue>",
+    ],
+    explanation:
+      "각기 심장의 외침을\n서로의 살가죽이 잠재우나니\n살가죽이야 쉬이 내드릴 수 있으리.",
+    icon: "/images/items/Longing2.webp",
+    iconSize: "100px",
+  },
+  "운명의 저항": {
+    name: "운명의 저항",
+    baseType: "파우아 목걸이",
+    type: "unique",
+    tags: ["목걸이"],
+    properties: [
+      "요구 사항 레벨 <white>49</white>",
+      "---",
+      "<blue>마나 재생 속도 </blue><white>(20-30)</white><blue>% 증가</blue>",
+      "---",
+      "<blue>생명력 최대치 </blue><white>+(60-80)</white>",
+      "<blue>화염 저항 </blue><white>+(10-40)</white><blue>%</blue>",
+      "<blue>냉기 저항 </blue><white>+(10-40)</white><blue>%</blue>",
+      "<blue>번개 저항 </blue><white>+(10-40)</white><blue>%</blue>",
+      "<blue>적에게 피격되기 전, 상실한 점유되지 않은 생명력의 </blue><white>(10-20)</white><blue>% 획득</blue>",
+    ],
+    explanation:
+      "농부는 몇 번이고 쓰러졌지만, 계속해서 일어났다.\n이에 깜짝 놀란 약탈자들의 우두머리는 농부의 가족을 죽이지 말라는 명령을 내렸다.",
+    icon: "/images/items/HinekoraAmulet.webp",
+    iconSize: "60px",
+  },
+  "실험적 장신구": EXPERIMENTAL_ACCESSORIES_DATA,
+  "신성한 오브 x 10": {
+    name: "신성한 오브",
+    type: "currency",
+    tags: ["화폐"],
+    properties: ["중첩 개수 : <white>10 / 20</white>"],
+    description:
+      "<blue>아이템에 부여된 무작위 속성의 수치를 무작위로 결정</blue>",
+    explanation:
+      "해당 아이템을 우클릭한 뒤, 마법, 희귀, 고유 아이템을 좌클릭해 적용할 수 있습니다.",
+    icon: "/images/items/CurrencyModValues.webp",
+    iconSize: "60px",
+  },
+  "투영하는 안개": {
+    name: "투영하는 안개",
+    type: "currency",
+    tags: ["화폐"],
+    properties: ["중첩 개수 : <white>1 / 10</white>"],
+    description:
+      "<blue>희귀 목걸이 또는 반지를 예측 불가능하게 투영하여\n해당 아이템을 투영된 속성을 지닌 복제된 반쪽 2개로 나눕니다.</blue>",
+    explanation:
+      "해당 아이템을 우클릭한 뒤, 희귀 목걸이 또는 반지를 좌클릭해 투영할 수 있습니다.\n결합된 아이템, 장막 아이템, 영향을 받은 아이템에는 사용할 수 없습니다.",
+    icon: "/images/items/ReflectiveMist.webp",
+    iconSize: "60px",
+  },
+  "<red>타락</red> 목소리": {
+    name: "목소리",
+    baseType: "대형 스킬 군 주얼",
+    type: "unique",
+    tags: ["주얼"],
+    properties: [
+      "<blue>주얼 슬롯 패시브 스킬 </blue><white>3</white><blue>개 추가</blue>",
+      "<blue>아무것도 부여하지 않는 소형 패시브 스킬 </blue><white>#</white><blue>개 추가</blue>",
+      "<grey>(추가된 패시브 스킬은 다른 주얼의 반경 내에 있는 것으로 간주되지 않습니다)</grey>",
+      "---",
+      "<red>타락</red>",
+    ],
+    explanation: "미치지 않고서야 어찌 신의 말씀을 무시할 수 있단 말인가.",
+    instruction:
+      "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
+    icon: "/images/items/UniqueJewelBase3.webp",
+    iconSize: "60px",
+  },
+  "<blue>+23%</blue> 6레벨 각성한 보조 젬": {
+    name: "각성한 보조",
+    type: "gem",
+    properties: [
+      "<yellow>보조</yellow>",
+      "레벨: <white>6 (최대)</white>",
+      "소모 및 점유 배율 : <white>100%</white>",
+      "퀄리티 : <blue>+23%</blue>",
+      "---",
+      "요구 사항 레벨 <white>82</white>",
+      "---",
+      "<green>스킬에 적용됩니다.</green>",
+      "---",
+      "<blue>[각성한 보조 젬 보너스 옵션]</blue>",
+      "\n",
+      "<white>퀄리티로 인한 추가 효과 :</white>",
+      "<blue>[퀄리티 보너스 옵션]</blue>",
+      "---",
+      "<red>타락</red>",
+    ],
+    explanation:
+      "보조 젬입니다. 캐릭터가 아닌, 홈을 통해 연결된 젬이 보유한 스킬에 영향을 줍니다. 강화하고 싶은 스킬 젬과 연결된 빈 홈에 장착하십시오. 제거하려면 홈을 우클릭하십시오.",
+    iconSize: "60px",
   },
 };

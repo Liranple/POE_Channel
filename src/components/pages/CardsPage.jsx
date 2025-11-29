@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useLayoutEffect } from "react";
+/* eslint-disable @next/next/no-img-element */
 import { CARD_DATA } from "../../data/CardData";
 import {
   CARD_IMAGES,
@@ -18,6 +19,8 @@ export default function CardsPage() {
   const [hoverImage, setHoverImage] = useState(null);
   const [hoverReward, setHoverReward] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const tooltipRef = useRef(null);
+  const rawMousePos = useRef({ x: 0, y: 0 });
 
   // Helper to parse custom tags
   const parseRewardText = (text) => {
@@ -88,20 +91,22 @@ export default function CardsPage() {
   };
 
   const handleCardMouseEnter = (e, card) => {
+    rawMousePos.current = { x: e.clientX, y: e.clientY };
     if (CARD_ART_IMAGES[card.name]) {
       setHoverCard(card);
       setHoverImage(null);
       setHoverReward(null);
-      updateTooltipPosition(e);
+      updatePosition();
     } else if (CARD_IMAGES[card.name]) {
       setHoverImage(CARD_IMAGES[card.name]);
       setHoverCard(null);
       setHoverReward(null);
-      updateTooltipPosition(e);
+      updatePosition();
     }
   };
 
   const handleRewardMouseEnter = (e, rewardName) => {
+    rawMousePos.current = { x: e.clientX, y: e.clientY };
     // Special handling for specific card rewards to show card tooltip
     if (rewardName === "거울의 집" || rewardName === "의사") {
       const targetCard = CARD_DATA.find((c) => c.name === rewardName);
@@ -109,7 +114,7 @@ export default function CardsPage() {
         setHoverCard(targetCard);
         setHoverReward(null);
         setHoverImage(null);
-        updateTooltipPosition(e);
+        updatePosition();
         return;
       }
     }
@@ -118,26 +123,28 @@ export default function CardsPage() {
       setHoverReward(rewardName);
       setHoverImage(null);
       setHoverCard(null);
-      updateTooltipPosition(e);
+      updatePosition();
     } else if (REWARD_IMAGES[rewardName]) {
       setHoverImage(REWARD_IMAGES[rewardName]);
       setHoverReward(null);
       setHoverCard(null);
-      updateTooltipPosition(e);
+      updatePosition();
     }
   };
 
   const handleImageMouseEnter = (e, imageUrl) => {
     if (!imageUrl) return;
+    rawMousePos.current = { x: e.clientX, y: e.clientY };
     setHoverImage(imageUrl);
     setHoverCard(null); // Clear card tooltip
     setHoverReward(null);
-    updateTooltipPosition(e);
+    updatePosition();
   };
 
   const handleMouseMove = (e) => {
+    rawMousePos.current = { x: e.clientX, y: e.clientY };
     if (hoverCard || hoverImage || hoverReward) {
-      updateTooltipPosition(e);
+      updatePosition();
     }
   };
 
@@ -147,19 +154,49 @@ export default function CardsPage() {
     setHoverReward(null);
   };
 
-  const updateTooltipPosition = (e) => {
-    const x = e.clientX + 20;
-    let y = e.clientY + 20;
+  const updatePosition = () => {
+    const { x: clientX, y: clientY } = rawMousePos.current;
+    const x = clientX + 20;
+    const windowHeight = window.innerHeight;
 
-    // 화면 아래쪽 공간이 부족하면 위쪽으로 표시
-    // 카드 툴팁 높이(약 420px)를 기준으로 판단
-    const tooltipHeight = 500;
-    if (e.clientY + tooltipHeight > window.innerHeight) {
-      y = e.clientY - tooltipHeight;
+    let y = clientY + 20;
+
+    if (tooltipRef.current) {
+      const tooltipHeight = tooltipRef.current.offsetHeight;
+      // DivinationCard has scale 0.8
+      const scale = hoverCard ? 0.8 : 1;
+      const effectiveHeight = tooltipHeight * scale;
+      const padding = 40;
+
+      // 60% 지점 기준 (사용자 요청)
+      const isBottom = clientY > windowHeight * 0.6;
+
+      if (isBottom) {
+        y = clientY - effectiveHeight - 10;
+      } else {
+        y = clientY + 20;
+      }
+
+      // 화면 아래로 벗어나지 않도록 위치 조정
+      const maxTop = windowHeight - effectiveHeight - padding;
+      if (y > maxTop) {
+        y = maxTop;
+      }
+
+      // 화면 위로 벗어나지 않도록 위치 조정
+      if (y < padding) {
+        y = padding;
+      }
     }
 
     setMousePos({ x, y });
   };
+
+  useLayoutEffect(() => {
+    if (hoverCard || hoverReward || hoverImage) {
+      updatePosition();
+    }
+  }, [hoverCard, hoverReward, hoverImage]);
 
   return (
     <div className="cards-page-wrapper">
@@ -226,6 +263,7 @@ export default function CardsPage() {
       {/* Hover Tooltip: Divination Card Component */}
       {hoverCard && (
         <div
+          ref={tooltipRef}
           className="tooltip-container visible"
           style={{
             position: "fixed",
@@ -235,6 +273,7 @@ export default function CardsPage() {
             pointerEvents: "none",
             transform: "scale(0.8)", // Increased from 0.7 by ~20%
             transformOrigin: "top left",
+            maxHeight: "80vh",
           }}
         >
           <DivinationCard
@@ -247,6 +286,7 @@ export default function CardsPage() {
       {/* Hover Tooltip: Reward Tooltip */}
       {hoverReward && (
         <div
+          ref={tooltipRef}
           className="tooltip-container visible"
           style={{
             position: "fixed",
@@ -254,6 +294,7 @@ export default function CardsPage() {
             top: mousePos.y + "px",
             zIndex: 1000,
             pointerEvents: "none",
+            maxHeight: "80vh",
           }}
         >
           <RewardTooltip rewardName={hoverReward} />
@@ -263,12 +304,15 @@ export default function CardsPage() {
       {/* Hover Tooltip: Simple Image */}
       {hoverImage && (
         <img
+          ref={tooltipRef}
           src={hoverImage}
           alt="Preview"
           className={`tooltip-image ${hoverImage ? "visible" : ""}`}
           style={{
             left: mousePos.x + "px",
             top: mousePos.y + "px",
+            maxHeight: "80vh",
+            objectFit: "contain",
           }}
         />
       )}

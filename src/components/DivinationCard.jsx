@@ -1,12 +1,34 @@
 import React, { useRef, useLayoutEffect } from "react";
+/* eslint-disable @next/next/no-img-element */
 import "../styles/DivinationCard.css";
 
 export default function DivinationCard({ cardData, artUrl }) {
+  const flavorRef = useRef(null);
+  const flavorText = cardData?.flavorText;
+
+  useLayoutEffect(() => {
+    if (!cardData) return;
+    const element = flavorRef.current;
+    if (!element) return;
+
+    // Reset font size to default to measure correctly
+    let size = 16;
+    element.style.fontSize = `${size}px`;
+
+    // Height available for text = Total Height (160) - Vertical Padding (20)
+    const maxHeight = 120;
+
+    // Reduce font size until it fits
+    while (element.scrollHeight > maxHeight && size > 11) {
+      size -= 0.5;
+      element.style.fontSize = `${size}px`;
+    }
+  }, [flavorText, cardData]);
+
   if (!cardData) return null;
 
-  const { name, reward, cardReward, stackSize, flavorText } = cardData;
+  const { name, reward, cardReward, stackSize } = cardData;
   const displayReward = cardReward || reward;
-  const flavorRef = useRef(null);
 
   // Helper to parse custom tags in reward string
   const parseRewardText = (text) => {
@@ -49,24 +71,6 @@ export default function DivinationCard({ cardData, artUrl }) {
       return part;
     });
   };
-
-  useLayoutEffect(() => {
-    const element = flavorRef.current;
-    if (!element) return;
-
-    // Reset font size to default to measure correctly
-    let size = 16;
-    element.style.fontSize = `${size}px`;
-
-    // Height available for text = Total Height (160) - Vertical Padding (20)
-    const maxHeight = 120;
-
-    // Reduce font size until it fits
-    while (element.scrollHeight > maxHeight && size > 11) {
-      size -= 0.5;
-      element.style.fontSize = `${size}px`;
-    }
-  }, [flavorText]);
 
   // Determine reward type color
   let rewardClass = "currency"; // Default to currency (includes Mirror of Kalandra)
@@ -111,7 +115,7 @@ export default function DivinationCard({ cardData, artUrl }) {
     <div className="divination-card-wrapper">
       {/* Frame */}
       <img
-        src="https://cdn.poedb.tw/image/item/popup/divination-card.webp"
+        src="/images/ui/divination-card.webp"
         alt="Card Frame"
         className="divination-card-frame"
       />

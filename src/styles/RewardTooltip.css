@@ -23,22 +23,50 @@
 }
 
 .reward-tooltip-header.currency {
-  background-image: url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderCurrencyLeft.webp),
-    url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderCurrencyRight.webp),
-    url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderCurrencyMiddle.webp);
+  background-image: url(/images/ui/ItemsHeaderCurrencyLeft.webp),
+    url(/images/ui/ItemsHeaderCurrencyRight.webp),
+    url(/images/ui/ItemsHeaderCurrencyMiddle.webp);
   background-position: left top, right top, center top;
   background-repeat: no-repeat, no-repeat, repeat-x;
   background-size: auto 100%;
 }
 
 .reward-tooltip-header.unique {
-  background-image: url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderUniqueLeft.webp),
-    url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderUniqueRight.webp),
-    url(https://cdn.poedb.tw/image/Art/2DArt/UIImages/InGame/ItemsHeaderUniqueMiddle.webp);
+  background-image: url(/images/ui/ItemsHeaderUniqueLeft.webp),
+    url(/images/ui/ItemsHeaderUniqueRight.webp),
+    url(/images/ui/ItemsHeaderUniqueMiddle.webp);
   background-position: left top, right top, center top;
   background-repeat: no-repeat, no-repeat, repeat-x;
   background-size: auto 100%;
   color: #af6025;
+  flex-direction: column;
+  padding: 5px 40px;
+  height: auto;
+  min-height: 43px;
+}
+
+.reward-tooltip-header.gem {
+  background-image: url(/images/ui/ItemsHeaderGemLeft.webp),
+    url(/images/ui/ItemsHeaderGemRight.webp),
+    url(/images/ui/ItemsHeaderGemMiddle.webp);
+  background-position: left top, right top, center top;
+  background-repeat: no-repeat, no-repeat, repeat-x;
+  background-size: auto 100%;
+  color: #1ba29b;
+  flex-direction: column;
+  padding: 5px 40px;
+  height: auto;
+  min-height: 43px;
+}
+
+.reward-tooltip-header.base {
+  background-image: url(/images/ui/ItemsHeaderWhiteLeft.webp),
+    url(/images/ui/ItemsHeaderWhiteRight.webp),
+    url(/images/ui/ItemsHeaderWhiteMiddle.webp);
+  background-position: left top, right top, center top;
+  background-repeat: no-repeat, no-repeat, repeat-x;
+  background-size: auto 100%;
+  color: #c8c8c8;
   flex-direction: column;
   padding: 5px 40px;
   height: auto;
@@ -88,6 +116,65 @@
 .reward-tooltip-container.unique .reward-tooltip-separator {
   width: 150px;
   background: linear-gradient(90deg, transparent, #af6025, transparent);
+}
+
+.reward-tooltip-container.gem .reward-tooltip-separator {
+  width: 140px;
+  background: linear-gradient(90deg, transparent, #1ba29b, transparent);
+}
+
+/* Header Effects */
+.reward-tooltip-header.shaper::before,
+.reward-tooltip-header.shaper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 43px; /* Match header height roughly */
+  height: 100%;
+  background-image: url(/images/ui/shaper-symbol.webp);
+  background-size: 80%;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 0;
+  opacity: 0.8;
+}
+
+.reward-tooltip-header.shaper::before {
+  left: 0px;
+}
+
+.reward-tooltip-header.shaper::after {
+  right: 0px;
+}
+
+.reward-tooltip-header.elder-shaper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0px;
+  width: 43px;
+  height: 100%;
+  background-image: url(/images/ui/elder-symbol.webp);
+  background-size: 80%;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 0;
+  opacity: 0.8;
+}
+
+.reward-tooltip-header.elder-shaper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0px;
+  width: 43px;
+  height: 100%;
+  background-image: url(/images/ui/shaper-symbol.webp);
+  background-size: 80%;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 0;
+  opacity: 0.8;
 }
 
 .reward-tooltip-container.unique .reward-tooltip-explanation {

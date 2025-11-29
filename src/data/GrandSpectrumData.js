@@ -16,7 +16,7 @@ export const GRAND_SPECTRUM_DATA = [
     explanation: "환한 불길에 단련된 강철 같은 피부.",
     instruction:
       "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/RedGrandSpectrum.webp",
+    icon: "/images/items/RedGrandSpectrum.webp",
     iconSize: "60px",
   },
   {
@@ -36,7 +36,7 @@ export const GRAND_SPECTRUM_DATA = [
     explanation: "빗방울에 겹친 빛처럼 반짝이는 생각들.",
     instruction:
       "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/BlueGrandSpectrum.webp",
+    icon: "/images/items/BlueGrandSpectrum.webp",
     iconSize: "60px",
   },
   {
@@ -56,7 +56,7 @@ export const GRAND_SPECTRUM_DATA = [
     explanation: "쓰러지는 나무와 같은 힘으로 후려치는 주먹.",
     instruction:
       "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GreenGrandSpectrum.webp",
+    icon: "/images/items/GreenGrandSpectrum.webp",
     iconSize: "60px",
   },
   {
@@ -76,7 +76,7 @@ export const GRAND_SPECTRUM_DATA = [
     explanation: "흔들리지 않는 육신.",
     instruction:
       "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GrandSpectrum3_Red.webp",
+    icon: "/images/items/GrandSpectrum3_Red.webp",
     iconSize: "60px",
   },
   {
@@ -89,14 +89,14 @@ export const GRAND_SPECTRUM_DATA = [
       "---",
       "<red>타락 고정 속성</red>",
       "---",
-      "<blue>장대한 파장 하나당 소환수의 치명타 피해 배율</blue><white>+10</white><blue>%</blue>",
+      "<blue>장대한 파장 하나당 소환수의 치명타 피해 배율 </blue><white>+10</white><blue>%</blue>",
       "---",
       "<red>타락</red>",
     ],
     explanation: "야만적인 광분에 빠져 꿈틀거리는 살덩어리.",
     instruction:
       "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GrandSpectrum2_blue.webp",
+    icon: "/images/items/GrandSpectrum2_blue.webp",
     iconSize: "60px",
   },
   {
@@ -116,7 +116,7 @@ export const GRAND_SPECTRUM_DATA = [
     explanation: "폭풍이 몰아쳐도 안전한 산속의 요새.",
     instruction:
       "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GrandSpectrum2_Green.webp",
+    icon: "/images/items/GrandSpectrum2_Green.webp",
     iconSize: "60px",
   },
   {
@@ -136,7 +136,7 @@ export const GRAND_SPECTRUM_DATA = [
     explanation: "쉬지 않는 영혼.",
     instruction:
       "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GrandSpectrum3_Green.webp",
+    icon: "/images/items/GrandSpectrum3_Green.webp",
     iconSize: "60px",
   },
   {
@@ -156,7 +156,7 @@ export const GRAND_SPECTRUM_DATA = [
     explanation: "잠잠해지지 않는 정신.",
     instruction:
       "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GrandSpectrum3_Blue.webp",
+    icon: "/images/items/GrandSpectrum3_Blue.webp",
     iconSize: "60px",
   },
   {
@@ -176,7 +176,7 @@ export const GRAND_SPECTRUM_DATA = [
     explanation: "활력의 샘이 안에서 솟아난다.",
     instruction:
       "<grey>패시브 스킬 트리에서 포인트를 할당한 주얼 슬롯에 장착하십시오.\n우클릭하면 슬롯에서 제거됩니다.</grey>",
-    icon: "https://cdn.poedb.tw/image/Art/2DItems/Jewels/GrandSpectrum2_red.webp",
+    icon: "/images/items/GrandSpectrum2_red.webp",
     iconSize: "60px",
   },
 ];

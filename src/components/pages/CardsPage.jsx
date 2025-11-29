@@ -239,18 +239,52 @@ export default function CardsPage() {
                   </td>
                   <td>
                     <div className="location-list">
-                      {card.locations.map((loc, idx) => (
-                        <div key={idx} className="location-item">
-                          {LOCATION_IMAGES[loc] && (
-                            <img
-                              src={LOCATION_IMAGES[loc]}
-                              alt=""
-                              className="location-icon"
-                            />
-                          )}
-                          <span>{loc}</span>
-                        </div>
-                      ))}
+                      {card.locations.map((loc, idx) => {
+                        const locImage = LOCATION_IMAGES[loc];
+                        return (
+                          <div key={idx} className="location-item">
+                            {locImage &&
+                              (typeof locImage === "string" ? (
+                                <img
+                                  src={locImage}
+                                  alt=""
+                                  className="location-icon"
+                                />
+                              ) : (
+                                <div className="location-icon-layered">
+                                  <img
+                                    src="/images/items/Base23.webp"
+                                    alt=""
+                                    className="location-base"
+                                  />
+                                  {locImage.color ? (
+                                    <div
+                                      className="location-overlay"
+                                      style={{
+                                        backgroundColor: locImage.color,
+                                        maskImage: `url(${locImage.overlay})`,
+                                        WebkitMaskImage: `url(${locImage.overlay})`,
+                                        maskSize: "contain",
+                                        WebkitMaskSize: "contain",
+                                        maskRepeat: "no-repeat",
+                                        WebkitMaskRepeat: "no-repeat",
+                                        maskPosition: "center",
+                                        WebkitMaskPosition: "center",
+                                      }}
+                                    />
+                                  ) : (
+                                    <img
+                                      src={locImage.overlay}
+                                      alt=""
+                                      className="location-overlay"
+                                    />
+                                  )}
+                                </div>
+                              ))}
+                            <span>{loc}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </td>
                 </tr>

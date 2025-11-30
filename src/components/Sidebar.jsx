@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { FaSun, FaMoon, FaRegCommentDots } from "react-icons/fa";
 
 const Sidebar = memo(function Sidebar({
   activeTab,
@@ -12,7 +13,18 @@ const Sidebar = memo(function Sidebar({
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <h1 className="sidebar-title">POE Channel</h1>
+        <h1
+          className="sidebar-title"
+          style={{
+            color: "var(--text)",
+            fontSize: "22px",
+            fontWeight: "700",
+            letterSpacing: "-0.5px",
+            fontFamily: "'Pretendard', sans-serif", // 폰트가 없다면 기본 산세리프 적용됨
+          }}
+        >
+          POE Channel
+        </h1>
       </div>
       <nav className="sidebar-nav">
         {tabs.map((tab) => (
@@ -31,6 +43,9 @@ const Sidebar = memo(function Sidebar({
           padding: "16px",
           borderTop: "1px solid var(--sidebar-border)",
           marginTop: "auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px", // 간격 증가
         }}
       >
         <button
@@ -53,7 +68,15 @@ const Sidebar = memo(function Sidebar({
           onMouseOver={(e) => (e.currentTarget.style.opacity = "0.8")}
           onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
         >
-          {theme === "dark" ? "☀️ 라이트 모드" : "🌙 다크 모드"}
+          {theme === "dark" ? (
+            <>
+              <FaSun size={16} color="#FFD700" /> 라이트 모드
+            </>
+          ) : (
+            <>
+              <FaMoon size={16} color="#4B0082" /> 다크 모드
+            </>
+          )}
         </button>
       </div>
     </aside>

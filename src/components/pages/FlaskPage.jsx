@@ -806,7 +806,7 @@ export default function FlaskPage() {
       <div className="sticky-top-area">
         <div className="wrap" style={{ paddingBottom: 0 }}>
           <header>
-            <h1>★ 플라스크 태그 빌더</h1>
+            <h1>플라스크 정규식 빌더</h1>
             <div className="admin-container">
               <span style={{ color: "var(--text)", fontWeight: 700 }}>
                 관리자 모드

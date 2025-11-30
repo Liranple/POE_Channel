@@ -38,6 +38,27 @@
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": "build"
+		},
+		{
+			"label": "append_css_no_hover",
+			"type": "shell",
+			"command": "echo \"\n.comment-header.no-hover:hover {\n  background: transparent !important;\n}\n\" >> src/styles/DiscussionPage.css",
+			"args": [],
+			"group": "none"
+		},
+		{
+			"label": "append_css_post_confirm",
+			"type": "shell",
+			"command": "echo \"\n/* Post Edit/Delete Password Input Background */\n.post-confirm-box input {\n  background: var(--input-bg); /* Change this color */\n}\n\" >> src/styles/DiscussionPage.css",
+			"args": [],
+			"group": "none"
+		},
+		{
+			"label": "append_css_post_confirm",
+			"type": "shell",
+			"command": "echo \"\n/* Post Edit/Delete Password Input Background */\n.post-actions-footer .delete-confirm-box input {\n  background: var(--input-bg); /* Change this color */\n  height: 30px;\n}\n\n.post-actions-footer .delete-confirm-box button {\n  height: 30px;\n}\n\" >> src/styles/DiscussionPage.css",
+			"args": [],
+			"group": "none"
 		}
 	]
 }

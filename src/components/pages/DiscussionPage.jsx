@@ -1,13 +1,39 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import { BsArrowReturnRight } from "react-icons/bs";
 import { motion, useDragControls, AnimatePresence } from "framer-motion";
 import "../../styles/DiscussionPage.css";
 
+// 초기 포스트 데이터 로드 함수
+const getInitialPosts = () => {
+  if (typeof window === "undefined") return [];
+  const savedPosts = localStorage.getItem("poe_channel_discussion_posts");
+  if (savedPosts) {
+    return JSON.parse(savedPosts);
+  }
+  // 초기 샘플 데이터
+  const samplePosts = [
+    {
+      id: 1,
+      author: "익명",
+      password: "admin",
+      content:
+        "자유 토론장에 오신 것을 환영합니다!\n자유롭게 의견을 나누고 정보를 공유해보세요.",
+      date: "2025-11-29",
+      comments: [],
+    },
+  ];
+  localStorage.setItem(
+    "poe_channel_discussion_posts",
+    JSON.stringify(samplePosts)
+  );
+  return samplePosts;
+};
+
 export default function DiscussionPage() {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState(getInitialPosts);
 
   // 폼 상태
   const [title, setTitle] = useState("");
@@ -37,7 +63,7 @@ export default function DiscussionPage() {
   const [expandedPosts, setExpandedPosts] = useState(new Set());
 
   // 게시글 수정 모드 진입 시 높이 조절
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (editingItem) {
       let textareaId;
       if (editingItem.type === "post") {
@@ -49,42 +75,16 @@ export default function DiscussionPage() {
       }
 
       if (textareaId) {
-        setTimeout(() => {
-          const textarea = document.getElementById(textareaId);
-          if (textarea) {
-            textarea.style.height = "30px";
-            textarea.style.height = `${textarea.scrollHeight}px`;
-          }
-        }, 0);
+        // setTimeout(() => {
+        const textarea = document.getElementById(textareaId);
+        if (textarea) {
+          textarea.style.height = "auto";
+          textarea.style.height = `${textarea.scrollHeight}px`;
+        }
+        // }, 0);
       }
     }
   }, [editingItem]);
-
-  // 로컬 스토리지에서 데이터 로드
-  useEffect(() => {
-    const savedPosts = localStorage.getItem("poe_channel_discussion_posts");
-    if (savedPosts) {
-      setPosts(JSON.parse(savedPosts));
-    } else {
-      // 초기 샘플 데이터
-      const samplePosts = [
-        {
-          id: 1,
-          author: "익명",
-          password: "admin",
-          content:
-            "자유 토론장에 오신 것을 환영합니다!\n자유롭게 의견을 나누고 정보를 공유해보세요.",
-          date: "2025-11-29",
-          comments: [],
-        },
-      ];
-      setPosts(samplePosts);
-      localStorage.setItem(
-        "poe_channel_discussion_posts",
-        JSON.stringify(samplePosts)
-      );
-    }
-  }, []);
 
   const handleMouseDown = (id) => {
     mouseDownTarget.current = id;
@@ -100,8 +100,13 @@ export default function DiscussionPage() {
     // If we are editing ANY item and click another comment/reply, cancel the edit
     if (editingItem) {
       setEditingItem(null);
-      mouseDownTarget.current = null;
-      return;
+      // Continue to process the click (open reply form)
+    }
+
+    // If password input is open, close it
+    if (deleteTarget || editTarget) {
+      setDeleteTarget(null);
+      setEditTarget(null);
     }
 
     if (mouseDownTarget.current === id) {
@@ -201,10 +206,16 @@ export default function DiscussionPage() {
 
       // Check edit forms
       if (editingItem && !editTarget) {
-        const editForms = document.querySelectorAll(".edit-input-wrapper");
-        for (let form of editForms) {
-          if (form.contains(target)) return true;
-        }
+        // Check if clicking on the edit textarea itself
+        const editId =
+          editingItem.type === "post"
+            ? `post-edit-textarea-${editingItem.id}`
+            : editingItem.type === "comment"
+            ? `comment-edit-textarea-${editingItem.id}`
+            : `reply-edit-textarea-${editingItem.id}`;
+        const editEl = document.getElementById(editId);
+        if (editEl && editEl.contains(target)) return true;
+
         // Also check post edit inputs
         const postEditInputs = document.querySelectorAll(
           ".input-title-edit, .input-content"
@@ -225,6 +236,11 @@ export default function DiscussionPage() {
           for (let btn of postActions) {
             if (btn.contains(target)) return true;
           }
+        }
+
+        // Check save button for comment/reply edit
+        if (editingItem.type === "comment" || editingItem.type === "reply") {
+          if (target.closest(".save-comment-btn")) return true;
         }
       }
 
@@ -322,8 +338,9 @@ export default function DiscussionPage() {
     if (!input || !input.content || !input.content.trim() || !input.password)
       return;
 
+    const commentId = crypto.randomUUID();
     const newComment = {
-      id: Date.now(),
+      id: commentId,
       author: "익명",
       password: input.password,
       content: input.content,
@@ -374,8 +391,9 @@ export default function DiscussionPage() {
     if (!input || !input.content || !input.content.trim() || !input.password)
       return;
 
+    const replyId = crypto.randomUUID();
     const newReply = {
-      id: Date.now(),
+      id: replyId,
       author: "익명",
       password: input.password,
       content: input.content,
@@ -452,15 +470,47 @@ export default function DiscussionPage() {
     });
   };
 
-  const handleEditClick = (type, id, parentId = null, grandParentId = null) => {
-    setEditTarget({ type, id, parentId, grandParentId });
+  const handleEditClick = (
+    e,
+    type,
+    id,
+    parentId = null,
+    grandParentId = null
+  ) => {
+    let initialHeight = null;
+    let initialHeaderHeight = null;
+    if (e && e.currentTarget) {
+      const header = e.currentTarget.closest(".comment-header");
+      if (header) {
+        initialHeaderHeight = header.getBoundingClientRect().height;
+        const contentEl = header.querySelector(".comment-content");
+        if (contentEl) {
+          initialHeight = contentEl.getBoundingClientRect().height;
+        }
+      }
+    }
+    setEditTarget({
+      type,
+      id,
+      parentId,
+      grandParentId,
+      initialHeight,
+      initialHeaderHeight,
+    });
     setEditPassword("");
   };
 
   const handleEditPasswordConfirm = () => {
     if (!editTarget) return;
 
-    const { type, id, parentId, grandParentId } = editTarget;
+    const {
+      type,
+      id,
+      parentId,
+      grandParentId,
+      initialHeight,
+      initialHeaderHeight,
+    } = editTarget;
     let targetItem = null;
     let isValid = false;
 
@@ -470,7 +520,7 @@ export default function DiscussionPage() {
         post &&
         (post.password === editPassword || editPassword === "chan93")
       ) {
-        targetItem = { ...post, type: "post" };
+        targetItem = { ...post, type: "post", initialHeight };
         isValid = true;
       }
     } else if (type === "comment") {
@@ -481,7 +531,7 @@ export default function DiscussionPage() {
           comment &&
           (comment.password === editPassword || editPassword === "chan93")
         ) {
-          targetItem = { ...comment, type: "comment", parentId };
+          targetItem = { ...comment, type: "comment", parentId, initialHeight };
           isValid = true;
         }
       }
@@ -500,6 +550,8 @@ export default function DiscussionPage() {
               type: "reply",
               parentId,
               grandParentId,
+              initialHeight,
+              initialHeaderHeight,
             };
             isValid = true;
           }
@@ -686,6 +738,7 @@ export default function DiscussionPage() {
                   fontWeight: "bold",
                   height: "48px",
                   lineHeight: "22px",
+                  fontFamily: "'Pretendard', 'Noto Sans KR', sans-serif",
                 }}
               />
             </div>
@@ -697,9 +750,10 @@ export default function DiscussionPage() {
                 onChange={(e) => {
                   setContent(e.target.value);
                   e.target.style.height = "auto";
-                  e.target.style.height = `${e.target.scrollHeight}px`;
+                  e.target.style.height = `${e.target.scrollHeight + 2}px`;
                 }}
                 className="input-content"
+                style={{ overflow: "hidden" }}
               />
             </div>
             <div className="form-actions">
@@ -775,6 +829,7 @@ export default function DiscussionPage() {
                           lineHeight: "26px",
                           height: "26px",
                           display: "block",
+                          fontFamily: "inherit",
                         }}
                       />
                     ) : (
@@ -825,11 +880,12 @@ export default function DiscussionPage() {
                                 content: e.target.value,
                               });
                               e.target.style.height = "auto";
-                              e.target.style.height = `${e.target.scrollHeight}px`;
+                              e.target.style.height = `${
+                                e.target.scrollHeight + 2
+                              }px`;
                             }}
                             className="input-content"
                             style={{
-                              minHeight: "150px",
                               marginTop: "0",
                               width: "100%",
                               background: "transparent",
@@ -869,18 +925,31 @@ export default function DiscussionPage() {
                           <>
                             <button
                               onClick={handleEditSave}
+                              disabled={
+                                !editingItem.content ||
+                                !editingItem.content.trim()
+                              }
                               style={{
                                 background: "var(--accent)",
                                 color: "#000",
                                 border: "none",
                                 padding: "0 10px",
                                 borderRadius: "4px",
-                                cursor: "pointer",
+                                cursor:
+                                  !editingItem.content ||
+                                  !editingItem.content.trim()
+                                    ? "not-allowed"
+                                    : "pointer",
                                 fontSize: "13px",
-                                height: "30px",
+                                height: "28px",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
+                                opacity:
+                                  !editingItem.content ||
+                                  !editingItem.content.trim()
+                                    ? 0.5
+                                    : 1,
                               }}
                             >
                               저장
@@ -893,7 +962,7 @@ export default function DiscussionPage() {
                               className="delete-icon-btn edit-btn"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleEditClick("post", post.id);
+                                handleEditClick(e, "post", post.id);
                               }}
                               style={{
                                 visibility:
@@ -1029,12 +1098,15 @@ export default function DiscussionPage() {
                                     e.target.style.height = `${e.target.scrollHeight}px`;
                                   }}
                                   onClick={(e) => e.stopPropagation()}
-                                  className="comment-content-input"
+                                  className="comment-content-input editing"
                                   autoFocus
                                   rows={1}
                                   style={{
                                     flex: 1,
-                                    height: "auto",
+                                    height: editingItem.initialHeight
+                                      ? `${editingItem.initialHeight}px`
+                                      : "auto",
+                                    margin: "0",
                                     padding: "0",
                                     fontSize: "13px",
                                     lineHeight: "1.8",
@@ -1057,23 +1129,36 @@ export default function DiscussionPage() {
                               {editingItem?.type === "comment" &&
                               editingItem?.id === comment.id ? (
                                 <button
+                                  className="save-comment-btn"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleEditSave();
                                   }}
+                                  disabled={
+                                    !editingItem.content ||
+                                    !editingItem.content.trim()
+                                  }
                                   style={{
                                     background: "var(--accent)",
                                     color: "#000",
                                     border: "none",
                                     padding: "0 10px",
                                     borderRadius: "4px",
-                                    cursor: "pointer",
-                                    fontSize: "11px",
-                                    height: "24px",
+                                    cursor:
+                                      !editingItem.content ||
+                                      !editingItem.content.trim()
+                                        ? "not-allowed"
+                                        : "pointer",
+                                    fontSize: "13px",
+                                    height: "30px",
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    fontWeight: "bold",
+                                    opacity:
+                                      !editingItem.content ||
+                                      !editingItem.content.trim()
+                                        ? 0.5
+                                        : 1,
                                   }}
                                 >
                                   저장
@@ -1111,6 +1196,7 @@ export default function DiscussionPage() {
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           handleEditClick(
+                                            e,
                                             "comment",
                                             comment.id,
                                             post.id
@@ -1301,7 +1387,7 @@ export default function DiscussionPage() {
                                       className={`comment-header ${
                                         editingItem?.type === "reply" &&
                                         editingItem?.id === reply.id
-                                          ? "no-hover"
+                                          ? "no-hover editing-mode"
                                           : ""
                                       } ${
                                         hoverDisabledId === reply.id
@@ -1319,7 +1405,22 @@ export default function DiscussionPage() {
                                           (reply.depth || 0) + 1
                                         )
                                       }
-                                      style={{ cursor: "pointer" }}
+                                      style={
+                                        editingItem?.type === "reply" &&
+                                        editingItem?.id === reply.id
+                                          ? {
+                                              cursor: "pointer",
+                                              minHeight:
+                                                editingItem.initialHeaderHeight
+                                                  ? `${editingItem.initialHeaderHeight}px`
+                                                  : "unset",
+                                              height:
+                                                editingItem.initialHeaderHeight
+                                                  ? `${editingItem.initialHeaderHeight}px`
+                                                  : "auto",
+                                            }
+                                          : { cursor: "pointer" }
+                                      }
                                     >
                                       <div className="comment-info">
                                         <BsArrowReturnRight className="reply-icon" />
@@ -1337,12 +1438,15 @@ export default function DiscussionPage() {
                                               e.target.style.height = `${e.target.scrollHeight}px`;
                                             }}
                                             onClick={(e) => e.stopPropagation()}
-                                            className="comment-content-input"
-                                            autoFocus
+                                            className="comment-content-input editing"
                                             rows={1}
                                             style={{
                                               flex: 1,
-                                              height: "auto",
+                                              height: editingItem.initialHeight
+                                                ? `${editingItem.initialHeight}px`
+                                                : "23px",
+                                              minHeight: "unset",
+                                              margin: "0",
                                               padding: "0",
                                               fontSize: "13px",
                                               lineHeight: "1.8",
@@ -1361,27 +1465,48 @@ export default function DiscussionPage() {
                                           </span>
                                         )}
                                       </div>
-                                      <div className="comment-meta">
+                                      <div
+                                        className="comment-meta"
+                                        style={
+                                          editingItem?.type === "reply" &&
+                                          editingItem?.id === reply.id
+                                            ? { alignSelf: "center" }
+                                            : {}
+                                        }
+                                      >
                                         {editingItem?.type === "reply" &&
                                         editingItem?.id === reply.id ? (
                                           <button
+                                            className="save-comment-btn"
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               handleEditSave();
                                             }}
+                                            disabled={
+                                              !editingItem.content ||
+                                              !editingItem.content.trim()
+                                            }
                                             style={{
                                               background: "var(--accent)",
                                               color: "#000",
                                               border: "none",
                                               padding: "0 10px",
                                               borderRadius: "4px",
-                                              cursor: "pointer",
-                                              fontSize: "11px",
-                                              height: "24px",
+                                              cursor:
+                                                !editingItem.content ||
+                                                !editingItem.content.trim()
+                                                  ? "not-allowed"
+                                                  : "pointer",
+                                              fontSize: "13px",
+                                              height: "30px",
                                               display: "flex",
                                               alignItems: "center",
                                               justifyContent: "center",
-                                              fontWeight: "bold",
+                                              opacity:
+                                                !editingItem.content ||
+                                                !editingItem.content.trim()
+                                                  ? 0.5
+                                                  : 1,
                                             }}
                                           >
                                             저장
@@ -1424,6 +1549,7 @@ export default function DiscussionPage() {
                                                   onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleEditClick(
+                                                      e,
                                                       "reply",
                                                       reply.id,
                                                       comment.id,

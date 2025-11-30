@@ -58,7 +58,7 @@
   color: var(--text);
   font-size: 15px;
   resize: none; /* Disable native resize */
-  line-height: 2.2;
+  line-height: 2;
   display: block;
 }
 
@@ -225,7 +225,7 @@
 
 .delete-confirm-box input {
   background: var(--input-bg);
-  border: 1px solid var(--sidebar-border);
+  border: 0px solid rgba(0, 0, 0, 0.5);
   padding: 0 8px;
   border-radius: 4px;
   color: var(--text);
@@ -421,7 +421,7 @@
   flex: 1;
   background: var(--input-bg);
   border: 1px solid var(--sidebar-border);
-  padding: 2px 8px !important;
+  padding: 2px 8px;
   border-radius: 4px;
   color: var(--text);
   font-size: var(--comment-font-size) !important;
@@ -432,6 +432,13 @@
   resize: none;
   overflow-y: hidden;
   font-family: inherit;
+}
+
+.comment-content-input.editing {
+  padding: 0;
+  border: none !important;
+  background: transparent !important;
+  min-height: 0 !important;
 }
 
 .comment-content-input:disabled {
@@ -486,6 +493,7 @@
   /* margin-left handled inline for dynamic depth */
   /* Inherits layout from .comment-form */
   /* Removed border-left to match root comment form height/style */
+  display: block;
 }
 
 /* Remove focus outline */
@@ -596,6 +604,21 @@ textarea {
   background: transparent !important;
 }
 
+/* Reply Edit Mode - prevent height expansion */
+.comment-header.editing-mode {
+  min-height: unset !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.comment-header.editing-mode .comment-info {
+  align-items: flex-start !important;
+}
+
+.comment-header.editing-mode .reply-icon {
+  margin-top: 4px;
+}
+
 /* Post Edit/Delete Password Input Background */
 .post-confirm-box input {
   background: rgba(0, 0, 0, 0.2); /* Change this color */
@@ -608,5 +631,5 @@ textarea {
 }
 
 .post-actions-footer .delete-confirm-box button {
-  height: 30px;
+  height: 28px;
 }

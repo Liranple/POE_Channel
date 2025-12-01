@@ -651,7 +651,7 @@ body.dragging-active .add-preset-chip {
 }
 .result-input-wrapper input:focus {
   outline: none !important;
-  border-color: rgba(255, 255, 255, 0.03) !important;
+  border-color: var(--focus-border-color) !important;
   box-shadow: none !important;
 }
 .copy-toast {
@@ -659,7 +659,7 @@ body.dragging-active .add-preset-chip {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--copy-toast-bg);
   color: var(--accent);
   padding: 8px 16px;
   border-radius: 20px;
@@ -668,7 +668,7 @@ body.dragging-active .add-preset-chip {
   pointer-events: none;
   animation: fadeInOut 2s ease-in-out forwards;
   border: 1px solid var(--accent);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--copy-toast-shadow);
   white-space: nowrap;
 }
 
@@ -775,7 +775,7 @@ body.dragging-active .add-preset-chip {
   font-weight: 700;
   pointer-events: none;
   animation: fadeInOut 2s ease-in-out forwards;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--copy-toast-shadow);
   white-space: nowrap;
   z-index: 10;
 }

@@ -2,32 +2,60 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import useDraggableScroll from "../../hooks/useDraggableScroll";
+import useDragHandler from "../../hooks/useDragHandler";
+import { STORAGE_KEYS } from "../../constants";
 
 import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../../data/MapData";
 import OptionItem from "../OptionItem";
 import PresetItem from "../PresetItem";
 import "../../styles/MapsPage.css";
 
+/**
+ * 지도 정규식 빌더 페이지
+ *
+ * 데이터 구조:
+ * - prefixData/suffixData: 앱 내장 데이터
+ * - presets: 로컬 스토리지에 저장되는 사용자 프리셋 (개인 설정)
+ *   - MapsPage 프리셋은 mapStats, andFlags도 포함하는 특수 구조
+ * - selected: 현재 선택된 옵션들 (객체 형태 - include/exclude)
+ */
+
+// 프리셋 마이그레이션 함수 (구버전 호환성)
+const migrateMapPreset = (p) => {
+  let newOptions = p.options;
+  if (Array.isArray(p.options)) {
+    newOptions = {};
+    p.options.forEach((opt) => {
+      newOptions[opt] = "include";
+    });
+  }
+  return p.id
+    ? { ...p, options: newOptions }
+    : { ...p, id: Date.now() + Math.random(), options: newOptions };
+};
+
 export default function MapsPage() {
   const [adminMode, setAdminMode] = useState(false);
-  const [selected, setSelected] = useState({}); // Changed to object: { [regex]: 'include' | 'exclude' }
+  const [selected, setSelected] = useState({});
   const [prefixData, setPrefixData] = useState(DEFAULT_PREFIX_DATA);
   const [suffixData, setSuffixData] = useState(DEFAULT_SUFFIX_DATA);
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [presets, setPresets] = useState([]);
 
-  // 프리셋 추가 모달 상태
+  // 프리셋 모달 상태
   const [presetModalVisible, setPresetModalVisible] = useState(false);
   const [newPresetName, setNewPresetName] = useState("");
-  const [showPresetWarning, setShowPresetWarning] = useState(false); // 경고 토스트 상태 추가
+  const [showPresetWarning, setShowPresetWarning] = useState(false);
+  const [editingPreset, setEditingPreset] = useState(null);
+
+  // 드래그 핸들러 훅
+  const { handleOptionDragStart, handlePresetDragStart } =
+    useDragHandler(adminMode);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState("edit");
   const [modalListId, setModalListId] = useState(null);
   const [currentEditOption, setCurrentEditOption] = useState(null);
-
-  // 프리셋 수정용 상태 추가
-  const [editingPreset, setEditingPreset] = useState(null);
 
   const [mapStats, setMapStats] = useState({
     quantity: "",
@@ -61,27 +89,11 @@ export default function MapsPage() {
   // 로컬 스토리지에서 프리셋 로드
   useEffect(() => {
     const loadPresets = () => {
-      const savedPresets = localStorage.getItem("mapPresets");
+      const savedPresets = localStorage.getItem(STORAGE_KEYS.MAP_PRESETS);
       if (savedPresets) {
         try {
           const parsed = JSON.parse(savedPresets);
-          // ID가 없는 구버전 데이터 호환성 처리 및 options 배열 -> 객체 마이그레이션
-          const migrated = parsed.map((p) => {
-            let newOptions = p.options;
-            if (Array.isArray(p.options)) {
-              newOptions = {};
-              p.options.forEach((opt) => {
-                newOptions[opt] = "include";
-              });
-            }
-            return p.id
-              ? { ...p, options: newOptions }
-              : {
-                  ...p,
-                  id: Date.now() + Math.random(),
-                  options: newOptions,
-                };
-          });
+          const migrated = parsed.map(migrateMapPreset);
           setPresets(migrated);
         } catch (e) {
           console.error("Failed to load presets", e);
@@ -90,6 +102,20 @@ export default function MapsPage() {
     };
     loadPresets();
   }, []);
+
+  // 프리셋 드래그 핸들러 wrapper
+  const onPresetDragStart = useCallback(
+    (e, index) => {
+      handlePresetDragStart(e, index, presets, (newPresets) => {
+        setPresets(newPresets);
+        localStorage.setItem(
+          STORAGE_KEYS.MAP_PRESETS,
+          JSON.stringify(newPresets)
+        );
+      });
+    },
+    [presets, handlePresetDragStart]
+  );
 
   const toggleOption = useCallback((opt) => {
     const normalRegex = opt.filterRegex;
@@ -353,194 +379,6 @@ export default function MapsPage() {
     setNewPresetName("");
     setPresetModalVisible(true);
   }, [selected, mapStats]);
-
-  // 프리셋 드래그 앤 드롭 핸들러
-  const handlePresetDragStart = (e, index) => {
-    if (!adminMode) return;
-    e.dataTransfer.setData("presetIndex", index);
-    e.dataTransfer.effectAllowed = "move";
-    document.body.classList.add("dragging-active");
-  };
-
-  // 옵션 드래그 앤 드롭 핸들러 (Custom DnD)
-  const handleDragStart = useCallback(
-    (e, opt, listId, data, setData) => {
-      if (!adminMode) return;
-
-      const isTouch = e.type === "touchstart";
-      if (!isTouch && e.button !== 0) return;
-
-      const clientX = isTouch ? e.touches[0].clientX : e.clientX;
-      const clientY = isTouch ? e.touches[0].clientY : e.clientY;
-
-      const div = e.currentTarget;
-      const listEl = div.parentElement;
-      const rect = div.getBoundingClientRect();
-
-      if (isTouch) {
-        document.body.style.overflow = "hidden";
-      }
-
-      const placeholder = document.createElement("div");
-      placeholder.className = "option placeholder";
-      placeholder.style.width = rect.width + "px";
-      placeholder.style.height = rect.height + "px";
-      placeholder.style.flexShrink = "0";
-      placeholder.style.visibility = "hidden";
-
-      listEl.insertBefore(placeholder, div.nextSibling);
-
-      div.classList.add("dragging");
-      document.body.classList.add("dragging-active");
-      div.style.position = "fixed";
-      div.style.width = rect.width + "px";
-      div.style.height = rect.height + "px";
-      div.style.left = rect.left + "px";
-      div.style.top = rect.top + "px";
-      div.style.zIndex = "9999";
-      div.style.pointerEvents = "none";
-      div.style.willChange = "transform";
-      document.body.appendChild(div);
-
-      let isDragging = true;
-      let animationId = null;
-
-      const initialLeft = rect.left;
-      const initialTop = rect.top;
-      const initialMouseX = clientX;
-      const initialMouseY = clientY;
-
-      let needsPlaceholderUpdate = false;
-      let currentMouseY = clientY;
-
-      const updatePlaceholder = () => {
-        if (!isDragging) return;
-
-        if (needsPlaceholderUpdate) {
-          needsPlaceholderUpdate = false;
-
-          const items = [...listEl.children].filter(
-            (el) =>
-              el.classList.contains("option") &&
-              el !== placeholder &&
-              el !== div
-          );
-
-          const deltaY = currentMouseY - initialMouseY;
-          const currentAbsY = initialTop + deltaY + rect.height / 2;
-
-          let insertBefore = null;
-          for (const item of items) {
-            const itemRect = item.getBoundingClientRect();
-            const itemMid = itemRect.top + itemRect.height / 2;
-            if (currentAbsY < itemMid) {
-              insertBefore = item;
-              break;
-            }
-          }
-
-          const performMove = (target) => {
-            if (placeholder.nextSibling === target) return;
-
-            const positions = new Map();
-            items.forEach((item) => {
-              const rect = item.getBoundingClientRect();
-              positions.set(item, rect.top);
-            });
-
-            listEl.insertBefore(placeholder, target);
-
-            items.forEach((item) => {
-              const oldTop = positions.get(item);
-              const newTop = item.getBoundingClientRect().top;
-
-              if (oldTop !== newTop) {
-                item.animate(
-                  [
-                    { transform: `translateY(${oldTop - newTop}px)` },
-                    { transform: "translateY(0)" },
-                  ],
-                  {
-                    duration: 300,
-                    easing: "cubic-bezier(0.25, 1, 0.5, 1)",
-                  }
-                );
-              }
-            });
-          };
-
-          if (insertBefore) {
-            performMove(insertBefore);
-          } else {
-            const addBtn = listEl.querySelector(".add-option");
-            const targetNode = addBtn || null;
-            performMove(targetNode);
-          }
-        }
-
-        animationId = requestAnimationFrame(updatePlaceholder);
-      };
-
-      const handleMove = (ev) => {
-        if (!isDragging) return;
-
-        const cx = ev.type === "touchmove" ? ev.touches[0].clientX : ev.clientX;
-        const cy = ev.type === "touchmove" ? ev.touches[0].clientY : ev.clientY;
-
-        const deltaX = cx - initialMouseX;
-        const deltaY = cy - initialMouseY;
-
-        div.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0)`;
-        currentMouseY = cy;
-        needsPlaceholderUpdate = true;
-      };
-
-      const handleEnd = () => {
-        if (!isDragging) return;
-        isDragging = false;
-
-        if (animationId) cancelAnimationFrame(animationId);
-
-        document.removeEventListener("mousemove", handleMove);
-        document.removeEventListener("mouseup", handleEnd);
-        document.removeEventListener("touchmove", handleMove);
-        document.removeEventListener("touchend", handleEnd);
-
-        document.body.style.overflow = "";
-
-        div.classList.remove("dragging");
-        document.body.classList.remove("dragging-active");
-        div.style.position = "";
-        div.style.left = "";
-        div.style.top = "";
-        div.style.width = "";
-        div.style.zIndex = "";
-        div.style.pointerEvents = "";
-        div.style.transform = "";
-        div.style.willChange = "";
-
-        listEl.insertBefore(div, placeholder);
-        placeholder.remove();
-
-        const newOrder = [];
-        listEl.querySelectorAll(".option").forEach((el) => {
-          const id = parseInt(el.dataset.id, 10);
-          const foundOpt = data.find((o) => o.id === id);
-          if (foundOpt) newOrder.push(foundOpt);
-        });
-
-        setData(newOrder);
-      };
-
-      document.addEventListener("mousemove", handleMove, { passive: true });
-      document.addEventListener("mouseup", handleEnd);
-      document.addEventListener("touchmove", handleMove, { passive: false });
-      document.addEventListener("touchend", handleEnd);
-
-      animationId = requestAnimationFrame(updatePlaceholder);
-    },
-    [adminMode]
-  );
 
   // 프리셋 영역 드롭 핸들러
   const handlePresetDrop = (e) => {
@@ -940,7 +778,7 @@ export default function MapsPage() {
                         listId="prefixList"
                         selected={selected}
                         toggleOption={toggleOption}
-                        handleDragStart={handleDragStart}
+                        handleDragStart={handleOptionDragStart}
                         adminMode={adminMode}
                         openModal={openModal}
                         deleteOption={deleteOption}
@@ -968,7 +806,7 @@ export default function MapsPage() {
                         listId="suffixList"
                         selected={selected}
                         toggleOption={toggleOption}
-                        handleDragStart={handleDragStart}
+                        handleDragStart={handleOptionDragStart}
                         adminMode={adminMode}
                         openModal={openModal}
                         deleteOption={deleteOption}

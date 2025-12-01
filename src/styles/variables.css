@@ -97,6 +97,21 @@
 
   --sticky-shadow-color: #0c0d10;
   --box-shadow-common: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  /* Dark Mode specific colors (defaults) */
+  --comment-section-bg: rgba(0, 0, 0, 0.2);
+  --comment-content-color: #e0e0e0;
+  --comment-hover-bg: rgba(255, 255, 255, 0.05);
+  --comment-border-color: rgba(255, 255, 255, 0.05);
+  --copy-toast-bg: rgba(0, 0, 0, 0.8);
+  --copy-toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --map-stat-input-bg: rgba(0, 0, 0, 0.3);
+  --logic-badge-or-bg: rgba(255, 255, 255, 0.1);
+  --placeholder-color: rgba(255, 255, 255, 0.1);
+  --focus-border-color: rgba(255, 255, 255, 0.03);
+  --table-header-bg: rgba(0, 0, 0, 0.2);
+  --table-row-hover-bg: rgba(255, 255, 255, 0.02);
+  --location-item-bg: rgba(255, 255, 255, 0.07);
 }
 
 .theme-light {
@@ -199,4 +214,19 @@
 
   --sticky-shadow-color: #f8fafc;
   --box-shadow-common: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  /* Light Mode specific colors */
+  --comment-section-bg: rgba(0, 0, 0, 0.04);
+  --comment-content-color: #374151;
+  --comment-hover-bg: rgba(0, 0, 0, 0.04);
+  --comment-border-color: rgba(0, 0, 0, 0.08);
+  --copy-toast-bg: rgba(255, 255, 255, 0.95);
+  --copy-toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --map-stat-input-bg: rgba(0, 0, 0, 0.04);
+  --logic-badge-or-bg: rgba(0, 0, 0, 0.08);
+  --placeholder-color: rgba(0, 0, 0, 0.25);
+  --focus-border-color: #cbd5e1;
+  --table-header-bg: rgba(0, 0, 0, 0.05);
+  --table-row-hover-bg: rgba(0, 0, 0, 0.03);
+  --location-item-bg: rgba(0, 0, 0, 0.05);
 }

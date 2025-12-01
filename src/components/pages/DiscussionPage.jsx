@@ -5,31 +5,30 @@ import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import { BsArrowReturnRight } from "react-icons/bs";
 import { motion, useDragControls, AnimatePresence } from "framer-motion";
 import "../../styles/DiscussionPage.css";
+import { STORAGE_KEYS } from "../../constants";
+import { formatDate, validatePassword, generateId } from "../../utils";
 
-// 초기 포스트 데이터 로드 함수
+/**
+ * 초기 포스트 데이터 로드 함수
+ *
+ * 데이터 구조:
+ * - posts: 향후 DB 마이그레이션 대상 (서버에서 관리될 데이터)
+ *   - id: 고유 ID
+ *   - title: 제목
+ *   - author: 작성자 (익명)
+ *   - password: 비밀번호 (서버 마이그레이션 시 해시 처리 필요)
+ *   - content: 내용
+ *   - date: 작성일
+ *   - comments: 댓글 배열
+ *     - id, author, password, content, date, replies
+ */
 const getInitialPosts = () => {
   if (typeof window === "undefined") return [];
-  const savedPosts = localStorage.getItem("poe_channel_discussion_posts");
+  const savedPosts = localStorage.getItem(STORAGE_KEYS.DISCUSSION_POSTS);
   if (savedPosts) {
     return JSON.parse(savedPosts);
   }
-  // 초기 샘플 데이터
-  const samplePosts = [
-    {
-      id: 1,
-      author: "익명",
-      password: "admin",
-      content:
-        "자유 토론장에 오신 것을 환영합니다!\n자유롭게 의견을 나누고 정보를 공유해보세요.",
-      date: "2025-11-29",
-      comments: [],
-    },
-  ];
-  localStorage.setItem(
-    "poe_channel_discussion_posts",
-    JSON.stringify(samplePosts)
-  );
-  return samplePosts;
+  return [];
 };
 
 export default function DiscussionPage() {
@@ -58,6 +57,9 @@ export default function DiscussionPage() {
   const editBoxRef = useRef(null);
   const mouseDownTarget = useRef(null);
   const [hoverDisabledId, setHoverDisabledId] = useState(null);
+
+  // 비밀번호 오류 상태
+  const [passwordError, setPasswordError] = useState(false);
 
   // 게시글 펼침 상태
   const [expandedPosts, setExpandedPosts] = useState(new Set());
@@ -97,22 +99,47 @@ export default function DiscussionPage() {
       return;
     }
 
+    // If we are editing ANY comment/reply, do not open reply form for any item
+    if (
+      editingItem &&
+      (editingItem.type === "comment" || editingItem.type === "reply")
+    ) {
+      mouseDownTarget.current = null;
+      return;
+    }
+
     // If we are editing ANY item and click another comment/reply, cancel the edit
     if (editingItem) {
       setEditingItem(null);
       // Continue to process the click (open reply form)
     }
 
-    // If password input is open, close it
+    // If password input is open, do not process this click at all
+    // (clicking on comment area should not close password input - it's handled by global click)
     if (deleteTarget || editTarget) {
-      setDeleteTarget(null);
-      setEditTarget(null);
+      mouseDownTarget.current = null;
+      return;
     }
 
     if (mouseDownTarget.current === id) {
+      // 텍스트 선택(드래그) 중이면 입력칸을 표시하지 않음
+      const selection = window.getSelection();
+      if (selection && selection.toString().trim().length > 0) {
+        mouseDownTarget.current = null;
+        return;
+      }
+
       if (activeReply && activeReply.id === id) {
         setActiveReply(null);
       } else {
+        // 기존 입력 초기화 (7번 요구사항)
+        if (activeReply && activeReply.parentCommentId) {
+          setReplyInputs((prev) => {
+            const newState = { ...prev };
+            delete newState[activeReply.parentCommentId];
+            return newState;
+          });
+        }
         setActiveReply({
           id,
           type,
@@ -124,70 +151,9 @@ export default function DiscussionPage() {
     mouseDownTarget.current = null;
   };
 
-  // 클릭 외부 감지 (삭제/수정 취소, 답글 작성 취소, 수정 모드 취소)
-  useEffect(() => {
-    function isClickInside(target) {
-      // Check delete/edit password box
-      if (deleteBoxRef.current && deleteBoxRef.current.contains(target))
-        return true;
-      if (editBoxRef.current && editBoxRef.current.contains(target))
-        return true;
-
-      // Check reply forms
-      if (activeReply) {
-        const replyForms = document.querySelectorAll(".reply-form");
-        for (let form of replyForms) {
-          if (form.contains(target)) return true;
-        }
-      }
-
-      // Check edit forms
-      if (editingItem && !editTarget) {
-        const editForms = document.querySelectorAll(".edit-input-wrapper");
-        for (let form of editForms) {
-          if (form.contains(target)) return true;
-        }
-        // Also check post edit inputs
-        const postEditInputs = document.querySelectorAll(
-          ".input-title-edit, .input-content"
-        );
-        for (let input of postEditInputs) {
-          // Only if it's the editing item's input
-          // This is a bit loose but should work for now as we only edit one thing
-          if (
-            editingItem.type === "post" &&
-            input.closest(".post-card") &&
-            input.contains(target)
-          )
-            return true;
-        }
-        // Check save/cancel buttons for post edit
-        if (editingItem.type === "post") {
-          const postActions = document.querySelectorAll(
-            ".post-actions-footer button"
-          );
-          for (let btn of postActions) {
-            if (btn.contains(target)) return true;
-          }
-        }
-      }
-
-      return false;
-    }
-
-    function handleGlobalMouseDown(event) {
-      // We only care about global mouse down for the "click outside" logic
-      // For the comment click logic, we use the specific handlers
-      // But we can reuse the ref if we want, or use a separate one.
-      // Let's use a separate ref for global click outside tracking to avoid conflict
-    }
-
-    // We need a separate ref for the "click outside" logic's mousedown target
-    // Let's call it globalMouseDownTarget
-  }, [deleteTarget, editTarget, activeReply, editingItem]);
-
   const globalMouseDownTarget = useRef(null);
 
+  // 클릭 외부 감지 (삭제/수정 취소, 답글 작성 취소, 수정 모드 취소)
   useEffect(() => {
     function isClickInside(target) {
       // Check delete/edit password box
@@ -249,9 +215,32 @@ export default function DiscussionPage() {
 
     function handleGlobalMouseDown(event) {
       globalMouseDownTarget.current = event.target;
+
+      // 클릭 시 텍스트 선택 해제 (드래그 취소)
+      const selection = window.getSelection();
+      if (selection && selection.toString().trim().length > 0) {
+        // 선택된 텍스트 영역 내부를 클릭한 경우는 선택 유지
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        const isClickInsideSelection =
+          event.clientX >= rect.left &&
+          event.clientX <= rect.right &&
+          event.clientY >= rect.top &&
+          event.clientY <= rect.bottom;
+
+        if (!isClickInsideSelection) {
+          selection.removeAllRanges();
+        }
+      }
     }
 
     function handleGlobalMouseUp(event) {
+      // 텍스트 선택(드래그) 중이면 취소 로직 실행 안함
+      const selection = window.getSelection();
+      if (selection && selection.toString().trim().length > 0) {
+        return;
+      }
+
       const wasMouseDownOutside = !isClickInside(globalMouseDownTarget.current);
       const isMouseUpOutside = !isClickInside(event.target);
 
@@ -279,24 +268,13 @@ export default function DiscussionPage() {
     };
   }, [deleteTarget, editTarget, activeReply, editingItem]);
 
-  // 데이터 저장
+  // 데이터 저장 (향후 DB API 호출로 변경 예정)
   const savePosts = (newPosts) => {
     setPosts(newPosts);
     localStorage.setItem(
-      "poe_channel_discussion_posts",
+      STORAGE_KEYS.DISCUSSION_POSTS,
       JSON.stringify(newPosts)
     );
-  };
-
-  // 날짜 포맷팅 함수
-  const getFormattedDate = () => {
-    const now = new Date();
-    const yy = now.getFullYear().toString().slice(2);
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const dd = String(now.getDate()).padStart(2, "0");
-    const hh = String(now.getHours()).padStart(2, "0");
-    const min = String(now.getMinutes()).padStart(2, "0");
-    return `${yy}-${mm}-${dd}  ${hh}:${min}`;
   };
 
   const handlePostSubmit = (e) => {
@@ -309,7 +287,7 @@ export default function DiscussionPage() {
       password: postPassword,
       title,
       content,
-      date: getFormattedDate(),
+      date: formatDate(),
       comments: [],
     };
 
@@ -344,7 +322,7 @@ export default function DiscussionPage() {
       author: "익명",
       password: input.password,
       content: input.content,
-      date: getFormattedDate(),
+      date: formatDate(),
       replies: [],
     };
 
@@ -392,13 +370,16 @@ export default function DiscussionPage() {
       return;
 
     const replyId = crypto.randomUUID();
+    // 댓글에 대한 답글은 depth 0, 답글에 대한 답글은 부모의 depth
+    const replyDepth =
+      activeReply.type === "comment" ? 0 : (activeReply.depth || 0) + 1;
     const newReply = {
       id: replyId,
       author: "익명",
       password: input.password,
       content: input.content,
-      date: getFormattedDate(),
-      depth: activeReply.depth || 0, // Store depth
+      date: formatDate(),
+      depth: replyDepth,
     };
 
     const updatedPosts = posts.map((post) => {
@@ -498,6 +479,7 @@ export default function DiscussionPage() {
       initialHeaderHeight,
     });
     setEditPassword("");
+    setPasswordError(false);
   };
 
   const handleEditPasswordConfirm = () => {
@@ -516,10 +498,7 @@ export default function DiscussionPage() {
 
     if (type === "post") {
       const post = posts.find((p) => p.id === id);
-      if (
-        post &&
-        (post.password === editPassword || editPassword === "chan93")
-      ) {
+      if (post && validatePassword(editPassword, post.password)) {
         targetItem = { ...post, type: "post", initialHeight };
         isValid = true;
       }
@@ -527,10 +506,7 @@ export default function DiscussionPage() {
       const post = posts.find((p) => p.id === parentId);
       if (post) {
         const comment = post.comments.find((c) => c.id === id);
-        if (
-          comment &&
-          (comment.password === editPassword || editPassword === "chan93")
-        ) {
+        if (comment && validatePassword(editPassword, comment.password)) {
           targetItem = { ...comment, type: "comment", parentId, initialHeight };
           isValid = true;
         }
@@ -541,10 +517,7 @@ export default function DiscussionPage() {
         const comment = post.comments.find((c) => c.id === parentId);
         if (comment) {
           const reply = comment.replies.find((r) => r.id === id);
-          if (
-            reply &&
-            (reply.password === editPassword || editPassword === "chan93")
-          ) {
+          if (reply && validatePassword(editPassword, reply.password)) {
             targetItem = {
               ...reply,
               type: "reply",
@@ -562,8 +535,10 @@ export default function DiscussionPage() {
     if (isValid) {
       setEditingItem(targetItem);
       setEditTarget(null);
+      setPasswordError(false);
     } else {
-      alert("비밀번호가 일치하지 않습니다.");
+      setPasswordError(true);
+      setTimeout(() => setPasswordError(false), 2000);
     }
   };
 
@@ -571,11 +546,11 @@ export default function DiscussionPage() {
     if (!editingItem) return;
 
     const { type, id, parentId, grandParentId, content, title } = editingItem;
-    const currentDate = getFormattedDate();
+    const currentDate = formatDate();
 
     if (type === "post") {
       const updatedPosts = posts.map((p) =>
-        p.id === id ? { ...p, title, content } : p
+        p.id === id ? { ...p, title, content, date: currentDate } : p
       );
       savePosts(updatedPosts);
     } else if (type === "comment") {
@@ -629,6 +604,7 @@ export default function DiscussionPage() {
   ) => {
     setDeleteTarget({ type, id, parentId, grandParentId });
     setDeletePassword("");
+    setPasswordError(false);
   };
 
   const handleDeleteConfirm = () => {
@@ -638,24 +614,20 @@ export default function DiscussionPage() {
 
     if (type === "post") {
       const post = posts.find((p) => p.id === id);
-      if (
-        post &&
-        (post.password === deletePassword || deletePassword === "chan93")
-      ) {
+      if (post && validatePassword(deletePassword, post.password)) {
         const updatedPosts = posts.filter((p) => p.id !== id);
         savePosts(updatedPosts);
         setDeleteTarget(null);
+        setPasswordError(false);
       } else {
-        alert("비밀번호가 일치하지 않습니다.");
+        setPasswordError(true);
+        setTimeout(() => setPasswordError(false), 2000);
       }
     } else if (type === "comment") {
       const post = posts.find((p) => p.id === parentId);
       if (post) {
         const comment = post.comments.find((c) => c.id === id);
-        if (
-          comment &&
-          (comment.password === deletePassword || deletePassword === "chan93")
-        ) {
+        if (comment && validatePassword(deletePassword, comment.password)) {
           const updatedPosts = posts.map((p) => {
             if (p.id === parentId) {
               return {
@@ -667,8 +639,10 @@ export default function DiscussionPage() {
           });
           savePosts(updatedPosts);
           setDeleteTarget(null);
+          setPasswordError(false);
         } else {
-          alert("비밀번호가 일치하지 않습니다.");
+          setPasswordError(true);
+          setTimeout(() => setPasswordError(false), 2000);
         }
       }
     } else if (type === "reply") {
@@ -677,10 +651,7 @@ export default function DiscussionPage() {
         const comment = post.comments.find((c) => c.id === parentId);
         if (comment) {
           const reply = comment.replies.find((r) => r.id === id);
-          if (
-            reply &&
-            (reply.password === deletePassword || deletePassword === "chan93")
-          ) {
+          if (reply && validatePassword(deletePassword, reply.password)) {
             const updatedPosts = posts.map((p) => {
               if (p.id === grandParentId) {
                 const updatedComments = p.comments.map((c) => {
@@ -698,8 +669,10 @@ export default function DiscussionPage() {
             });
             savePosts(updatedPosts);
             setDeleteTarget(null);
+            setPasswordError(false);
           } else {
-            alert("비밀번호가 일치하지 않습니다.");
+            setPasswordError(true);
+            setTimeout(() => setPasswordError(false), 2000);
           }
         }
       }
@@ -714,7 +687,8 @@ export default function DiscussionPage() {
       <div className="page-content">
         <h1>자유 토론장</h1>
         <p className="page-description">
-          자유롭게 의견을 나누세요. (브라우저 저장소 사용)
+          자유 토론장에 오신 것을 환영합니다! 자유롭게 의견을 나누고 정보를
+          공유해보세요.
         </p>
 
         {/* 글 작성 폼 */}
@@ -723,7 +697,7 @@ export default function DiscussionPage() {
             <div className="input-wrapper" style={{ marginBottom: "10px" }}>
               <input
                 type="text"
-                placeholder="제목을 입력하세요"
+                placeholder="게시글 제목"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="input-title"
@@ -745,7 +719,7 @@ export default function DiscussionPage() {
             <div className="textarea-wrapper">
               <textarea
                 ref={textareaRef}
-                placeholder="내용을 입력하세요..."
+                placeholder="게시글 내용"
                 value={content}
                 onChange={(e) => {
                   setContent(e.target.value);
@@ -792,7 +766,14 @@ export default function DiscussionPage() {
                   {/* Title (Left) */}
                   <div
                     className="post-title-section"
-                    onClick={() => togglePost(post.id)}
+                    onClick={(e) => {
+                      // 텍스트 선택(드래그) 중이면 접힘 방지
+                      const selection = window.getSelection();
+                      if (selection && selection.toString().trim().length > 0) {
+                        return;
+                      }
+                      togglePost(post.id);
+                    }}
                     style={{
                       cursor: "pointer",
                       flex: 1,
@@ -1018,6 +999,11 @@ export default function DiscussionPage() {
                               transform: "translateY(-50%)",
                             }}
                           >
+                            {passwordError && (
+                              <span className="password-error-message">
+                                비밀번호가 일치하지 않습니다
+                              </span>
+                            )}
                             <input
                               type="password"
                               placeholder="비밀번호"
@@ -1036,6 +1022,11 @@ export default function DiscussionPage() {
                                 deleteTarget
                                   ? handleDeleteConfirm
                                   : handleEditPasswordConfirm
+                              }
+                              disabled={
+                                deleteTarget
+                                  ? !deletePassword.trim()
+                                  : !editPassword.trim()
                               }
                             >
                               {deleteTarget ? "삭제" : "수정"}
@@ -1061,706 +1052,776 @@ export default function DiscussionPage() {
                     style={{ overflow: "hidden" }}
                   >
                     <div className="comments-section">
-                      {post.comments.map((comment) => (
-                        <div key={comment.id} className="comment-item">
-                          <div
-                            className={`comment-header ${
-                              editingItem?.type === "comment" &&
-                              editingItem?.id === comment.id
-                                ? "no-hover"
-                                : ""
-                            } ${
-                              hoverDisabledId === comment.id ? "no-hover" : ""
-                            }`}
-                            onMouseDown={() => handleMouseDown(comment.id)}
-                            onMouseUp={() =>
-                              handleMouseUp(
-                                comment.id,
-                                "comment",
-                                comment.id,
-                                1
-                              )
-                            }
-                            style={{ cursor: "pointer" }}
-                          >
-                            <div className="comment-info">
-                              {editingItem?.type === "comment" &&
-                              editingItem?.id === comment.id ? (
-                                <textarea
-                                  id={`comment-edit-textarea-${comment.id}`}
-                                  value={editingItem.content}
-                                  onChange={(e) => {
-                                    setEditingItem({
-                                      ...editingItem,
-                                      content: e.target.value,
-                                    });
-                                    e.target.style.height = "auto";
-                                    e.target.style.height = `${e.target.scrollHeight}px`;
-                                  }}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="comment-content-input editing"
-                                  autoFocus
-                                  rows={1}
-                                  style={{
-                                    flex: 1,
-                                    height: editingItem.initialHeight
-                                      ? `${editingItem.initialHeight}px`
-                                      : "auto",
-                                    margin: "0",
-                                    padding: "0",
-                                    fontSize: "13px",
-                                    lineHeight: "1.8",
-                                    resize: "none",
-                                    overflow: "hidden",
-                                    background: "transparent",
-                                    border: "none",
-                                    color: "#e0e0e0",
-                                    fontFamily: "inherit",
-                                    width: "100%",
-                                  }}
-                                />
-                              ) : (
-                                <span className="comment-content">
-                                  {comment.content}
-                                </span>
-                              )}
-                            </div>
-                            <div className="comment-meta">
-                              {editingItem?.type === "comment" &&
-                              editingItem?.id === comment.id ? (
-                                <button
-                                  className="save-comment-btn"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditSave();
-                                  }}
-                                  disabled={
-                                    !editingItem.content ||
-                                    !editingItem.content.trim()
-                                  }
-                                  style={{
-                                    background: "var(--accent)",
-                                    color: "#000",
-                                    border: "none",
-                                    padding: "0 10px",
-                                    borderRadius: "4px",
-                                    cursor:
-                                      !editingItem.content ||
-                                      !editingItem.content.trim()
-                                        ? "not-allowed"
-                                        : "pointer",
-                                    fontSize: "13px",
-                                    height: "30px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    opacity:
-                                      !editingItem.content ||
-                                      !editingItem.content.trim()
-                                        ? 0.5
-                                        : 1,
-                                  }}
-                                >
-                                  저장
-                                </button>
-                              ) : (
-                                <>
-                                  {!(
-                                    (deleteTarget?.type === "comment" &&
-                                      deleteTarget?.id === comment.id) ||
-                                    (editTarget?.type === "comment" &&
-                                      editTarget?.id === comment.id)
-                                  ) && (
-                                    <span className="comment-date">
-                                      {comment.date}
-                                    </span>
-                                  )}
-                                  <div
-                                    className="header-actions"
-                                    onMouseEnter={() =>
-                                      setHoverDisabledId(comment.id)
-                                    }
-                                    onMouseLeave={() =>
-                                      setHoverDisabledId(null)
-                                    }
-                                    onMouseDown={(e) => e.stopPropagation()}
-                                    onMouseUp={(e) => e.stopPropagation()}
-                                  >
-                                    {/* Edit Button */}
-                                    {!(
-                                      editingItem?.type === "comment" &&
-                                      editingItem?.id === comment.id
-                                    ) && (
-                                      <button
-                                        className="delete-icon-btn small edit-btn"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleEditClick(
-                                            e,
-                                            "comment",
-                                            comment.id,
-                                            post.id
-                                          );
-                                        }}
-                                        style={{
-                                          visibility:
-                                            (deleteTarget?.type === "comment" &&
-                                              deleteTarget?.id ===
-                                                comment.id) ||
-                                            (editTarget?.type === "comment" &&
-                                              editTarget?.id === comment.id)
-                                              ? "hidden"
-                                              : "visible",
-                                        }}
-                                      >
-                                        ✎
-                                      </button>
-                                    )}
-
-                                    {/* Delete Button */}
-                                    {!(
-                                      editingItem?.type === "comment" &&
-                                      editingItem?.id === comment.id
-                                    ) && (
-                                      <button
-                                        className="delete-icon-btn small"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleDeleteClick(
-                                            "comment",
-                                            comment.id,
-                                            post.id
-                                          );
-                                        }}
-                                        style={{
-                                          visibility:
-                                            (deleteTarget?.type === "comment" &&
-                                              deleteTarget?.id ===
-                                                comment.id) ||
-                                            (editTarget?.type === "comment" &&
-                                              editTarget?.id === comment.id)
-                                              ? "hidden"
-                                              : "visible",
-                                        }}
-                                      >
-                                        <FaTrashAlt />
-                                      </button>
-                                    )}
-
-                                    {/* Edit/Delete Confirm Box */}
-                                    {(deleteTarget?.type === "comment" &&
-                                      deleteTarget?.id === comment.id) ||
-                                    (editTarget?.type === "comment" &&
-                                      editTarget?.id === comment.id) ? (
-                                      <div
-                                        className={`delete-confirm-box small ${
-                                          editTarget ? "edit-mode" : ""
-                                        }`}
-                                        ref={
-                                          deleteTarget
-                                            ? deleteBoxRef
-                                            : editBoxRef
-                                        }
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <input
-                                          type="password"
-                                          placeholder="비밀번호"
-                                          value={
-                                            deleteTarget
-                                              ? deletePassword
-                                              : editPassword
-                                          }
-                                          onChange={(e) =>
-                                            deleteTarget
-                                              ? setDeletePassword(
-                                                  e.target.value
-                                                )
-                                              : setEditPassword(e.target.value)
-                                          }
-                                          autoFocus
-                                        />
-                                        <button
-                                          onClick={
-                                            deleteTarget
-                                              ? handleDeleteConfirm
-                                              : handleEditPasswordConfirm
-                                          }
-                                        >
-                                          {deleteTarget ? "삭제" : "수정"}
-                                        </button>
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* 대댓글 작성 폼 (댓글 클릭 시) */}
-                          {activeReply?.id === comment.id &&
-                            activeReply?.type === "comment" && (
-                              <form
-                                className="reply-form"
-                                style={{
-                                  marginLeft: "20px",
-                                }}
-                                onSubmit={(e) => handleReplySubmit(e, post.id)}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <div className="comment-inputs">
+                      {post.comments.map((comment) => {
+                        const isCommentMultiLine =
+                          comment.content && comment.content.includes("\n");
+                        return (
+                          <div key={comment.id} className="comment-item">
+                            <div
+                              className={`comment-header ${
+                                editingItem?.type === "comment" &&
+                                editingItem?.id === comment.id
+                                  ? "no-hover"
+                                  : ""
+                              } ${
+                                hoverDisabledId === comment.id ? "no-hover" : ""
+                              } ${isCommentMultiLine ? "multi-line" : ""}`}
+                              onMouseDown={() => handleMouseDown(comment.id)}
+                              onMouseUp={() =>
+                                handleMouseUp(
+                                  comment.id,
+                                  "comment",
+                                  comment.id,
+                                  1
+                                )
+                              }
+                              style={{ cursor: "pointer" }}
+                            >
+                              <div className="comment-info">
+                                {editingItem?.type === "comment" &&
+                                editingItem?.id === comment.id ? (
                                   <textarea
-                                    placeholder="답글 내용..."
-                                    value={
-                                      replyInputs[comment.id]?.content || ""
-                                    }
+                                    id={`comment-edit-textarea-${comment.id}`}
+                                    value={editingItem.content}
                                     onChange={(e) => {
-                                      handleReplyChange(
-                                        comment.id,
-                                        "content",
-                                        e.target.value
-                                      );
-                                      e.target.style.height = "30px";
+                                      setEditingItem({
+                                        ...editingItem,
+                                        content: e.target.value,
+                                      });
+                                      e.target.style.height = "auto";
                                       e.target.style.height = `${e.target.scrollHeight}px`;
                                     }}
-                                    className="comment-content-input"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="comment-content-input editing"
                                     autoFocus
                                     rows={1}
-                                  />
-                                  <input
-                                    type="password"
-                                    placeholder="비밀번호"
-                                    value={
-                                      replyInputs[comment.id]?.password || ""
-                                    }
-                                    onChange={(e) =>
-                                      handleReplyChange(
-                                        comment.id,
-                                        "password",
-                                        e.target.value
-                                      )
-                                    }
-                                    onKeyDown={(e) => {
-                                      if (
-                                        e.key === "Enter" &&
-                                        replyInputs[comment.id]?.content &&
-                                        replyInputs[
-                                          comment.id
-                                        ]?.content.trim() &&
-                                        replyInputs[comment.id]?.password
-                                      ) {
-                                        handleReplySubmit(e, post.id);
-                                      }
-                                    }}
-                                    className="input-password-small"
-                                  />
-                                  <button
-                                    type="submit"
-                                    disabled={
-                                      !replyInputs[comment.id]?.content ||
-                                      !replyInputs[
-                                        comment.id
-                                      ]?.content.trim() ||
-                                      !replyInputs[comment.id]?.password
-                                    }
-                                  >
-                                    등록
-                                  </button>
-                                </div>
-                              </form>
-                            )}
-
-                          {/* 대댓글 목록 */}
-                          {comment.replies && comment.replies.length > 0 && (
-                            <div className="replies-list">
-                              {comment.replies.map((reply) => (
-                                <div key={reply.id} className="reply-wrapper">
-                                  <div
-                                    className="reply-item"
                                     style={{
-                                      marginLeft: reply.depth
-                                        ? `${reply.depth * 20}px`
-                                        : "0px",
+                                      flex: 1,
+                                      height: editingItem.initialHeight
+                                        ? `${editingItem.initialHeight}px`
+                                        : "auto",
+                                      margin: "0",
+                                      padding: "0",
+                                      fontSize: "13px",
+                                      lineHeight: "1.8",
+                                      resize: "none",
+                                      overflow: "hidden",
+                                      background: "transparent",
+                                      border: "none",
+                                      color: "#e0e0e0",
+                                      fontFamily: "inherit",
+                                      width: "100%",
+                                    }}
+                                  />
+                                ) : (
+                                  <span className="comment-content">
+                                    {comment.content}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="comment-meta">
+                                {editingItem?.type === "comment" &&
+                                editingItem?.id === comment.id ? (
+                                  <button
+                                    className="save-comment-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditSave();
+                                    }}
+                                    disabled={
+                                      !editingItem.content ||
+                                      !editingItem.content.trim()
+                                    }
+                                    style={{
+                                      background: "var(--accent)",
+                                      color: "#000",
+                                      border: "none",
+                                      padding: "0 10px",
+                                      borderRadius: "4px",
+                                      cursor:
+                                        !editingItem.content ||
+                                        !editingItem.content.trim()
+                                          ? "not-allowed"
+                                          : "pointer",
+                                      fontSize: "13px",
+                                      height: "30px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      opacity:
+                                        !editingItem.content ||
+                                        !editingItem.content.trim()
+                                          ? 0.5
+                                          : 1,
                                     }}
                                   >
+                                    저장
+                                  </button>
+                                ) : (
+                                  <>
+                                    {!(
+                                      (deleteTarget?.type === "comment" &&
+                                        deleteTarget?.id === comment.id) ||
+                                      (editTarget?.type === "comment" &&
+                                        editTarget?.id === comment.id)
+                                    ) && (
+                                      <span className="comment-date">
+                                        {comment.date}
+                                      </span>
+                                    )}
                                     <div
-                                      className={`comment-header ${
-                                        editingItem?.type === "reply" &&
-                                        editingItem?.id === reply.id
-                                          ? "no-hover editing-mode"
-                                          : ""
-                                      } ${
-                                        hoverDisabledId === reply.id
-                                          ? "no-hover"
-                                          : ""
-                                      }`}
-                                      onMouseDown={() =>
-                                        handleMouseDown(reply.id)
+                                      className="header-actions"
+                                      onMouseEnter={() =>
+                                        setHoverDisabledId(comment.id)
                                       }
-                                      onMouseUp={() =>
-                                        handleMouseUp(
-                                          reply.id,
-                                          "reply",
-                                          comment.id,
-                                          (reply.depth || 0) + 1
-                                        )
+                                      onMouseLeave={() =>
+                                        setHoverDisabledId(null)
                                       }
-                                      style={
-                                        editingItem?.type === "reply" &&
-                                        editingItem?.id === reply.id
-                                          ? {
-                                              cursor: "pointer",
-                                              minHeight:
-                                                editingItem.initialHeaderHeight
-                                                  ? `${editingItem.initialHeaderHeight}px`
-                                                  : "unset",
-                                              height:
-                                                editingItem.initialHeaderHeight
-                                                  ? `${editingItem.initialHeaderHeight}px`
-                                                  : "auto",
-                                            }
-                                          : { cursor: "pointer" }
-                                      }
+                                      onMouseDown={(e) => e.stopPropagation()}
+                                      onMouseUp={(e) => e.stopPropagation()}
                                     >
-                                      <div className="comment-info">
-                                        <BsArrowReturnRight className="reply-icon" />
-                                        {editingItem?.type === "reply" &&
-                                        editingItem?.id === reply.id ? (
-                                          <textarea
-                                            id={`reply-edit-textarea-${reply.id}`}
-                                            value={editingItem.content}
-                                            onChange={(e) => {
-                                              setEditingItem({
-                                                ...editingItem,
-                                                content: e.target.value,
-                                              });
-                                              e.target.style.height = "auto";
-                                              e.target.style.height = `${e.target.scrollHeight}px`;
-                                            }}
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="comment-content-input editing"
-                                            rows={1}
-                                            style={{
-                                              flex: 1,
-                                              height: editingItem.initialHeight
-                                                ? `${editingItem.initialHeight}px`
-                                                : "23px",
-                                              minHeight: "unset",
-                                              margin: "0",
-                                              padding: "0",
-                                              fontSize: "13px",
-                                              lineHeight: "1.8",
-                                              resize: "none",
-                                              overflow: "hidden",
-                                              background: "transparent",
-                                              border: "none",
-                                              color: "#e0e0e0",
-                                              fontFamily: "inherit",
-                                              width: "100%",
-                                            }}
-                                          />
-                                        ) : (
-                                          <span className="comment-content">
-                                            {reply.content}
-                                          </span>
-                                        )}
-                                      </div>
-                                      <div
-                                        className="comment-meta"
-                                        style={
-                                          editingItem?.type === "reply" &&
-                                          editingItem?.id === reply.id
-                                            ? { alignSelf: "center" }
-                                            : {}
-                                        }
-                                      >
-                                        {editingItem?.type === "reply" &&
-                                        editingItem?.id === reply.id ? (
-                                          <button
-                                            className="save-comment-btn"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              handleEditSave();
-                                            }}
-                                            disabled={
-                                              !editingItem.content ||
-                                              !editingItem.content.trim()
-                                            }
-                                            style={{
-                                              background: "var(--accent)",
-                                              color: "#000",
-                                              border: "none",
-                                              padding: "0 10px",
-                                              borderRadius: "4px",
-                                              cursor:
-                                                !editingItem.content ||
-                                                !editingItem.content.trim()
-                                                  ? "not-allowed"
-                                                  : "pointer",
-                                              fontSize: "13px",
-                                              height: "30px",
-                                              display: "flex",
-                                              alignItems: "center",
-                                              justifyContent: "center",
-                                              opacity:
-                                                !editingItem.content ||
-                                                !editingItem.content.trim()
-                                                  ? 0.5
-                                                  : 1,
-                                            }}
-                                          >
-                                            저장
-                                          </button>
-                                        ) : (
-                                          <>
-                                            {!(
-                                              (deleteTarget?.type === "reply" &&
+                                      {/* Edit Button */}
+                                      {!(
+                                        editingItem?.type === "comment" &&
+                                        editingItem?.id === comment.id
+                                      ) && (
+                                        <button
+                                          className="delete-icon-btn small edit-btn"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleEditClick(
+                                              e,
+                                              "comment",
+                                              comment.id,
+                                              post.id
+                                            );
+                                          }}
+                                          style={{
+                                            visibility:
+                                              (deleteTarget?.type ===
+                                                "comment" &&
                                                 deleteTarget?.id ===
-                                                  reply.id) ||
-                                              (editTarget?.type === "reply" &&
-                                                editTarget?.id === reply.id)
-                                            ) && (
-                                              <span className="comment-date">
-                                                {reply.date}
-                                              </span>
-                                            )}
-                                            <div
-                                              className="header-actions"
-                                              onMouseEnter={() =>
-                                                setHoverDisabledId(reply.id)
-                                              }
-                                              onMouseLeave={() =>
-                                                setHoverDisabledId(null)
-                                              }
-                                              onMouseDown={(e) =>
-                                                e.stopPropagation()
-                                              }
-                                              onMouseUp={(e) =>
-                                                e.stopPropagation()
-                                              }
-                                            >
-                                              {/* Edit Button */}
-                                              {!(
-                                                editingItem?.type === "reply" &&
-                                                editingItem?.id === reply.id
-                                              ) && (
-                                                <button
-                                                  className="delete-icon-btn small edit-btn"
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleEditClick(
-                                                      e,
-                                                      "reply",
-                                                      reply.id,
-                                                      comment.id,
-                                                      post.id
-                                                    );
-                                                  }}
-                                                  style={{
-                                                    visibility:
-                                                      (deleteTarget?.type ===
-                                                        "reply" &&
-                                                        deleteTarget?.id ===
-                                                          reply.id) ||
-                                                      (editTarget?.type ===
-                                                        "reply" &&
-                                                        editTarget?.id ===
-                                                          reply.id)
-                                                        ? "hidden"
-                                                        : "visible",
-                                                  }}
-                                                >
-                                                  ✎
-                                                </button>
-                                              )}
+                                                  comment.id) ||
+                                              (editTarget?.type === "comment" &&
+                                                editTarget?.id === comment.id)
+                                                ? "hidden"
+                                                : "visible",
+                                          }}
+                                        >
+                                          ✎
+                                        </button>
+                                      )}
 
-                                              {/* Delete Button */}
-                                              {!(
-                                                editingItem?.type === "reply" &&
-                                                editingItem?.id === reply.id
-                                              ) && (
-                                                <button
-                                                  className="delete-icon-btn small"
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleDeleteClick(
-                                                      "reply",
-                                                      reply.id,
-                                                      comment.id,
-                                                      post.id
-                                                    );
-                                                  }}
-                                                  style={{
-                                                    visibility:
-                                                      (deleteTarget?.type ===
-                                                        "reply" &&
-                                                        deleteTarget?.id ===
-                                                          reply.id) ||
-                                                      (editTarget?.type ===
-                                                        "reply" &&
-                                                        editTarget?.id ===
-                                                          reply.id)
-                                                        ? "hidden"
-                                                        : "visible",
-                                                  }}
-                                                >
-                                                  <FaTrashAlt />
-                                                </button>
-                                              )}
-
-                                              {/* Edit/Delete Confirm Box */}
-                                              {(deleteTarget?.type ===
-                                                "reply" &&
+                                      {/* Delete Button */}
+                                      {!(
+                                        editingItem?.type === "comment" &&
+                                        editingItem?.id === comment.id
+                                      ) && (
+                                        <button
+                                          className="delete-icon-btn small"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteClick(
+                                              "comment",
+                                              comment.id,
+                                              post.id
+                                            );
+                                          }}
+                                          style={{
+                                            visibility:
+                                              (deleteTarget?.type ===
+                                                "comment" &&
                                                 deleteTarget?.id ===
-                                                  reply.id) ||
-                                              (editTarget?.type === "reply" &&
-                                                editTarget?.id === reply.id) ? (
-                                                <div
-                                                  className={`delete-confirm-box small ${
-                                                    editTarget
-                                                      ? "edit-mode"
-                                                      : ""
-                                                  }`}
-                                                  ref={
-                                                    deleteTarget
-                                                      ? deleteBoxRef
-                                                      : editBoxRef
-                                                  }
-                                                  onClick={(e) =>
-                                                    e.stopPropagation()
-                                                  }
-                                                >
-                                                  <input
-                                                    type="password"
-                                                    placeholder="비밀번호"
-                                                    value={
-                                                      deleteTarget
-                                                        ? deletePassword
-                                                        : editPassword
-                                                    }
-                                                    onChange={(e) =>
-                                                      deleteTarget
-                                                        ? setDeletePassword(
-                                                            e.target.value
-                                                          )
-                                                        : setEditPassword(
-                                                            e.target.value
-                                                          )
-                                                    }
-                                                    autoFocus
-                                                  />
-                                                  <button
-                                                    onClick={
-                                                      deleteTarget
-                                                        ? handleDeleteConfirm
-                                                        : handleEditPasswordConfirm
-                                                    }
-                                                  >
-                                                    {deleteTarget
-                                                      ? "삭제"
-                                                      : "수정"}
-                                                  </button>
-                                                </div>
-                                              ) : null}
+                                                  comment.id) ||
+                                              (editTarget?.type === "comment" &&
+                                                editTarget?.id === comment.id)
+                                                ? "hidden"
+                                                : "visible",
+                                          }}
+                                        >
+                                          <FaTrashAlt />
+                                        </button>
+                                      )}
 
-                                              {/* Edit Save/Cancel Buttons - Removed as requested, now inline in edit form */}
-                                              {editingItem?.type === "reply" &&
-                                                editingItem?.id === reply.id &&
-                                                null}
-                                            </div>
-                                          </>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* 대댓글 작성 폼 (대댓글 클릭 시) */}
-                                  {activeReply?.id === reply.id &&
-                                    activeReply?.type === "reply" && (
-                                      <form
-                                        className="reply-form nested-reply-form"
-                                        style={{
-                                          marginLeft: activeReply.depth
-                                            ? `${activeReply.depth * 20}px`
-                                            : "20px",
-                                        }}
-                                        onSubmit={(e) =>
-                                          handleReplySubmit(e, post.id)
-                                        }
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <div className="comment-inputs">
-                                          <textarea
-                                            placeholder="답글 내용..."
-                                            value={
-                                              replyInputs[comment.id]
-                                                ?.content || ""
-                                            }
-                                            onChange={(e) => {
-                                              handleReplyChange(
-                                                comment.id,
-                                                "content",
-                                                e.target.value
-                                              );
-                                              e.target.style.height = "30px";
-                                              e.target.style.height = `${e.target.scrollHeight}px`;
-                                            }}
-                                            className="comment-content-input"
-                                            autoFocus
-                                            rows={1}
-                                          />
+                                      {/* Edit/Delete Confirm Box */}
+                                      {(deleteTarget?.type === "comment" &&
+                                        deleteTarget?.id === comment.id) ||
+                                      (editTarget?.type === "comment" &&
+                                        editTarget?.id === comment.id) ? (
+                                        <div
+                                          className={`delete-confirm-box small ${
+                                            editTarget ? "edit-mode" : ""
+                                          }`}
+                                          ref={
+                                            deleteTarget
+                                              ? deleteBoxRef
+                                              : editBoxRef
+                                          }
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          {passwordError && (
+                                            <span className="password-error-message">
+                                              비밀번호가 일치하지 않습니다
+                                            </span>
+                                          )}
                                           <input
                                             type="password"
                                             placeholder="비밀번호"
                                             value={
-                                              replyInputs[comment.id]
-                                                ?.password || ""
+                                              deleteTarget
+                                                ? deletePassword
+                                                : editPassword
                                             }
                                             onChange={(e) =>
-                                              handleReplyChange(
-                                                comment.id,
-                                                "password",
-                                                e.target.value
-                                              )
+                                              deleteTarget
+                                                ? setDeletePassword(
+                                                    e.target.value
+                                                  )
+                                                : setEditPassword(
+                                                    e.target.value
+                                                  )
                                             }
-                                            onKeyDown={(e) => {
-                                              if (
-                                                e.key === "Enter" &&
-                                                replyInputs[comment.id]
-                                                  ?.content &&
-                                                replyInputs[
-                                                  comment.id
-                                                ]?.content.trim() &&
-                                                replyInputs[comment.id]
-                                                  ?.password
-                                              ) {
-                                                handleReplySubmit(e, post.id);
-                                              }
-                                            }}
-                                            className="input-password-small"
+                                            autoFocus
                                           />
                                           <button
-                                            type="submit"
+                                            onClick={
+                                              deleteTarget
+                                                ? handleDeleteConfirm
+                                                : handleEditPasswordConfirm
+                                            }
                                             disabled={
-                                              !replyInputs[comment.id]
-                                                ?.content ||
-                                              !replyInputs[
-                                                comment.id
-                                              ]?.content.trim() ||
-                                              !replyInputs[comment.id]?.password
+                                              deleteTarget
+                                                ? !deletePassword.trim()
+                                                : !editPassword.trim()
                                             }
                                           >
-                                            등록
+                                            {deleteTarget ? "삭제" : "수정"}
                                           </button>
                                         </div>
-                                      </form>
-                                    )}
-                                </div>
-                              ))}
+                                      ) : null}
+                                    </div>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      ))}
+
+                            {/* 대댓글 작성 폼 (댓글 클릭 시) */}
+                            {activeReply?.id === comment.id &&
+                              activeReply?.type === "comment" && (
+                                <form
+                                  className="reply-form"
+                                  style={{
+                                    marginLeft: "0px",
+                                  }}
+                                  onSubmit={(e) =>
+                                    handleReplySubmit(e, post.id)
+                                  }
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <div className="comment-inputs">
+                                    <textarea
+                                      placeholder="답글 내용"
+                                      value={
+                                        replyInputs[comment.id]?.content || ""
+                                      }
+                                      onChange={(e) => {
+                                        handleReplyChange(
+                                          comment.id,
+                                          "content",
+                                          e.target.value
+                                        );
+                                        e.target.style.height = "30px";
+                                        e.target.style.height = `${e.target.scrollHeight}px`;
+                                      }}
+                                      className="comment-content-input"
+                                      autoFocus
+                                      rows={1}
+                                    />
+                                    <input
+                                      type="password"
+                                      placeholder="비밀번호"
+                                      value={
+                                        replyInputs[comment.id]?.password || ""
+                                      }
+                                      onChange={(e) =>
+                                        handleReplyChange(
+                                          comment.id,
+                                          "password",
+                                          e.target.value
+                                        )
+                                      }
+                                      onKeyDown={(e) => {
+                                        if (
+                                          e.key === "Enter" &&
+                                          replyInputs[comment.id]?.content &&
+                                          replyInputs[
+                                            comment.id
+                                          ]?.content.trim() &&
+                                          replyInputs[comment.id]?.password
+                                        ) {
+                                          handleReplySubmit(e, post.id);
+                                        }
+                                      }}
+                                      className="input-password-small"
+                                    />
+                                    <button
+                                      type="submit"
+                                      disabled={
+                                        !replyInputs[comment.id]?.content ||
+                                        !replyInputs[
+                                          comment.id
+                                        ]?.content.trim() ||
+                                        !replyInputs[comment.id]?.password
+                                      }
+                                    >
+                                      등록
+                                    </button>
+                                  </div>
+                                </form>
+                              )}
+
+                            {/* 대댓글 목록 */}
+                            {comment.replies && comment.replies.length > 0 && (
+                              <div className="replies-list">
+                                {comment.replies.map((reply) => {
+                                  const isReplyMultiLine =
+                                    reply.content &&
+                                    reply.content.includes("\n");
+                                  return (
+                                    <div
+                                      key={reply.id}
+                                      className="reply-wrapper"
+                                    >
+                                      <div
+                                        className="reply-item"
+                                        style={{
+                                          marginLeft:
+                                            reply.depth && reply.depth >= 1
+                                              ? `${
+                                                  (reply.depth - 1) * 10 + 10
+                                                }px`
+                                              : "0px",
+                                        }}
+                                      >
+                                        <div
+                                          className={`comment-header ${
+                                            editingItem?.type === "reply" &&
+                                            editingItem?.id === reply.id
+                                              ? "no-hover editing-mode"
+                                              : ""
+                                          } ${
+                                            hoverDisabledId === reply.id
+                                              ? "no-hover"
+                                              : ""
+                                          } ${
+                                            isReplyMultiLine ? "multi-line" : ""
+                                          }`}
+                                          onMouseDown={() =>
+                                            handleMouseDown(reply.id)
+                                          }
+                                          onMouseUp={() =>
+                                            handleMouseUp(
+                                              reply.id,
+                                              "reply",
+                                              comment.id,
+                                              (reply.depth || 0) + 1
+                                            )
+                                          }
+                                          style={
+                                            editingItem?.type === "reply" &&
+                                            editingItem?.id === reply.id
+                                              ? {
+                                                  cursor: "pointer",
+                                                  minHeight:
+                                                    editingItem.initialHeaderHeight
+                                                      ? `${editingItem.initialHeaderHeight}px`
+                                                      : "unset",
+                                                  height:
+                                                    editingItem.initialHeaderHeight
+                                                      ? `${editingItem.initialHeaderHeight}px`
+                                                      : "auto",
+                                                }
+                                              : { cursor: "pointer" }
+                                          }
+                                        >
+                                          <div className="comment-info">
+                                            <BsArrowReturnRight className="reply-icon" />
+                                            {editingItem?.type === "reply" &&
+                                            editingItem?.id === reply.id ? (
+                                              <textarea
+                                                id={`reply-edit-textarea-${reply.id}`}
+                                                value={editingItem.content}
+                                                onChange={(e) => {
+                                                  setEditingItem({
+                                                    ...editingItem,
+                                                    content: e.target.value,
+                                                  });
+                                                  e.target.style.height =
+                                                    "auto";
+                                                  e.target.style.height = `${e.target.scrollHeight}px`;
+                                                }}
+                                                onClick={(e) =>
+                                                  e.stopPropagation()
+                                                }
+                                                className="comment-content-input editing"
+                                                rows={1}
+                                                style={{
+                                                  flex: 1,
+                                                  height:
+                                                    editingItem.initialHeight
+                                                      ? `${editingItem.initialHeight}px`
+                                                      : "23px",
+                                                  minHeight: "unset",
+                                                  margin: "0",
+                                                  padding: "0",
+                                                  fontSize: "13px",
+                                                  lineHeight: "1.8",
+                                                  resize: "none",
+                                                  overflow: "hidden",
+                                                  background: "transparent",
+                                                  border: "none",
+                                                  color: "#e0e0e0",
+                                                  fontFamily: "inherit",
+                                                  width: "100%",
+                                                }}
+                                              />
+                                            ) : (
+                                              <span className="comment-content">
+                                                {reply.content}
+                                              </span>
+                                            )}
+                                          </div>
+                                          <div
+                                            className="comment-meta"
+                                            style={
+                                              editingItem?.type === "reply" &&
+                                              editingItem?.id === reply.id
+                                                ? { alignSelf: "center" }
+                                                : {}
+                                            }
+                                          >
+                                            {editingItem?.type === "reply" &&
+                                            editingItem?.id === reply.id ? (
+                                              <button
+                                                className="save-comment-btn"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleEditSave();
+                                                }}
+                                                disabled={
+                                                  !editingItem.content ||
+                                                  !editingItem.content.trim()
+                                                }
+                                                style={{
+                                                  background: "var(--accent)",
+                                                  color: "#000",
+                                                  border: "none",
+                                                  padding: "0 10px",
+                                                  borderRadius: "4px",
+                                                  cursor:
+                                                    !editingItem.content ||
+                                                    !editingItem.content.trim()
+                                                      ? "not-allowed"
+                                                      : "pointer",
+                                                  fontSize: "13px",
+                                                  height: "30px",
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  justifyContent: "center",
+                                                  opacity:
+                                                    !editingItem.content ||
+                                                    !editingItem.content.trim()
+                                                      ? 0.5
+                                                      : 1,
+                                                }}
+                                              >
+                                                저장
+                                              </button>
+                                            ) : (
+                                              <>
+                                                {!(
+                                                  (deleteTarget?.type ===
+                                                    "reply" &&
+                                                    deleteTarget?.id ===
+                                                      reply.id) ||
+                                                  (editTarget?.type ===
+                                                    "reply" &&
+                                                    editTarget?.id === reply.id)
+                                                ) && (
+                                                  <span className="comment-date">
+                                                    {reply.date}
+                                                  </span>
+                                                )}
+                                                <div
+                                                  className="header-actions"
+                                                  onMouseEnter={() =>
+                                                    setHoverDisabledId(reply.id)
+                                                  }
+                                                  onMouseLeave={() =>
+                                                    setHoverDisabledId(null)
+                                                  }
+                                                  onMouseDown={(e) =>
+                                                    e.stopPropagation()
+                                                  }
+                                                  onMouseUp={(e) =>
+                                                    e.stopPropagation()
+                                                  }
+                                                >
+                                                  {/* Edit Button */}
+                                                  {!(
+                                                    editingItem?.type ===
+                                                      "reply" &&
+                                                    editingItem?.id === reply.id
+                                                  ) && (
+                                                    <button
+                                                      className="delete-icon-btn small edit-btn"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleEditClick(
+                                                          e,
+                                                          "reply",
+                                                          reply.id,
+                                                          comment.id,
+                                                          post.id
+                                                        );
+                                                      }}
+                                                      style={{
+                                                        visibility:
+                                                          (deleteTarget?.type ===
+                                                            "reply" &&
+                                                            deleteTarget?.id ===
+                                                              reply.id) ||
+                                                          (editTarget?.type ===
+                                                            "reply" &&
+                                                            editTarget?.id ===
+                                                              reply.id)
+                                                            ? "hidden"
+                                                            : "visible",
+                                                      }}
+                                                    >
+                                                      ✎
+                                                    </button>
+                                                  )}
+
+                                                  {/* Delete Button */}
+                                                  {!(
+                                                    editingItem?.type ===
+                                                      "reply" &&
+                                                    editingItem?.id === reply.id
+                                                  ) && (
+                                                    <button
+                                                      className="delete-icon-btn small"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteClick(
+                                                          "reply",
+                                                          reply.id,
+                                                          comment.id,
+                                                          post.id
+                                                        );
+                                                      }}
+                                                      style={{
+                                                        visibility:
+                                                          (deleteTarget?.type ===
+                                                            "reply" &&
+                                                            deleteTarget?.id ===
+                                                              reply.id) ||
+                                                          (editTarget?.type ===
+                                                            "reply" &&
+                                                            editTarget?.id ===
+                                                              reply.id)
+                                                            ? "hidden"
+                                                            : "visible",
+                                                      }}
+                                                    >
+                                                      <FaTrashAlt />
+                                                    </button>
+                                                  )}
+
+                                                  {/* Edit/Delete Confirm Box */}
+                                                  {(deleteTarget?.type ===
+                                                    "reply" &&
+                                                    deleteTarget?.id ===
+                                                      reply.id) ||
+                                                  (editTarget?.type ===
+                                                    "reply" &&
+                                                    editTarget?.id ===
+                                                      reply.id) ? (
+                                                    <div
+                                                      className={`delete-confirm-box small ${
+                                                        editTarget
+                                                          ? "edit-mode"
+                                                          : ""
+                                                      }`}
+                                                      ref={
+                                                        deleteTarget
+                                                          ? deleteBoxRef
+                                                          : editBoxRef
+                                                      }
+                                                      onClick={(e) =>
+                                                        e.stopPropagation()
+                                                      }
+                                                    >
+                                                      {passwordError && (
+                                                        <span className="password-error-message">
+                                                          비밀번호가 일치하지
+                                                          않습니다
+                                                        </span>
+                                                      )}
+                                                      <input
+                                                        type="password"
+                                                        placeholder="비밀번호"
+                                                        value={
+                                                          deleteTarget
+                                                            ? deletePassword
+                                                            : editPassword
+                                                        }
+                                                        onChange={(e) =>
+                                                          deleteTarget
+                                                            ? setDeletePassword(
+                                                                e.target.value
+                                                              )
+                                                            : setEditPassword(
+                                                                e.target.value
+                                                              )
+                                                        }
+                                                        autoFocus
+                                                      />
+                                                      <button
+                                                        onClick={
+                                                          deleteTarget
+                                                            ? handleDeleteConfirm
+                                                            : handleEditPasswordConfirm
+                                                        }
+                                                        disabled={
+                                                          deleteTarget
+                                                            ? !deletePassword.trim()
+                                                            : !editPassword.trim()
+                                                        }
+                                                      >
+                                                        {deleteTarget
+                                                          ? "삭제"
+                                                          : "수정"}
+                                                      </button>
+                                                    </div>
+                                                  ) : null}
+
+                                                  {/* Edit Save/Cancel Buttons - Removed as requested, now inline in edit form */}
+                                                  {editingItem?.type ===
+                                                    "reply" &&
+                                                    editingItem?.id ===
+                                                      reply.id &&
+                                                    null}
+                                                </div>
+                                              </>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* 대댓글 작성 폼 (대댓글 클릭 시) */}
+                                      {activeReply?.id === reply.id &&
+                                        activeReply?.type === "reply" && (
+                                          <form
+                                            className="reply-form nested-reply-form"
+                                            style={{
+                                              marginLeft: (() => {
+                                                // 새 답글의 depth는 부모의 depth + 1
+                                                const newReplyDepth =
+                                                  (activeReply.depth || 0) + 1;
+                                                // depth >= 1 부터 들여쓰기 적용
+                                                return newReplyDepth >= 1
+                                                  ? `${
+                                                      (newReplyDepth - 1) * 10 +
+                                                      10
+                                                    }px`
+                                                  : "0px";
+                                              })(),
+                                            }}
+                                            onSubmit={(e) =>
+                                              handleReplySubmit(e, post.id)
+                                            }
+                                            onClick={(e) => e.stopPropagation()}
+                                          >
+                                            <div className="comment-inputs">
+                                              <textarea
+                                                placeholder="답글 내용..."
+                                                value={
+                                                  replyInputs[comment.id]
+                                                    ?.content || ""
+                                                }
+                                                onChange={(e) => {
+                                                  handleReplyChange(
+                                                    comment.id,
+                                                    "content",
+                                                    e.target.value
+                                                  );
+                                                  e.target.style.height =
+                                                    "30px";
+                                                  e.target.style.height = `${e.target.scrollHeight}px`;
+                                                }}
+                                                className="comment-content-input"
+                                                autoFocus
+                                                rows={1}
+                                              />
+                                              <input
+                                                type="password"
+                                                placeholder="비밀번호"
+                                                value={
+                                                  replyInputs[comment.id]
+                                                    ?.password || ""
+                                                }
+                                                onChange={(e) =>
+                                                  handleReplyChange(
+                                                    comment.id,
+                                                    "password",
+                                                    e.target.value
+                                                  )
+                                                }
+                                                onKeyDown={(e) => {
+                                                  if (
+                                                    e.key === "Enter" &&
+                                                    replyInputs[comment.id]
+                                                      ?.content &&
+                                                    replyInputs[
+                                                      comment.id
+                                                    ]?.content.trim() &&
+                                                    replyInputs[comment.id]
+                                                      ?.password
+                                                  ) {
+                                                    handleReplySubmit(
+                                                      e,
+                                                      post.id
+                                                    );
+                                                  }
+                                                }}
+                                                className="input-password-small"
+                                              />
+                                              <button
+                                                type="submit"
+                                                disabled={
+                                                  !replyInputs[comment.id]
+                                                    ?.content ||
+                                                  !replyInputs[
+                                                    comment.id
+                                                  ]?.content.trim() ||
+                                                  !replyInputs[comment.id]
+                                                    ?.password
+                                                }
+                                              >
+                                                등록
+                                              </button>
+                                            </div>
+                                          </form>
+                                        )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
 
                       {/* 댓글 작성 폼 */}
                       <form
@@ -1769,7 +1830,7 @@ export default function DiscussionPage() {
                       >
                         <div className="comment-inputs">
                           <textarea
-                            placeholder="댓글 내용..."
+                            placeholder="댓글 내용"
                             value={commentInputs[post.id]?.content || ""}
                             onChange={(e) => {
                               handleCommentChange(

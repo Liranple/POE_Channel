@@ -2,31 +2,54 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import useDraggableScroll from "../../hooks/useDraggableScroll";
+import usePreset from "../../hooks/usePreset";
+import useDragHandler from "../../hooks/useDragHandler";
+import { STORAGE_KEYS, TAG_ORDER } from "../../constants";
 
 import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../../data/FlaskData";
 import OptionItem from "../OptionItem";
 import PresetItem from "../PresetItem";
 
+/**
+ * 플라스크 정규식 빌더 페이지
+ *
+ * 데이터 구조:
+ * - prefixData/suffixData: 앱 내장 데이터 (변경 시 로컬에 저장되지 않음)
+ * - presets: 로컬 스토리지에 저장되는 사용자 프리셋 (개인 설정)
+ * - selected: 현재 선택된 옵션들 (임시 상태)
+ */
 export default function FlaskPage() {
   const [adminMode, setAdminMode] = useState(false);
   const [selected, setSelected] = useState([]);
   const [prefixData, setPrefixData] = useState(DEFAULT_PREFIX_DATA);
   const [suffixData, setSuffixData] = useState(DEFAULT_SUFFIX_DATA);
   const [showCopyToast, setShowCopyToast] = useState(false);
-  const [presets, setPresets] = useState([]);
 
-  // 프리셋 추가 모달 상태
-  const [presetModalVisible, setPresetModalVisible] = useState(false);
-  const [newPresetName, setNewPresetName] = useState("");
-  const [showPresetWarning, setShowPresetWarning] = useState(false); // 경고 토스트 상태 추가
+  // 커스텀 훅 사용
+  const {
+    presets,
+    setPresets,
+    presetModalVisible,
+    newPresetName,
+    setNewPresetName,
+    showPresetWarning,
+    editingPreset,
+    openPresetModal,
+    savePreset,
+    handleLoadPreset,
+    handleDeletePreset,
+    handleEditPreset,
+    openEditPresetModal,
+    savePresetsToStorage,
+  } = usePreset(STORAGE_KEYS.FLASK_PRESETS, setSelected, selected);
+
+  const { handleOptionDragStart, handlePresetDragStart } =
+    useDragHandler(adminMode);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState("edit");
   const [modalListId, setModalListId] = useState(null);
   const [currentEditOption, setCurrentEditOption] = useState(null);
-
-  // 프리셋 수정용 상태 추가
-  const [editingPreset, setEditingPreset] = useState(null);
 
   const [modalData, setModalData] = useState({
     optionText: "",
@@ -38,26 +61,6 @@ export default function FlaskPage() {
 
   const modalBgRef = useRef(null);
   const modalDown = useRef(false);
-
-  // 로컬 스토리지에서 프리셋 로드
-  useEffect(() => {
-    const loadPresets = () => {
-      const savedPresets = localStorage.getItem("flaskPresets");
-      if (savedPresets) {
-        try {
-          const parsed = JSON.parse(savedPresets);
-          // ID가 없는 구버전 데이터 호환성 처리
-          const migrated = parsed.map((p) =>
-            p.id ? p : { ...p, id: Date.now() + Math.random() }
-          );
-          setPresets(migrated);
-        } catch (e) {
-          console.error("Failed to load presets", e);
-        }
-      }
-    };
-    loadPresets();
-  }, []);
 
   const toggleOption = useCallback((opt) => {
     const normalRegex = opt.filterRegex;
@@ -120,71 +123,13 @@ export default function FlaskPage() {
     if (!resultText) return;
     navigator.clipboard.writeText(resultText).then(() => {
       setShowCopyToast(true);
-      setTimeout(() => setShowCopyToast(false), 2000); // 애니메이션 시간과 동일하게 설정
+      setTimeout(() => setShowCopyToast(false), 2000);
     });
   }, [resultText]);
 
   const handleClear = useCallback(() => {
     setSelected([]);
   }, []);
-
-  const openPresetModal = useCallback(() => {
-    if (selected.length === 0) {
-      setShowPresetWarning(true);
-      setTimeout(() => setShowPresetWarning(false), 2000);
-      return;
-    }
-    setEditingPreset(null); // 추가 모드
-    setNewPresetName("");
-    setPresetModalVisible(true);
-  }, [selected]);
-
-  const openEditPresetModal = useCallback((preset) => {
-    setEditingPreset(preset); // 수정 모드
-    setNewPresetName(preset.name);
-    setPresetModalVisible(true);
-  }, []);
-
-  const savePreset = useCallback(() => {
-    if (!newPresetName.trim()) return;
-
-    if (editingPreset) {
-      // 수정 로직
-      const newPresets = presets.map((p) =>
-        p.id === editingPreset.id ? { ...p, name: newPresetName } : p
-      );
-      setPresets(newPresets);
-      localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
-    } else {
-      // 추가 로직
-      const newPresets = [
-        ...presets,
-        { id: Date.now(), name: newPresetName, selected },
-      ];
-      setPresets(newPresets);
-      localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
-    }
-    setPresetModalVisible(false);
-  }, [presets, selected, newPresetName, editingPreset]);
-
-  const handleLoadPreset = useCallback((preset) => {
-    setSelected(preset.selected);
-  }, []);
-
-  const handleDeletePreset = useCallback((preset) => {
-    setPresets((prev) => {
-      const newPresets = prev.filter((p) => p.id !== preset.id);
-      localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
-      return newPresets;
-    });
-  }, []);
-
-  const handleEditPreset = useCallback(
-    (preset) => {
-      openEditPresetModal(preset);
-    },
-    [openEditPresetModal]
-  );
 
   const itemRequirement = useMemo(() => {
     if (selected.length === 0) {
@@ -386,388 +331,15 @@ export default function FlaskPage() {
     [modalData]
   );
 
-  // 커스텀 드래그 핸들러 (완벽한 실시간 추적 - 모바일 터치 지원)
-  const handleDragStart = useCallback(
-    (e, opt, listId, data, setData) => {
-      if (!adminMode) return;
-
-      // 이벤트 정규화 (마우스/터치)
-      const isTouch = e.type === "touchstart";
-      if (!isTouch && e.button !== 0) return;
-      if (e.target.closest("button")) return;
-
-      const clientX = isTouch ? e.touches[0].clientX : e.clientX;
-      const clientY = isTouch ? e.touches[0].clientY : e.clientY;
-
-      const listEl = document.getElementById(listId);
-      if (!listEl) return;
-
-      const div = e.currentTarget;
-      const rect = div.getBoundingClientRect();
-
-      // 터치 시 스크롤 방지
-      if (isTouch) {
-        document.body.style.overflow = "hidden";
-      }
-
-      // placeholder 생성
-      const placeholder = document.createElement("div");
-      placeholder.className = "option";
-      placeholder.style.visibility = "hidden";
-      placeholder.style.height = rect.height + "px";
-      listEl.insertBefore(placeholder, div.nextSibling);
-
-      // 드래그 중인 요소 스타일 설정 (GPU 가속 사용)
-      div.classList.add("dragging");
-      document.body.classList.add("dragging-active"); // 전역 드래그 상태 추가
-      div.style.position = "fixed";
-      div.style.width = rect.width + "px";
-      div.style.left = rect.left + "px";
-      div.style.top = rect.top + "px";
-      div.style.zIndex = "9999";
-      div.style.pointerEvents = "none"; // 드래그 중인 요소가 이벤트를 가로채지 않도록
-      div.style.willChange = "transform";
-      document.body.appendChild(div);
-
-      let isDragging = true;
-      let animationId = null;
-
-      // 초기 위치 저장
-      const initialLeft = rect.left;
-      const initialTop = rect.top;
-      const initialMouseX = clientX;
-      const initialMouseY = clientY;
-
-      // placeholder 업데이트 함수 (RAF로 최적화)
-      let needsPlaceholderUpdate = false;
-      let currentMouseY = clientY;
-
-      const updatePlaceholder = () => {
-        if (!isDragging) return;
-
-        if (needsPlaceholderUpdate) {
-          needsPlaceholderUpdate = false;
-
-          const items = [...listEl.children].filter(
-            (el) =>
-              el.classList.contains("option") &&
-              el !== placeholder &&
-              el !== div
-          );
-
-          const deltaY = currentMouseY - initialMouseY;
-          const currentAbsY = initialTop + deltaY + rect.height / 2;
-
-          let insertBefore = null;
-          for (const item of items) {
-            const itemRect = item.getBoundingClientRect();
-            const itemMid = itemRect.top + itemRect.height / 2;
-            if (currentAbsY < itemMid) {
-              insertBefore = item;
-              break;
-            }
-          }
-
-          // DOM 조작 최소화
-          const performMove = (target) => {
-            if (placeholder.nextSibling === target) return;
-
-            // 1. 이동 전 위치 저장 (FLIP 애니메이션)
-            const positions = new Map();
-            items.forEach((item) => {
-              const rect = item.getBoundingClientRect();
-              positions.set(item, rect.top);
-            });
-
-            // 2. placeholder 이동
-            listEl.insertBefore(placeholder, target);
-
-            // 3. 이동한 아이템 애니메이션 적용
-            items.forEach((item) => {
-              const oldTop = positions.get(item);
-              const newTop = item.getBoundingClientRect().top;
-
-              if (oldTop !== newTop) {
-                item.animate(
-                  [
-                    { transform: `translateY(${oldTop - newTop}px)` },
-                    { transform: "translateY(0)" },
-                  ],
-                  {
-                    duration: 300,
-                    easing: "cubic-bezier(0.25, 1, 0.5, 1)", // 부드러운 감속
-                  }
-                );
-              }
-            });
-          };
-
-          if (insertBefore) {
-            performMove(insertBefore);
-          } else {
-            const addBtn = listEl.querySelector(".add-option");
-            const targetNode = addBtn || null;
-            performMove(targetNode);
-          }
-        }
-
-        animationId = requestAnimationFrame(updatePlaceholder);
-      };
-
-      const handleMove = (ev) => {
-        if (!isDragging) return;
-
-        // 터치 이벤트인 경우 preventDefault로 스크롤 방지 (passive: false 필요)
-        if (ev.type === "touchmove") {
-          // ev.preventDefault(); // React 합성 이벤트가 아니라 직접 등록하므로 가능하지만, passive listener 문제 주의
-        }
-
-        const cx = ev.type === "touchmove" ? ev.touches[0].clientX : ev.clientX;
-        const cy = ev.type === "touchmove" ? ev.touches[0].clientY : ev.clientY;
-
-        const deltaX = cx - initialMouseX;
-        const deltaY = cy - initialMouseY;
-
-        // 위치 즉시 업데이트 (GPU 가속 transform)
-        div.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0)`;
-
-        // placeholder 업데이트 플래그 설정
-        currentMouseY = cy;
-        needsPlaceholderUpdate = true;
-      };
-
-      const handleEnd = () => {
-        if (!isDragging) return;
-        isDragging = false;
-
-        if (animationId) cancelAnimationFrame(animationId);
-
-        // 이벤트 리스너 제거
-        document.removeEventListener("mousemove", handleMove);
-        document.removeEventListener("mouseup", handleEnd);
-        document.removeEventListener("touchmove", handleMove);
-        document.removeEventListener("touchend", handleEnd);
-
-        // 스크롤 복구
-        document.body.style.overflow = "";
-
-        // 스타일 복원
-        div.classList.remove("dragging");
-        document.body.classList.remove("dragging-active"); // 전역 드래그 상태 제거
-        div.style.position = "";
-        div.style.left = "";
-        div.style.top = "";
-        div.style.width = "";
-        div.style.zIndex = "";
-        div.style.pointerEvents = "";
-        div.style.transform = "";
-        div.style.willChange = "";
-
-        // placeholder 위치에 요소 삽입
-        listEl.insertBefore(div, placeholder);
-        placeholder.remove();
-
-        // 새로운 순서로 데이터 업데이트
-        const newOrder = [];
-
-        listEl.querySelectorAll(".option").forEach((el) => {
-          const id = parseInt(el.dataset.id, 10);
-          const foundOpt = data.find((o) => o.id === id);
-          if (foundOpt) newOrder.push(foundOpt);
-        });
-
-        setData(newOrder);
-      };
-
-      // 이벤트 리스너 등록 (passive: false for touchmove to allow preventDefault if needed, but here we just block body scroll)
-      document.addEventListener("mousemove", handleMove, { passive: true });
-      document.addEventListener("mouseup", handleEnd);
-      document.addEventListener("touchmove", handleMove, { passive: false });
-      document.addEventListener("touchend", handleEnd);
-
-      // placeholder 업데이트 루프 시작
-      animationId = requestAnimationFrame(updatePlaceholder);
-    },
-    [adminMode]
-  );
-
-  const handlePresetDragStart = useCallback(
+  // 프리셋 드래그 핸들러를 위한 wrapper 함수
+  const onPresetDragStart = useCallback(
     (e, index) => {
-      if (!adminMode) return;
-
-      const isTouch = e.type === "touchstart";
-      if (!isTouch && e.button !== 0) return;
-
-      const clientX = isTouch ? e.touches[0].clientX : e.clientX;
-      const clientY = isTouch ? e.touches[0].clientY : e.clientY;
-
-      const div = e.currentTarget;
-      const listEl = div.parentElement;
-      const rect = div.getBoundingClientRect();
-
-      if (isTouch) {
-        document.body.style.overflow = "hidden";
-      }
-
-      const placeholder = document.createElement("div");
-      placeholder.className = "preset-item placeholder";
-      placeholder.style.width = rect.width + "px";
-      placeholder.style.height = rect.height + "px";
-      placeholder.style.flexShrink = "0";
-      placeholder.style.visibility = "hidden";
-
-      listEl.insertBefore(placeholder, div.nextSibling);
-
-      div.classList.add("dragging");
-      document.body.classList.add("dragging-active"); // 전역 드래그 상태 추가
-      div.style.position = "fixed";
-      div.style.width = rect.width + "px";
-      div.style.height = rect.height + "px";
-      div.style.left = rect.left + "px";
-      div.style.top = rect.top + "px";
-      div.style.zIndex = "9999";
-      div.style.pointerEvents = "none";
-      div.style.willChange = "transform";
-      document.body.appendChild(div);
-
-      let isDragging = true;
-      let animationId = null;
-
-      const initialLeft = rect.left;
-      const initialMouseX = clientX;
-      const initialMouseY = clientY;
-
-      let needsPlaceholderUpdate = false;
-      let currentMouseX = clientX;
-
-      const updatePlaceholder = () => {
-        if (!isDragging) return;
-
-        if (needsPlaceholderUpdate) {
-          needsPlaceholderUpdate = false;
-
-          const items = [...listEl.children].filter(
-            (el) =>
-              el !== placeholder &&
-              el !== div &&
-              el.classList.contains("preset-item")
-          );
-
-          const deltaX = currentMouseX - initialMouseX;
-          const currentAbsX = initialLeft + deltaX + rect.width / 2;
-
-          let insertBefore = null;
-          for (const item of items) {
-            const itemRect = item.getBoundingClientRect();
-            const itemMid = itemRect.left + itemRect.width / 2;
-            if (currentAbsX < itemMid) {
-              insertBefore = item;
-              break;
-            }
-          }
-
-          const performMove = (target) => {
-            if (placeholder.nextSibling === target) return;
-
-            const positions = new Map();
-            items.forEach((item) => {
-              positions.set(item, item.getBoundingClientRect().left);
-            });
-
-            listEl.insertBefore(placeholder, target);
-
-            items.forEach((item) => {
-              const oldLeft = positions.get(item);
-              const newLeft = item.getBoundingClientRect().left;
-
-              if (oldLeft !== newLeft) {
-                item.animate(
-                  [
-                    { transform: `translateX(${oldLeft - newLeft}px)` },
-                    { transform: "translateX(0)" },
-                  ],
-                  {
-                    duration: 300,
-                    easing: "cubic-bezier(0.25, 1, 0.5, 1)",
-                  }
-                );
-              }
-            });
-          };
-
-          if (insertBefore) {
-            performMove(insertBefore);
-          } else {
-            const addBtn = listEl.querySelector(".add-preset-chip");
-            performMove(addBtn);
-          }
-        }
-        animationId = requestAnimationFrame(updatePlaceholder);
-      };
-
-      const handleMove = (ev) => {
-        if (!isDragging) return;
-
-        const cx = ev.type === "touchmove" ? ev.touches[0].clientX : ev.clientX;
-        const cy = ev.type === "touchmove" ? ev.touches[0].clientY : ev.clientY;
-
-        const deltaX = cx - initialMouseX;
-        const deltaY = cy - initialMouseY;
-
-        div.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0)`;
-        currentMouseX = cx;
-        needsPlaceholderUpdate = true;
-      };
-
-      const handleEnd = () => {
-        if (!isDragging) return;
-        isDragging = false;
-        if (animationId) cancelAnimationFrame(animationId);
-
-        document.removeEventListener("mousemove", handleMove);
-        document.removeEventListener("mouseup", handleEnd);
-        document.removeEventListener("touchmove", handleMove);
-        document.removeEventListener("touchend", handleEnd);
-
-        document.body.style.overflow = "";
-
-        div.classList.remove("dragging");
-        document.body.classList.remove("dragging-active"); // 전역 드래그 상태 제거
-        div.style.position = "";
-        div.style.width = "";
-        div.style.height = "";
-        div.style.left = "";
-        div.style.top = "";
-        div.style.zIndex = "";
-        div.style.pointerEvents = "";
-        div.style.transform = "";
-        div.style.willChange = "";
-
-        listEl.insertBefore(div, placeholder);
-        placeholder.remove();
-
-        const newPresets = [];
-        listEl.querySelectorAll(".preset-item").forEach((el) => {
-          const idx = parseInt(el.dataset.index, 10);
-          if (!isNaN(idx) && presets[idx]) {
-            newPresets.push(presets[idx]);
-          }
-        });
-
-        if (newPresets.length === presets.length) {
-          setPresets(newPresets);
-          localStorage.setItem("flaskPresets", JSON.stringify(newPresets));
-        }
-      };
-
-      document.addEventListener("mousemove", handleMove, { passive: true });
-      document.addEventListener("mouseup", handleEnd);
-      document.addEventListener("touchmove", handleMove, { passive: false });
-      document.addEventListener("touchend", handleEnd);
-
-      animationId = requestAnimationFrame(updatePlaceholder);
+      handlePresetDragStart(e, index, presets, (newPresets) => {
+        setPresets(newPresets);
+        savePresetsToStorage(newPresets);
+      });
     },
-    [adminMode, presets]
+    [presets, handlePresetDragStart, setPresets, savePresetsToStorage]
   );
 
   // 드래그 스크롤 관련
@@ -794,7 +366,7 @@ export default function FlaskPage() {
     if (!isDraggingScroll.current) return;
     e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX.current) * 2; // 스크롤 속도 조절
+    const walk = (x - startX.current) * 2;
     scrollRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
@@ -851,7 +423,7 @@ export default function FlaskPage() {
                     onDelete={handleDeletePreset}
                     onEdit={handleEditPreset}
                     adminMode={adminMode}
-                    onDragStart={handlePresetDragStart}
+                    onDragStart={onPresetDragStart}
                   />
                 ))
               )}
@@ -925,7 +497,7 @@ export default function FlaskPage() {
                         listId="prefixList"
                         selected={selected}
                         toggleOption={toggleOption}
-                        handleDragStart={handleDragStart}
+                        handleDragStart={handleOptionDragStart}
                         adminMode={adminMode}
                         openModal={openModal}
                         deleteOption={deleteOption}
@@ -953,7 +525,7 @@ export default function FlaskPage() {
                         listId="suffixList"
                         selected={selected}
                         toggleOption={toggleOption}
-                        handleDragStart={handleDragStart}
+                        handleDragStart={handleOptionDragStart}
                         adminMode={adminMode}
                         openModal={openModal}
                         deleteOption={deleteOption}

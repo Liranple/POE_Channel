@@ -1,9 +1,16 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { FaHome, FaFlask, FaMap, FaRegCommentDots } from "react-icons/fa";
-import { GiCardRandom } from "react-icons/gi";
-import { IoDiamond } from "react-icons/io5";
+import {
+  FaHome,
+  FaFlask,
+  FaMap,
+  FaMapMarkerAlt,
+  FaRegCommentDots,
+  FaGem,
+} from "react-icons/fa";
+
+import { PiDiamondsFourFill } from "react-icons/pi";
 import Sidebar from "../components/Sidebar";
 import HomePage from "../components/pages/HomePage";
 import FlaskPage from "../components/pages/FlaskPage";
@@ -11,14 +18,16 @@ import CardsPage from "../components/pages/CardsPage";
 import JewelsPage from "../components/pages/JewelsPage";
 import MapsPage from "../components/pages/MapsPage";
 import DiscussionPage from "../components/pages/DiscussionPage";
+import GemsPage from "../components/pages/GemsPage";
 
 // 탭 설정 - 여기서 탭을 쉽게 추가/제거/수정할 수 있습니다
 const TABS = [
   { id: "home", label: "메인 페이지", icon: <FaHome size={20} /> },
   { id: "maps", label: "지도", icon: <FaMap size={20} /> },
   { id: "flask", label: "플라스크", icon: <FaFlask size={20} /> },
-  { id: "jewels", label: "주얼", icon: <IoDiamond size={20} /> },
-  { id: "cards", label: "카드 드랍처", icon: <GiCardRandom size={20} /> },
+  { id: "jewels", label: "주얼", icon: <PiDiamondsFourFill size={20} /> },
+  { id: "cards", label: "카드 드랍처", icon: <FaMapMarkerAlt size={20} /> },
+  { id: "gems", label: "보조 젬 시세", icon: <FaGem size={20} /> },
   {
     id: "discussion",
     label: "자유 토론장",
@@ -60,6 +69,8 @@ export default function AppLayout() {
         return <MapsPage />;
       case "discussion":
         return <DiscussionPage />;
+      case "gems":
+        return <GemsPage />;
       default:
         return (
           <div className="page-content">

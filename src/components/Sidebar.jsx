@@ -13,18 +13,16 @@ const Sidebar = memo(function Sidebar({
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <h1
-          className="sidebar-title"
+        <div
           style={{
-            color: "var(--text)",
-            fontSize: "22px",
-            fontWeight: "700",
-            letterSpacing: "-0.5px",
-            fontFamily: "'Pretendard', sans-serif", // 폰트가 없다면 기본 산세리프 적용됨
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
           }}
         >
-          POE Channel
-        </h1>
+          <img src="/images/ui/Logo.png" alt="Logo" className="sidebar-logo" />
+          <h1 className="sidebar-title">POE Channel</h1>
+        </div>
       </div>
       <nav className="sidebar-nav">
         {tabs.map((tab) => (

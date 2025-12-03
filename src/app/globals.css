@@ -49,14 +49,28 @@ body {
   border-bottom: 1px solid var(--sidebar-border);
 }
 
+/* 사이드바 로고 이미지 */
+.sidebar-logo {
+  width: 70px;
+  height: 70px;
+  margin: -10px;
+  object-fit: contain;
+  /* 로고 색상은 variables.css의 --logo-color로 조절 (filter 사용) */
+  filter: drop-shadow(0.5px 0 0 var(--logo-color))
+    drop-shadow(-0.5px 0 0 var(--logo-color))
+    drop-shadow(0 0.5px 0 var(--logo-color))
+    drop-shadow(0 -0.5px 0 var(--logo-color));
+}
+
 .sidebar-title {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 21px;
+  font-weight: 700;
   margin: 0;
-  background: linear-gradient(135deg, var(--accent) 0%, #38bdf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: "Cinzel", serif;
+  letter-spacing: 1px;
+  /* 타이틀 색상은 variables.css의 --logo-title-color로 조절 */
+  color: var(--logo-title-color);
+  -webkit-text-fill-color: var(--logo-title-color);
 }
 
 .sidebar-nav {

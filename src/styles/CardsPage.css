@@ -11,7 +11,7 @@
   font-size: 32px;
   font-weight: 800;
   color: var(--accent);
-  margin-bottom: 24px;
+  margin: 0;
 }
 
 .cards-table-container {
@@ -48,19 +48,71 @@
   border-bottom: none;
 }
 
+/* 짝수 행 배경색 */
+.cards-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .cards-table tr:hover {
   background: var(--table-row-hover-bg);
 }
 
 /* Column Widths */
 .col-name {
-  width: 28%;
+  width: 22%;
+}
+.col-price {
+  width: 10%;
+  text-align: center !important;
 }
 .col-reward {
-  width: 28%;
+  width: 26%;
 }
 .col-location {
-  width: 44%;
+  width: 42%;
+}
+
+/* 시세 셀 스타일 */
+.price-cell {
+  text-align: right !important;
+}
+
+.divine-price {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  color: #fbbf24;
+  font-weight: 600;
+  font-size: 16px;
+  padding-right: 10px;
+}
+
+.divine-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  margin-top: 4px;
+}
+
+.no-price {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.price-loading {
+  color: var(--muted);
+  font-size: 13px;
+  float: right;
+}
+
+/* 시세 갱신 안내 문구 */
+.price-update-notice {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 15px;
+  opacity: 0.7;
+  line-height: 1.7;
 }
 
 /* Cell Content */

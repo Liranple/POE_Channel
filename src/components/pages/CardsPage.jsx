@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useLayoutEffect } from "react";
+import React, {
+  useState,
+  useRef,
+  useLayoutEffect,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 /* eslint-disable @next/next/no-img-element */
 import { CARD_DATA } from "../../data/CardData";
 import {
@@ -14,6 +21,46 @@ import DivinationCard from "../DivinationCard";
 import RewardTooltip from "../RewardTooltip";
 import "../../styles/CardsPage.css";
 
+// 한글 카드 이름 -> 영어 ID 매핑 (kebab-case)
+const CARD_NAME_TO_ID = {
+  "거울의 집": "house-of-mirrors",
+  약제사: "the-apothecary",
+  짝사랑: "unrequited-love",
+  천벌: "damnation",
+  "근원을 알 수 없는 화염": "fire-of-unknown-origin",
+  "헌신의 대가": "the-price-of-devotion",
+  "아버지의 사랑": "fathers-love",
+  역사: "history",
+  "실성한 고양이": "the-insane-cat",
+  의사: "the-doctor",
+  악마: "the-demon",
+  불멸자: "the-immortal",
+  마귀: "the-fiend",
+  "형제의 선물": "brothers-gift",
+  "루나리스의 자손": "the-progeny-of-lunaris",
+  "신성한 정의": "divine-justice",
+  "형제가 보인다": "i-see-brothers",
+  "끝없는 어둠": "the-endless-darkness",
+  사기꾼: "the-cheater",
+  "한 수 밀림": "outfoxed",
+  "7년 간의 불운": "seven-years-bad-luck",
+  "얼음을 가르는 사랑": "love-through-ice",
+  "토끼 발": "the-rabbits-foot",
+  간호사: "the-nurse",
+  "부와 권력": "wealth-and-power",
+  "숨막히는 죄책감": "choking-guilt",
+  "마지막 저항": "the-last-one-standing",
+  "외로운 전사": "lonely-warrior",
+  "마지막 한 번의 기회": "one-last-score",
+  세피로트: "the-sephirot",
+  호수: "the-lake",
+  "빛나는 발견물": "luminous-trove",
+  "훼손된 미덕": "desecrated-virtue",
+};
+
+// 전역 캐시 (컴포넌트 외부에 선언하여 페이지 이동 후에도 유지)
+let cardsCache = { data: null, timestamp: 0, cachedAt: 0 };
+
 export default function CardsPage() {
   const [hoverCard, setHoverCard] = useState(null);
   const [hoverImage, setHoverImage] = useState(null);
@@ -21,6 +68,103 @@ export default function CardsPage() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const tooltipRef = useRef(null);
   const rawMousePos = useRef({ x: 0, y: 0 });
+
+  // 시세 관련 상태
+  const [priceData, setPriceData] = useState(cardsCache.data || {});
+  const [priceLoading, setPriceLoading] = useState(!cardsCache.data);
+  const [lastUpdated, setLastUpdated] = useState(
+    cardsCache.timestamp ? new Date(cardsCache.timestamp) : null
+  );
+
+  // 시세 데이터 가져오기 (1시간 캐싱)
+  const fetchPriceData = useCallback(async (forceRefresh = false) => {
+    const now = Date.now();
+    const cacheAge = now - cardsCache.cachedAt;
+    const ONE_HOUR = 60 * 60 * 1000;
+
+    // 캐시가 유효하면 캐시 데이터 사용
+    if (!forceRefresh && cardsCache.data && cacheAge < ONE_HOUR) {
+      setPriceData(cardsCache.data);
+      setLastUpdated(new Date(cardsCache.timestamp));
+      setPriceLoading(false);
+      return;
+    }
+
+    try {
+      setPriceLoading(true);
+      const response = await fetch("/api/currency");
+      const result = await response.json();
+
+      if (result.success) {
+        const priceMap = {};
+        result.cards.forEach((card) => {
+          priceMap[card.id] = card.divineValue;
+        });
+        setPriceData(priceMap);
+        if (result.timestamp) {
+          setLastUpdated(new Date(result.timestamp));
+        }
+        // 전역 캐시 저장 (API에서 받은 정시 timestamp 사용)
+        cardsCache = {
+          data: priceMap,
+          timestamp: result.timestamp,
+          cachedAt: now,
+        };
+      }
+    } catch (err) {
+      console.error("Failed to fetch price data:", err);
+    } finally {
+      setPriceLoading(false);
+    }
+  }, []);
+
+  // 매 정시마다 자동 갱신
+  useEffect(() => {
+    // 초기 로드
+    fetchPriceData();
+
+    // 다음 정시까지 남은 시간 계산
+    const getTimeUntilNextHour = () => {
+      const now = new Date();
+      const nextHour = new Date(now);
+      nextHour.setHours(now.getHours() + 1, 0, 0, 0);
+      return nextHour.getTime() - now.getTime();
+    };
+
+    // 첫 정시에 실행 후, 이후 1시간마다 반복
+    const timeoutId = setTimeout(() => {
+      fetchPriceData(true); // 강제 새로고침
+      // 정시 이후 1시간마다 반복
+      const intervalId = setInterval(
+        () => fetchPriceData(true),
+        60 * 60 * 1000
+      );
+      return () => clearInterval(intervalId);
+    }, getTimeUntilNextHour());
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchPriceData]);
+
+  // 카드의 Divine 가격 가져오기 (소숫점 1자리)
+  const getCardPrice = useCallback(
+    (cardName) => {
+      const cardId = CARD_NAME_TO_ID[cardName];
+      if (!cardId) return null;
+      const price = priceData[cardId];
+      if (price === undefined) return null;
+      return Math.round(price * 10) / 10; // 소숫점 1자리 반올림
+    },
+    [priceData]
+  );
+
+  // 시세순으로 정렬된 카드 데이터
+  const sortedCardData = useMemo(() => {
+    return [...CARD_DATA].sort((a, b) => {
+      const priceA = getCardPrice(a.name) ?? -1;
+      const priceB = getCardPrice(b.name) ?? -1;
+      return priceB - priceA; // 높은 가격순
+    });
+  }, [getCardPrice]);
 
   // Helper to parse custom tags
   const parseRewardText = (text) => {
@@ -202,93 +346,122 @@ export default function CardsPage() {
     <div className="cards-page-wrapper">
       <div className="page-content">
         <h1>카드 드랍처</h1>
+        <p className="price-update-notice">
+          ※ 시세는 매 정시마다 자동 갱신됩니다
+          {lastUpdated && (
+            <>
+              <br />
+              (마지막 업데이트: {lastUpdated.toLocaleTimeString("ko-KR")})
+            </>
+          )}
+        </p>
 
         <div className="cards-table-container">
           <table className="cards-table">
             <thead>
               <tr>
                 <th className="col-name">카드 이름</th>
+                <th className="col-price">시세</th>
                 <th className="col-reward">보상</th>
                 <th className="col-location">드랍처</th>
               </tr>
             </thead>
             <tbody>
-              {CARD_DATA.map((card, index) => (
-                <tr key={index}>
-                  <td>
-                    <span
-                      className="card-name"
-                      onMouseEnter={(e) => handleCardMouseEnter(e, card)}
-                      onMouseMove={handleMouseMove}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      {card.name}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={`card-reward ${getRewardClass(card.reward)}`}
-                      onMouseEnter={(e) =>
-                        handleRewardMouseEnter(e, card.reward)
-                      }
-                      onMouseMove={handleMouseMove}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      {parseRewardText(card.reward)}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="location-list">
-                      {card.locations.map((loc, idx) => {
-                        const locImage = LOCATION_IMAGES[loc];
-                        return (
-                          <div key={idx} className="location-item">
-                            {locImage &&
-                              (typeof locImage === "string" ? (
-                                <img
-                                  src={locImage}
-                                  alt=""
-                                  className="location-icon"
-                                />
-                              ) : (
-                                <div className="location-icon-layered">
+              {sortedCardData.map((card, index) => {
+                const price = getCardPrice(card.name);
+                return (
+                  <tr key={index}>
+                    <td>
+                      <span
+                        className="card-name"
+                        onMouseEnter={(e) => handleCardMouseEnter(e, card)}
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={handleMouseLeave}
+                      >
+                        {card.name}
+                      </span>
+                    </td>
+                    <td className="price-cell">
+                      {priceLoading ? (
+                        <span className="price-loading">...</span>
+                      ) : price !== null ? (
+                        <span className="divine-price">
+                          {price}
+                          <img
+                            src="/images/items/CurrencyModValues.webp"
+                            alt="Divine"
+                            className="divine-icon"
+                          />
+                        </span>
+                      ) : (
+                        <span className="no-price">-</span>
+                      )}
+                    </td>
+                    <td>
+                      <span
+                        className={`card-reward ${getRewardClass(card.reward)}`}
+                        onMouseEnter={(e) =>
+                          handleRewardMouseEnter(e, card.reward)
+                        }
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={handleMouseLeave}
+                      >
+                        {parseRewardText(card.reward)}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="location-list">
+                        {card.locations.map((loc, idx) => {
+                          const locImage = LOCATION_IMAGES[loc];
+                          return (
+                            <div key={idx} className="location-item">
+                              {locImage &&
+                                (typeof locImage === "string" ? (
                                   <img
-                                    src="/images/items/Base23.webp"
+                                    src={locImage}
                                     alt=""
-                                    className="location-base"
+                                    className="location-icon"
                                   />
-                                  {locImage.color ? (
-                                    <div
-                                      className="location-overlay"
-                                      style={{
-                                        backgroundColor: locImage.color,
-                                        maskImage: `url(${locImage.overlay})`,
-                                        WebkitMaskImage: `url(${locImage.overlay})`,
-                                        maskSize: "contain",
-                                        WebkitMaskSize: "contain",
-                                        maskRepeat: "no-repeat",
-                                        WebkitMaskRepeat: "no-repeat",
-                                        maskPosition: "center",
-                                        WebkitMaskPosition: "center",
-                                      }}
-                                    />
-                                  ) : (
+                                ) : (
+                                  <div className="location-icon-layered">
                                     <img
-                                      src={locImage.overlay}
+                                      src="/images/items/Base23.webp"
                                       alt=""
-                                      className="location-overlay"
+                                      className="location-base"
                                     />
-                                  )}
-                                </div>
-                              ))}
-                            <span>{loc}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                                    {locImage.color ? (
+                                      <div
+                                        className="location-overlay"
+                                        style={{
+                                          backgroundColor: locImage.color,
+                                          maskImage: `url(${locImage.overlay})`,
+                                          WebkitMaskImage: `url(${locImage.overlay})`,
+                                          maskSize: "contain",
+                                          WebkitMaskSize: "contain",
+                                          maskRepeat: "no-repeat",
+                                          WebkitMaskRepeat: "no-repeat",
+                                          maskPosition: "center",
+                                          WebkitMaskPosition: "center",
+                                        }}
+                                      />
+                                    ) : (
+                                      <img
+                                        src={locImage.overlay}
+                                        alt=""
+                                        className="location-overlay"
+                                      />
+                                    )}
+                                  </div>
+                                ))}
+                              <span>{loc}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

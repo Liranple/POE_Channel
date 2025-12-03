@@ -9,6 +9,10 @@
   --admin-on: #4ade80;
   --delete-red: rgba(255, 98, 98, 0.7);
 
+  /* ===== 사이드바 로고 색상 (여기서 수정) ===== */
+  --logo-color: rgba(255, 255, 255, 0.6); /* 로고 아이콘 색상 */
+  --logo-title-color: #ffffff; /* 타이틀 텍스트 색상 */
+
   --html-bg: linear-gradient(180deg, #0c0d10, #1a1d22);
   --sidebar-bg: linear-gradient(180deg, #0a0b0e 0%, #13151a 100%);
   --sidebar-border: rgba(255, 255, 255, 0.08);

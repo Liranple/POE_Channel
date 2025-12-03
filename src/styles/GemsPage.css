@@ -1,0 +1,225 @@
+/* ==================== 서포트 젬 시세 페이지 스타일 ==================== */
+
+.gems-page-wrapper .page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease-out;
+  padding: 20px;
+}
+
+.gems-page-wrapper .page-content h1 {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+  margin: 0;
+}
+
+.gems-page-wrapper .price-update-notice {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 15px;
+  opacity: 0.7;
+  line-height: 1.7;
+}
+
+.gems-page-wrapper .gems-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.gems-table-container {
+  background: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--box-shadow-common);
+  border: 1px solid var(--sidebar-border);
+}
+
+.gems-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gems-table th,
+.gems-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.gems-table th {
+  background: var(--table-header-bg);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.gems-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* 짝수 행 배경색 */
+.gems-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Column Widths */
+.gems-table .col-icon {
+  width: 50px;
+  text-align: center;
+}
+
+.gems-table .col-name {
+  width: auto;
+}
+
+.gems-table .col-quality {
+  width: 80px;
+  text-align: center;
+}
+
+.gems-table .col-price-20,
+.gems-table .col-price-21 {
+  width: 120px;
+  text-align: right;
+}
+
+.gems-table .col-act {
+  width: 70px;
+  text-align: center;
+}
+
+.gems-table .col-classes {
+  width: 400px;
+  text-align: left;
+}
+
+/* Cell Styles */
+.gems-table .icon-cell {
+  text-align: center;
+  padding: 6px;
+}
+
+.gems-table .quality-cell {
+  text-align: center;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.gem-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.gem-name {
+  color: #1ba29b;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.price-cell {
+  text-align: right;
+  padding-right: 16px;
+}
+
+.price-cell.price-20 {
+  background: rgba(27, 162, 155, 0.03);
+}
+
+.price-cell.price-21 {
+  background: rgba(210, 47, 47, 0.03);
+}
+
+.chaos-price {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  color: #fbbf24;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* 21레벨도 동일한 금색 */
+
+.chaos-icon {
+  width: 20px;
+  height: 20px;
+  margin-top: 5px;
+  margin-left: 2px;
+}
+
+.no-data {
+  color: var(--muted);
+  opacity: 0.4;
+  font-size: 16px;
+}
+
+.loading-cell,
+.empty-cell {
+  text-align: center;
+  padding: 40px;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.gems-page-wrapper .data-source {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 20px;
+  opacity: 0.7;
+}
+
+/* ==================== 구매처 스타일 ==================== */
+
+.act-cell {
+  text-align: center !important;
+  vertical-align: middle;
+}
+
+.act-label {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.classes-cell {
+  vertical-align: middle;
+}
+
+.vendor-classes {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.class-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--sidebar-border);
+  background: var(--card-bg);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.class-icon:hover {
+  transform: scale(1.5);
+  border-color: var(--accent);
+  z-index: 1;
+}
+
+.no-vendor {
+  color: var(--muted);
+  opacity: 0.4;
+  font-size: 16px;
+}

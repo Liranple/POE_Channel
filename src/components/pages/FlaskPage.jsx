@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import useDraggableScroll from "../../hooks/useDraggableScroll";
 import usePreset from "../../hooks/usePreset";
 import useDragHandler from "../../hooks/useDragHandler";
+import useOptionData from "../../hooks/useOptionData";
 import { STORAGE_KEYS, TAG_ORDER } from "../../constants";
 
 import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../../data/FlaskData";
@@ -14,16 +15,23 @@ import PresetItem from "../PresetItem";
  * 플라스크 정규식 빌더 페이지
  *
  * 데이터 구조:
- * - prefixData/suffixData: 앱 내장 데이터 (변경 시 로컬에 저장되지 않음)
+ * - prefixData/suffixData: 기본 데이터 + 사용자 변경분 (localStorage에 변경분만 저장)
  * - presets: 로컬 스토리지에 저장되는 사용자 프리셋 (개인 설정)
  * - selected: 현재 선택된 옵션들 (임시 상태)
  */
 export default function FlaskPage() {
   const [adminMode, setAdminMode] = useState(false);
   const [selected, setSelected] = useState([]);
-  const [prefixData, setPrefixData] = useState(DEFAULT_PREFIX_DATA);
-  const [suffixData, setSuffixData] = useState(DEFAULT_SUFFIX_DATA);
   const [showCopyToast, setShowCopyToast] = useState(false);
+
+  // 옵션 데이터 관리 (버전 관리 + 변경분 저장)
+  const {
+    prefixData,
+    suffixData,
+    setPrefixData,
+    setSuffixData,
+    isInitialized,
+  } = useOptionData("flask", DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA);
 
   // 커스텀 훅 사용
   const {

@@ -19,6 +19,11 @@ import JewelsPage from "../components/pages/JewelsPage";
 import MapsPage from "../components/pages/MapsPage";
 import DiscussionPage from "../components/pages/DiscussionPage";
 import GemsPage from "../components/pages/GemsPage";
+import {
+  loadTheme,
+  saveTheme,
+  OPTION_STORAGE_KEYS,
+} from "../utils/optionStorage";
 
 // 탭 설정 - 여기서 탭을 쉽게 추가/제거/수정할 수 있습니다
 const TABS = [
@@ -41,17 +46,26 @@ export default function AppLayout() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [theme, setTheme] = useState("dark");
 
-  // 클라이언트에서만 localStorage에서 탭 복원
+  // 클라이언트에서만 localStorage에서 탭과 테마 복원
   useEffect(() => {
     const savedTab = localStorage.getItem("activeTab");
     if (savedTab) {
       setActiveTab(savedTab);
     }
+
+    // 테마 복원
+    const savedTheme = loadTheme();
+    setTheme(savedTheme);
+
     setIsHydrated(true);
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    setTheme((prev) => {
+      const newTheme = prev === "dark" ? "light" : "dark";
+      saveTheme(newTheme); // 테마 저장
+      return newTheme;
+    });
   }, []);
 
   useEffect(() => {

@@ -5,34 +5,23 @@ import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import { BsArrowReturnRight } from "react-icons/bs";
 import { motion, useDragControls, AnimatePresence } from "framer-motion";
 import "../../styles/DiscussionPage.css";
-import { STORAGE_KEYS } from "../../constants";
 import { formatDate, validatePassword, generateId } from "../../utils";
 
 /**
- * 초기 포스트 데이터 로드 함수
- *
- * 데이터 구조:
- * - posts: 향후 DB 마이그레이션 대상 (서버에서 관리될 데이터)
- *   - id: 고유 ID
- *   - title: 제목
- *   - author: 작성자 (익명)
- *   - password: 비밀번호 (서버 마이그레이션 시 해시 처리 필요)
- *   - content: 내용
- *   - date: 작성일
- *   - comments: 댓글 배열
- *     - id, author, password, content, date, replies
+ * 게시글 데이터 구조:
+ * - id: 고유 ID
+ * - title: 제목
+ * - author: 작성자 (익명)
+ * - password: 비밀번호
+ * - content: 내용
+ * - date: 작성일
+ * - comments: 댓글 배열
  */
-const getInitialPosts = () => {
-  if (typeof window === "undefined") return [];
-  const savedPosts = localStorage.getItem(STORAGE_KEYS.DISCUSSION_POSTS);
-  if (savedPosts) {
-    return JSON.parse(savedPosts);
-  }
-  return [];
-};
 
 export default function DiscussionPage() {
-  const [posts, setPosts] = useState(getInitialPosts);
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // 폼 상태
   const [title, setTitle] = useState("");
@@ -63,6 +52,46 @@ export default function DiscussionPage() {
 
   // 게시글 펼침 상태
   const [expandedPosts, setExpandedPosts] = useState(new Set());
+
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const POSTS_PER_PAGE = 10;
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+  const endIndex = startIndex + POSTS_PER_PAGE;
+  const currentPosts = posts.slice(startIndex, endIndex);
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    // 페이지 변경 시 스크롤을 맨 위로
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    // 펼쳐진 게시글 초기화
+    setExpandedPosts(new Set());
+  };
+
+  // 서버에서 게시글 로드
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setIsLoading(true);
+        const res = await fetch("/api/posts");
+        const data = await res.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        setPosts(data.posts || []);
+      } catch (err) {
+        console.error("Failed to fetch posts:", err);
+        setError("게시글을 불러오는데 실패했습니다.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPosts();
+  }, []);
 
   // 게시글 수정 모드 진입 시 높이 조절
   useLayoutEffect(() => {
@@ -268,33 +297,42 @@ export default function DiscussionPage() {
     };
   }, [deleteTarget, editTarget, activeReply, editingItem]);
 
-  // 데이터 저장 (향후 DB API 호출로 변경 예정)
-  const savePosts = (newPosts) => {
-    setPosts(newPosts);
-    localStorage.setItem(
-      STORAGE_KEYS.DISCUSSION_POSTS,
-      JSON.stringify(newPosts)
-    );
+  // 데이터 저장 (서버 API 호출)
+  const savePosts = async (action, data) => {
+    try {
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, data }),
+      });
+      const result = await res.json();
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      setPosts(result.posts);
+      return true;
+    } catch (err) {
+      console.error("Failed to save:", err);
+      setError("저장에 실패했습니다.");
+      return false;
+    }
   };
 
-  const handlePostSubmit = (e) => {
+  const handlePostSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim() || !postPassword) return;
 
-    const newPost = {
-      id: Date.now(),
-      author: "익명",
+    await savePosts("create_post", {
       password: postPassword,
       title,
       content,
       date: formatDate(),
-      comments: [],
-    };
+    });
 
-    savePosts([newPost, ...posts]);
     setTitle("");
     setContent("");
     setPostPassword("");
+    setCurrentPage(1); // 새 글 작성 후 첫 페이지로 이동
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -310,33 +348,22 @@ export default function DiscussionPage() {
     }));
   };
 
-  const handleCommentSubmit = (e, postId) => {
+  const handleCommentSubmit = async (e, postId) => {
     e.preventDefault();
     const input = commentInputs[postId];
     if (!input || !input.content || !input.content.trim() || !input.password)
       return;
 
     const commentId = crypto.randomUUID();
-    const newComment = {
-      id: commentId,
-      author: "익명",
+
+    await savePosts("create_comment", {
+      postId,
+      commentId,
       password: input.password,
       content: input.content,
       date: formatDate(),
-      replies: [],
-    };
-
-    const updatedPosts = posts.map((post) => {
-      if (post.id === postId) {
-        return {
-          ...post,
-          comments: [...post.comments, newComment],
-        };
-      }
-      return post;
     });
 
-    savePosts(updatedPosts);
     setCommentInputs((prev) => {
       const newState = { ...prev };
       delete newState[postId];
@@ -360,7 +387,7 @@ export default function DiscussionPage() {
     }));
   };
 
-  const handleReplySubmit = (e, postId) => {
+  const handleReplySubmit = async (e, postId) => {
     e.preventDefault();
     if (!activeReply) return;
     const commentId = activeReply.parentCommentId;
@@ -370,61 +397,20 @@ export default function DiscussionPage() {
       return;
 
     const replyId = crypto.randomUUID();
-    // 댓글에 대한 답글은 depth 0, 답글에 대한 답글은 부모의 depth
     const replyDepth =
       activeReply.type === "comment" ? 0 : (activeReply.depth || 0) + 1;
-    const newReply = {
-      id: replyId,
-      author: "익명",
+
+    await savePosts("create_reply", {
+      postId,
+      commentId,
+      replyId,
       password: input.password,
       content: input.content,
       date: formatDate(),
       depth: replyDepth,
-    };
-
-    const updatedPosts = posts.map((post) => {
-      if (post.id === postId) {
-        const updatedComments = post.comments.map((comment) => {
-          if (comment.id === commentId) {
-            let newReplies = [...(comment.replies || [])];
-
-            if (activeReply.type === "comment") {
-              // 댓글에 대한 답글은 맨 뒤에 추가
-              newReplies.push(newReply);
-            } else {
-              // 답글에 대한 답글은 해당 답글(및 그 하위 답글들) 바로 뒤에 추가
-              const parentIndex = newReplies.findIndex(
-                (r) => r.id === activeReply.id
-              );
-              if (parentIndex !== -1) {
-                let insertIndex = parentIndex + 1;
-                // 부모 답글보다 깊이가 더 깊은 답글들(하위 답글들)을 건너뜀
-                while (
-                  insertIndex < newReplies.length &&
-                  (newReplies[insertIndex].depth || 0) >
-                    (activeReply.depth || 0)
-                ) {
-                  insertIndex++;
-                }
-                newReplies.splice(insertIndex, 0, newReply);
-              } else {
-                newReplies.push(newReply);
-              }
-            }
-
-            return {
-              ...comment,
-              replies: newReplies,
-            };
-          }
-          return comment;
-        });
-        return { ...post, comments: updatedComments };
-      }
-      return post;
+      parentReplyId: activeReply.type === "reply" ? activeReply.id : null,
     });
 
-    savePosts(updatedPosts);
     setReplyInputs((prev) => {
       const newState = { ...prev };
       delete newState[commentId];
@@ -482,7 +468,7 @@ export default function DiscussionPage() {
     setPasswordError(false);
   };
 
-  const handleEditPasswordConfirm = () => {
+  const handleEditPasswordConfirm = async () => {
     if (!editTarget) return;
 
     const {
@@ -493,100 +479,85 @@ export default function DiscussionPage() {
       initialHeight,
       initialHeaderHeight,
     } = editTarget;
-    let targetItem = null;
-    let isValid = false;
 
-    if (type === "post") {
-      const post = posts.find((p) => p.id === id);
-      if (post && validatePassword(editPassword, post.password)) {
-        targetItem = { ...post, type: "post", initialHeight };
-        isValid = true;
+    // 비밀번호 검증
+    try {
+      const res = await fetch("/api/posts", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, id, password: editPassword }),
+      });
+      const result = await res.json();
+
+      if (!result.valid) {
+        setPasswordError(true);
+        setTimeout(() => setPasswordError(false), 2000);
+        return;
       }
-    } else if (type === "comment") {
-      const post = posts.find((p) => p.id === parentId);
-      if (post) {
-        const comment = post.comments.find((c) => c.id === id);
-        if (comment && validatePassword(editPassword, comment.password)) {
-          targetItem = { ...comment, type: "comment", parentId, initialHeight };
-          isValid = true;
+
+      // 수정 모드 진입
+      let targetItem = null;
+      if (type === "post") {
+        const post = posts.find((p) => p.id === id);
+        if (post) {
+          targetItem = { ...post, type: "post", initialHeight };
         }
-      }
-    } else if (type === "reply") {
-      const post = posts.find((p) => p.id === grandParentId);
-      if (post) {
-        const comment = post.comments.find((c) => c.id === parentId);
-        if (comment) {
-          const reply = comment.replies.find((r) => r.id === id);
-          if (reply && validatePassword(editPassword, reply.password)) {
+      } else if (type === "comment") {
+        const post = posts.find((p) => p.id === parentId);
+        if (post) {
+          const comment = post.comments.find((c) => c.id === id);
+          if (comment) {
             targetItem = {
-              ...reply,
-              type: "reply",
+              ...comment,
+              type: "comment",
               parentId,
-              grandParentId,
               initialHeight,
-              initialHeaderHeight,
             };
-            isValid = true;
+          }
+        }
+      } else if (type === "reply") {
+        const post = posts.find((p) => p.id === grandParentId);
+        if (post) {
+          const comment = post.comments.find((c) => c.id === parentId);
+          if (comment) {
+            const reply = comment.replies.find((r) => r.id === id);
+            if (reply) {
+              targetItem = {
+                ...reply,
+                type: "reply",
+                parentId,
+                grandParentId,
+                initialHeight,
+                initialHeaderHeight,
+              };
+            }
           }
         }
       }
-    }
 
-    if (isValid) {
-      setEditingItem(targetItem);
-      setEditTarget(null);
-      setPasswordError(false);
-    } else {
+      if (targetItem) {
+        setEditingItem(targetItem);
+        setEditTarget(null);
+        setPasswordError(false);
+      }
+    } catch (err) {
+      console.error("Edit password check failed:", err);
       setPasswordError(true);
       setTimeout(() => setPasswordError(false), 2000);
     }
   };
 
-  const handleEditSave = () => {
+  const handleEditSave = async () => {
     if (!editingItem) return;
 
     const { type, id, parentId, grandParentId, content, title } = editingItem;
-    const currentDate = formatDate();
 
     if (type === "post") {
-      const updatedPosts = posts.map((p) =>
-        p.id === id ? { ...p, title, content, date: currentDate } : p
-      );
-      savePosts(updatedPosts);
+      await savePosts("update_post", { id, title, content });
     } else if (type === "comment") {
-      const updatedPosts = posts.map((p) => {
-        if (p.id === parentId) {
-          return {
-            ...p,
-            comments: p.comments.map((c) =>
-              c.id === id ? { ...c, content, date: currentDate } : c
-            ),
-          };
-        }
-        return p;
-      });
-      savePosts(updatedPosts);
+      await savePosts("update_comment", { id, content });
     } else if (type === "reply") {
-      const updatedPosts = posts.map((p) => {
-        if (p.id === grandParentId) {
-          return {
-            ...p,
-            comments: p.comments.map((c) => {
-              if (c.id === parentId) {
-                return {
-                  ...c,
-                  replies: c.replies.map((r) =>
-                    r.id === id ? { ...r, content, date: currentDate } : r
-                  ),
-                };
-              }
-              return c;
-            }),
-          };
-        }
-        return p;
-      });
-      savePosts(updatedPosts);
+      await savePosts("update_reply", { id, content });
     }
 
     setEditingItem(null);
@@ -607,80 +578,83 @@ export default function DiscussionPage() {
     setPasswordError(false);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
 
     const { type, id, parentId, grandParentId } = deleteTarget;
 
-    if (type === "post") {
-      const post = posts.find((p) => p.id === id);
-      if (post && validatePassword(deletePassword, post.password)) {
-        const updatedPosts = posts.filter((p) => p.id !== id);
-        savePosts(updatedPosts);
-        setDeleteTarget(null);
-        setPasswordError(false);
-      } else {
+    // 비밀번호 검증
+    try {
+      const res = await fetch("/api/posts", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, id, password: deletePassword }),
+      });
+      const result = await res.json();
+
+      if (!result.valid) {
         setPasswordError(true);
         setTimeout(() => setPasswordError(false), 2000);
+        return;
       }
-    } else if (type === "comment") {
-      const post = posts.find((p) => p.id === parentId);
-      if (post) {
-        const comment = post.comments.find((c) => c.id === id);
-        if (comment && validatePassword(deletePassword, comment.password)) {
-          const updatedPosts = posts.map((p) => {
-            if (p.id === parentId) {
-              return {
-                ...p,
-                comments: p.comments.filter((c) => c.id !== id),
-              };
-            }
-            return p;
-          });
-          savePosts(updatedPosts);
-          setDeleteTarget(null);
-          setPasswordError(false);
-        } else {
-          setPasswordError(true);
-          setTimeout(() => setPasswordError(false), 2000);
-        }
+
+      // 삭제 실행
+      if (type === "post") {
+        await savePosts("delete_post", { id });
+      } else if (type === "comment") {
+        await savePosts("delete_comment", { id });
+      } else if (type === "reply") {
+        await savePosts("delete_reply", { id });
       }
-    } else if (type === "reply") {
-      const post = posts.find((p) => p.id === grandParentId);
-      if (post) {
-        const comment = post.comments.find((c) => c.id === parentId);
-        if (comment) {
-          const reply = comment.replies.find((r) => r.id === id);
-          if (reply && validatePassword(deletePassword, reply.password)) {
-            const updatedPosts = posts.map((p) => {
-              if (p.id === grandParentId) {
-                const updatedComments = p.comments.map((c) => {
-                  if (c.id === parentId) {
-                    return {
-                      ...c,
-                      replies: c.replies.filter((r) => r.id !== id),
-                    };
-                  }
-                  return c;
-                });
-                return { ...p, comments: updatedComments };
-              }
-              return p;
-            });
-            savePosts(updatedPosts);
-            setDeleteTarget(null);
-            setPasswordError(false);
-          } else {
-            setPasswordError(true);
-            setTimeout(() => setPasswordError(false), 2000);
-          }
-        }
-      }
+
+      setDeleteTarget(null);
+      setPasswordError(false);
+    } catch (err) {
+      console.error("Delete failed:", err);
+      setPasswordError(true);
+      setTimeout(() => setPasswordError(false), 2000);
     }
   };
 
   // Textarea Resize Logic - Removed as requested
   // const handleResizeDrag = (event, info) => { ... };
+
+  if (isLoading) {
+    return (
+      <div className="discussion-page-wrapper">
+        <div className="page-content">
+          <h1>자유 토론장</h1>
+          <p className="page-description">게시글을 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="discussion-page-wrapper">
+        <div className="page-content">
+          <h1>자유 토론장</h1>
+          <p className="page-description" style={{ color: "#ff6b6b" }}>
+            {error}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              padding: "10px 20px",
+              background: "var(--accent)",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              color: "white",
+            }}
+          >
+            다시 시도
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="discussion-page-wrapper">
@@ -751,7 +725,7 @@ export default function DiscussionPage() {
 
         {/* 글 목록 */}
         <div className="posts-list">
-          {posts.map((post) => (
+          {currentPosts.map((post) => (
             <div key={post.id} className="post-card">
               <div
                 className={`post-main-section ${
@@ -1886,6 +1860,77 @@ export default function DiscussionPage() {
             </div>
           ))}
         </div>
+
+        {/* 페이지네이션 */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button
+              className="pagination-btn"
+              onClick={() => handlePageChange(1)}
+              disabled={currentPage === 1}
+            >
+              «
+            </button>
+            <button
+              className="pagination-btn"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              ‹
+            </button>
+
+            {(() => {
+              const pages = [];
+              let startPage = Math.max(1, currentPage - 2);
+              let endPage = Math.min(totalPages, currentPage + 2);
+
+              // 시작이나 끝에 가까우면 5개 보여주기
+              if (currentPage <= 3) {
+                endPage = Math.min(5, totalPages);
+              }
+              if (currentPage >= totalPages - 2) {
+                startPage = Math.max(1, totalPages - 4);
+              }
+
+              for (let i = startPage; i <= endPage; i++) {
+                pages.push(
+                  <button
+                    key={i}
+                    className={`pagination-btn ${
+                      currentPage === i ? "active" : ""
+                    }`}
+                    onClick={() => handlePageChange(i)}
+                  >
+                    {i}
+                  </button>
+                );
+              }
+              return pages;
+            })()}
+
+            <button
+              className="pagination-btn"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              ›
+            </button>
+            <button
+              className="pagination-btn"
+              onClick={() => handlePageChange(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              »
+            </button>
+          </div>
+        )}
+
+        {/* 게시글 수 표시 */}
+        {posts.length > 0 && (
+          <div className="posts-info">
+            총 {posts.length}개의 게시글 (페이지 {currentPage}/{totalPages})
+          </div>
+        )}
       </div>
     </div>
   );

@@ -36,8 +36,19 @@ const TABS = [
 ];
 
 export default function AppLayout() {
-  const [activeTab, setActiveTab] = useState("flask");
+  // 초기값은 home, 클라이언트에서 localStorage 확인 후 업데이트
+  const [activeTab, setActiveTab] = useState("home");
+  const [isHydrated, setIsHydrated] = useState(false);
   const [theme, setTheme] = useState("dark");
+
+  // 클라이언트에서만 localStorage에서 탭 복원
+  useEffect(() => {
+    const savedTab = localStorage.getItem("activeTab");
+    if (savedTab) {
+      setActiveTab(savedTab);
+    }
+    setIsHydrated(true);
+  }, []);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -53,6 +64,8 @@ export default function AppLayout() {
 
   const handleTabChange = useCallback((tabId) => {
     setActiveTab(tabId);
+    // localStorage에 현재 탭 저장
+    localStorage.setItem("activeTab", tabId);
   }, []);
 
   const content = useMemo(() => {
@@ -79,6 +92,16 @@ export default function AppLayout() {
         );
     }
   }, [activeTab]);
+
+  // hydration 완료 전에는 빈 화면 (깜빡임 방지)
+  if (!isHydrated) {
+    return (
+      <div className="app-layout" style={{ visibility: "hidden" }}>
+        <div style={{ width: 240 }} />
+        <main className="main-content" />
+      </div>
+    );
+  }
 
   return (
     <div className={`app-layout ${theme === "light" ? "theme-light" : ""}`}>

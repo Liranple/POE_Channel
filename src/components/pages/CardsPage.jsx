@@ -61,6 +61,41 @@ const CARD_NAME_TO_ID = {
 // 전역 캐시 (컴포넌트 외부에 선언하여 페이지 이동 후에도 유지)
 let cardsCache = { data: null, timestamp: 0, cachedAt: 0 };
 
+// 이미지 프리로드 캐시 (한 번만 실행)
+let imagesPreloaded = false;
+
+// 모든 보상/카드 이미지를 미리 로드하는 함수
+const preloadRewardImages = () => {
+  if (imagesPreloaded) return;
+  imagesPreloaded = true;
+
+  const imageUrls = new Set();
+
+  // REWARD_DATA에서 모든 icon URL 수집
+  Object.values(REWARD_DATA).forEach((data) => {
+    if (Array.isArray(data)) {
+      // 배열인 경우 (예: SUBLIME_VISION_DATA)
+      data.forEach((item) => {
+        if (item?.icon) imageUrls.add(item.icon);
+      });
+    } else if (data?.icon) {
+      imageUrls.add(data.icon);
+    }
+  });
+
+  // CARD_ART_IMAGES에서 카드 삽화 URL 수집
+  Object.values(CARD_ART_IMAGES).forEach((url) => {
+    if (url) imageUrls.add(url);
+  });
+
+  // 이미지 미리 로드 (우선순위: low로 설정하여 메인 콘텐츠 로딩 방해 방지)
+  imageUrls.forEach((url) => {
+    const img = new Image();
+    img.loading = "eager";
+    img.src = url;
+  });
+};
+
 export default function CardsPage() {
   const [hoverCard, setHoverCard] = useState(null);
   const [hoverImage, setHoverImage] = useState(null);
@@ -120,6 +155,9 @@ export default function CardsPage() {
 
   // 매 정시마다 자동 갱신
   useEffect(() => {
+    // 보상 이미지 프리로드 (한 번만 실행)
+    preloadRewardImages();
+
     // 초기 로드
     fetchPriceData();
 

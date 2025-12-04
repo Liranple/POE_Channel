@@ -41,19 +41,19 @@ const TABS = [
 ];
 
 export default function AppLayout() {
-  // 초기값은 home, 클라이언트에서 localStorage 확인 후 업데이트
+  // 초기값은 home, 클라이언트에서 sessionStorage 확인 후 업데이트
   const [activeTab, setActiveTab] = useState("home");
   const [isHydrated, setIsHydrated] = useState(false);
   const [theme, setTheme] = useState("dark");
 
-  // 클라이언트에서만 localStorage에서 탭과 테마 복원
+  // 클라이언트에서만 sessionStorage에서 탭 복원 (새로고침 시 유지, 탭 닫으면 초기화)
   useEffect(() => {
-    const savedTab = localStorage.getItem("activeTab");
+    const savedTab = sessionStorage.getItem("activeTab");
     if (savedTab) {
       setActiveTab(savedTab);
     }
 
-    // 테마 복원
+    // 테마 복원 (localStorage - 영구 저장)
     const savedTheme = loadTheme();
     setTheme(savedTheme);
 
@@ -78,8 +78,8 @@ export default function AppLayout() {
 
   const handleTabChange = useCallback((tabId) => {
     setActiveTab(tabId);
-    // localStorage에 현재 탭 저장
-    localStorage.setItem("activeTab", tabId);
+    // sessionStorage에 현재 탭 저장 (새로고침 시 유지, 탭 닫으면 초기화)
+    sessionStorage.setItem("activeTab", tabId);
   }, []);
 
   const content = useMemo(() => {

@@ -163,6 +163,19 @@ export default function HomePage() {
 
   return (
     <div className="home-page-wrapper">
+      {/* ==================== 로고 섹션 ==================== */}
+      <section className="logo-section">
+        <div className="logo-content">
+          <img
+            src="/images/ui/Logo.png"
+            alt="POE Channel Logo"
+            className="main-logo"
+          />
+          <h1 className="site-title">POE Channel</h1>
+          <p className="site-tagline">Your Ultimate Path of Exile Companion</p>
+        </div>
+      </section>
+
       {/* ==================== 리그 타이머 ==================== */}
       <section className="league-timer-section">
         <h1 className="league-name">{LEAGUE_INFO.name}</h1>

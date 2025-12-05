@@ -13,6 +13,9 @@
   --logo-color: rgba(255, 255, 255, 0.6); /* 로고 아이콘 색상 */
   --logo-title-color: #ffffff; /* 타이틀 텍스트 색상 */
 
+  /* ===== 가격 텍스트 색상 ===== */
+  --price-color: #fbbf24; /* Divine 가격 노란색 */
+
   --html-bg: linear-gradient(180deg, #0c0d10, #1a1d22);
   --sidebar-bg: linear-gradient(180deg, #0a0b0e 0%, #13151a 100%);
   --sidebar-border: rgba(255, 255, 255, 0.08);
@@ -122,11 +125,18 @@
   --bg: #f3f4f6;
   --card: #ffffff;
   --accent: #0284c7;
-  --muted: #000000;
-  --text: #000000;
+  --muted: #64748b;
+  --text: #1e293b;
   --admin-off: #94a3b8;
   --admin-on: #22c55e;
   --delete-red: rgba(239, 68, 68, 0.8);
+
+  /* ===== 라이트 모드 로고 색상 ===== */
+  --logo-color: rgba(0, 0, 0, 0.5); /* 로고 아이콘 색상 (어둡게) */
+  --logo-title-color: #1e293b; /* 타이틀 텍스트 색상 (어둡게) */
+
+  /* ===== 라이트 모드 가격 텍스트 색상 ===== */
+  --price-color: #b45309; /* 노란색 대신 진한 주황색 */
 
   --html-bg: linear-gradient(180deg, #f8fafc, #e2e8f0);
   --sidebar-bg: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);

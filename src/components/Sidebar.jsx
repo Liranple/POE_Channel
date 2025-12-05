@@ -20,7 +20,13 @@ const Sidebar = memo(function Sidebar({
             gap: "10px",
           }}
         >
-          <img src="/images/ui/Logo.png" alt="Logo" className="sidebar-logo" />
+          <img
+            src="/images/ui/Logo.png"
+            alt="Logo"
+            className="sidebar-logo"
+            loading="eager"
+            fetchPriority="high"
+          />
           <h1 className="sidebar-title">POE Channel</h1>
         </div>
       </div>

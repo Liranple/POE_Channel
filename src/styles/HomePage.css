@@ -53,7 +53,7 @@
 .site-title {
   font-size: 48px;
   font-weight: 700;
-  font-family: "Cinzel", serif;
+  font-family: var(--font-cinzel), "Cinzel", serif;
   letter-spacing: 2px;
   color: var(--logo-title-color);
   margin: 0;
@@ -397,7 +397,7 @@
   gap: 4px;
   font-size: 15px;
   font-weight: 600;
-  color: #fbbf24;
+  color: var(--price-color);
 }
 
 .divine-icon {

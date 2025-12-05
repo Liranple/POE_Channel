@@ -12,13 +12,23 @@ html {
 }
 
 body {
-  font-family: "Noto Sans KR", sans-serif;
+  font-family: var(--font-noto-sans), "Noto Sans KR", sans-serif;
   background: transparent;
   color: var(--text);
   margin: 0;
   padding: 0;
   height: 100vh;
   overflow: hidden;
+}
+
+/* 로딩 스피너 애니메이션 */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* ==================== 앱 레이아웃 ==================== */
@@ -66,7 +76,7 @@ body {
   font-size: 21px;
   font-weight: 700;
   margin: 0;
-  font-family: "Cinzel", serif;
+  font-family: var(--font-cinzel), "Cinzel", serif;
   letter-spacing: 1px;
   /* 타이틀 색상은 variables.css의 --logo-title-color로 조절 */
   color: var(--logo-title-color);

@@ -127,6 +127,54 @@
   backface-visibility: hidden;
   perspective: 1000px;
   will-change: transform;
+  /* Stagger 애니메이션 */
+  animation: optionFadeIn 0.3s ease-out backwards;
+}
+
+/* 옵션 순차 등장 애니메이션 */
+@keyframes optionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.flask-page-wrapper .list .option:nth-child(1) {
+  animation-delay: 0s;
+}
+.flask-page-wrapper .list .option:nth-child(2) {
+  animation-delay: 0.03s;
+}
+.flask-page-wrapper .list .option:nth-child(3) {
+  animation-delay: 0.06s;
+}
+.flask-page-wrapper .list .option:nth-child(4) {
+  animation-delay: 0.09s;
+}
+.flask-page-wrapper .list .option:nth-child(5) {
+  animation-delay: 0.12s;
+}
+.flask-page-wrapper .list .option:nth-child(6) {
+  animation-delay: 0.15s;
+}
+.flask-page-wrapper .list .option:nth-child(7) {
+  animation-delay: 0.18s;
+}
+.flask-page-wrapper .list .option:nth-child(8) {
+  animation-delay: 0.21s;
+}
+.flask-page-wrapper .list .option:nth-child(9) {
+  animation-delay: 0.24s;
+}
+.flask-page-wrapper .list .option:nth-child(10) {
+  animation-delay: 0.27s;
+}
+.flask-page-wrapper .list .option:nth-child(n + 11) {
+  animation-delay: 0.3s;
 }
 .flask-page-wrapper .option:active,
 .option.dragging:active {
@@ -273,7 +321,10 @@ body.dragging-active .add-preset-chip {
   border-radius: 50%;
   top: 2px;
   left: 2px;
-  transition: 0.25s;
+  transition: left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.15s ease;
+}
+.admin-toggle:active .circle {
+  transform: scale(0.9);
 }
 .admin-toggle.on {
   background: var(--admin-on);
@@ -291,7 +342,7 @@ body.dragging-active .add-preset-chip {
   justify-content: flex-end;
   align-items: stretch;
   z-index: 1000;
-  animation: bgFadeIn 200ms ease-out;
+  animation: bgFadeIn 250ms ease-out;
 }
 
 @keyframes bgFadeIn {
@@ -315,8 +366,8 @@ body.dragging-active .add-preset-chip {
   gap: 18px;
   box-shadow: var(--modal-shadow);
   border-left: 1px solid var(--sidebar-border);
-  animation: slideIn 280ms cubic-bezier(0.25, 0.8, 0.25, 1) both;
-  will-change: transform;
+  animation: slideIn 250ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  will-change: transform, opacity;
 }
 
 .preset-modal {
@@ -738,10 +789,12 @@ body.dragging-active .add-preset-chip {
 
 @keyframes slideIn {
   0% {
-    transform: translateX(100%);
+    opacity: 0;
+    transform: translate3d(100%, 0, 0);
   }
   100% {
-    transform: translateX(0);
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 }
 

@@ -853,6 +853,7 @@ export default function DiscussionPage() {
                               lineHeight: "inherit",
                               padding: "0",
                               overflow: "hidden",
+                              minHeight: "unset",
                             }}
                           />
                         ) : (

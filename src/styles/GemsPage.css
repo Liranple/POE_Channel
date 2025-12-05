@@ -143,7 +143,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
-  color: #fbbf24;
+  color: var(--price-color);
   font-weight: 600;
   font-size: 16px;
 }
@@ -222,4 +222,19 @@
   color: var(--muted);
   opacity: 0.4;
   font-size: 16px;
+}
+
+/* ==================== 라이트 모드 전용 스타일 ==================== */
+.theme-light .gems-table th {
+  background: rgba(0, 0, 0, 0.08);
+  color: #475569;
+}
+
+.theme-light .gems-table tbody tr:nth-child(even) {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* 라이트 모드에서 직업 아이콘 더 밝게 */
+.theme-light .class-icon {
+  filter: brightness(1.15) contrast(1.1);
 }

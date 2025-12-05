@@ -1,5 +1,3 @@
-import { AUTH } from "../constants";
-
 /**
  * 유틸리티 함수 모음
  */
@@ -20,14 +18,13 @@ export function formatDate(date = new Date()) {
 
 /**
  * 비밀번호를 검증합니다.
+ * 참고: 마스터 비밀번호 검증은 서버에서만 수행됩니다.
  * @param {string} inputPassword - 입력된 비밀번호
  * @param {string} storedPassword - 저장된 비밀번호
  * @returns {boolean} 비밀번호 일치 여부
  */
 export function validatePassword(inputPassword, storedPassword) {
-  return (
-    inputPassword === storedPassword || inputPassword === AUTH.MASTER_PASSWORD
-  );
+  return inputPassword === storedPassword;
 }
 
 /**

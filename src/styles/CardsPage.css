@@ -53,10 +53,6 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
-.cards-table tr:hover {
-  background: var(--table-row-hover-bg);
-}
-
 /* Column Widths */
 .col-name {
   width: 22%;
@@ -82,7 +78,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
-  color: #fbbf24;
+  color: var(--price-color);
   font-weight: 600;
   font-size: 16px;
   padding-right: 10px;
@@ -272,4 +268,14 @@
     font-size: 13px;
     padding: 3px 8px;
   }
+}
+
+/* ==================== 라이트 모드 전용 스타일 ==================== */
+.theme-light .cards-table th {
+  background: rgba(0, 0, 0, 0.08);
+  color: #475569;
+}
+
+.theme-light .cards-table tbody tr:nth-child(even) {
+  background: rgba(0, 0, 0, 0.03);
 }

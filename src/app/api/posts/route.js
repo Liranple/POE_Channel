@@ -1,10 +1,52 @@
 import { Redis } from "@upstash/redis";
+import { Ratelimit } from "@upstash/ratelimit";
 import { NextResponse } from "next/server";
 
 // Redis 클라이언트 초기화
 const redis = Redis.fromEnv();
 
+// Rate Limiter 설정 (분당 20회 제한)
+const ratelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(20, "1m"),
+  analytics: true,
+  prefix: "ratelimit:posts",
+});
+
 const POSTS_KEY = "discussion:posts";
+
+// 입력값 길이 제한
+const MAX_TITLE_LENGTH = 100;
+const MAX_CONTENT_LENGTH = 5000;
+const MAX_PASSWORD_LENGTH = 50;
+
+/**
+ * 입력값 Sanitization - XSS 방지 및 길이 제한
+ * @param {string} input - 원본 입력값
+ * @param {number} maxLength - 최대 길이
+ * @returns {string} - 정제된 문자열
+ */
+function sanitizeInput(input, maxLength = 10000) {
+  if (typeof input !== "string") return "";
+
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+    .trim()
+    .slice(0, maxLength);
+}
+
+/**
+ * IP 주소 추출
+ */
+function getClientIP(request) {
+  const forwarded = request.headers.get("x-forwarded-for");
+  const realIP = request.headers.get("x-real-ip");
+  return forwarded?.split(",")[0]?.trim() || realIP || "127.0.0.1";
+}
 
 // 게시글 목록 조회
 export async function GET() {
@@ -23,6 +65,27 @@ export async function GET() {
 // 게시글 생성
 export async function POST(request) {
   try {
+    // Rate Limiting 체크
+    const ip = getClientIP(request);
+    const { success, limit, remaining, reset } = await ratelimit.limit(ip);
+
+    if (!success) {
+      return NextResponse.json(
+        {
+          error: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.",
+          retryAfter: Math.ceil((reset - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": limit.toString(),
+            "X-RateLimit-Remaining": remaining.toString(),
+            "X-RateLimit-Reset": reset.toString(),
+          },
+        }
+      );
+    }
+
     const body = await request.json();
     const { action, data } = body;
 
@@ -34,9 +97,9 @@ export async function POST(request) {
         const newPost = {
           id: Date.now(),
           author: "익명",
-          password: data.password,
-          title: data.title,
-          content: data.content,
+          password: sanitizeInput(data.password, MAX_PASSWORD_LENGTH),
+          title: sanitizeInput(data.title, MAX_TITLE_LENGTH),
+          content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
           date: data.date,
           comments: [],
         };
@@ -47,7 +110,11 @@ export async function POST(request) {
       case "update_post": {
         posts = posts.map((post) =>
           post.id === data.id
-            ? { ...post, title: data.title, content: data.content }
+            ? {
+                ...post,
+                title: sanitizeInput(data.title, MAX_TITLE_LENGTH),
+                content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
+              }
             : post
         );
         break;
@@ -68,8 +135,8 @@ export async function POST(request) {
                 {
                   id: data.commentId,
                   author: "익명",
-                  password: data.password,
-                  content: data.content,
+                  password: sanitizeInput(data.password, MAX_PASSWORD_LENGTH),
+                  content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
                   date: data.date,
                   replies: [],
                 },
@@ -86,7 +153,10 @@ export async function POST(request) {
           ...post,
           comments: post.comments.map((comment) =>
             comment.id === data.id
-              ? { ...comment, content: data.content }
+              ? {
+                  ...comment,
+                  content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
+                }
               : comment
           ),
         }));
@@ -113,8 +183,8 @@ export async function POST(request) {
               const newReply = {
                 id: data.replyId,
                 author: "익명",
-                password: data.password,
-                content: data.content,
+                password: sanitizeInput(data.password, MAX_PASSWORD_LENGTH),
+                content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
                 date: data.date,
                 depth: data.depth || 0,
               };
@@ -158,7 +228,12 @@ export async function POST(request) {
           comments: post.comments.map((comment) => ({
             ...comment,
             replies: comment.replies.map((reply) =>
-              reply.id === data.id ? { ...reply, content: data.content } : reply
+              reply.id === data.id
+                ? {
+                    ...reply,
+                    content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
+                  }
+                : reply
             ),
           })),
         }));
@@ -229,7 +304,11 @@ export async function PUT(request) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
 
-    const isValid = targetPassword === password;
+    // 마스터 비밀번호 또는 원래 비밀번호로 검증
+    const masterPassword = process.env.MASTER_PASSWORD;
+    const isValid =
+      targetPassword === password ||
+      (masterPassword && password === masterPassword);
     return NextResponse.json({ valid: isValid });
   } catch (error) {
     console.error("Failed to verify password:", error);

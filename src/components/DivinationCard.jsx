@@ -1,8 +1,8 @@
-import React, { useRef, useLayoutEffect } from "react";
+import React, { useRef, useLayoutEffect, memo } from "react";
 /* eslint-disable @next/next/no-img-element */
 import "../styles/DivinationCard.css";
 
-export default function DivinationCard({ cardData, artUrl }) {
+const DivinationCard = memo(function DivinationCard({ cardData, artUrl }) {
   const flavorRef = useRef(null);
   const flavorText = cardData?.flavorText;
 
@@ -165,4 +165,6 @@ export default function DivinationCard({ cardData, artUrl }) {
       </div>
     </div>
   );
-}
+});
+
+export default DivinationCard;

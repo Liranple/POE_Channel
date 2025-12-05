@@ -495,25 +495,26 @@ export default function MapsPage() {
     }
   }, []);
 
-  const toggleType = (type) => {
-    if (modalData.types.includes(type)) {
-      setModalData({
-        ...modalData,
-        types: modalData.types.filter((t) => t !== type),
-      });
-    } else {
-      setModalData({ ...modalData, types: [...modalData.types, type] });
-    }
-  };
+  const toggleType = useCallback((type) => {
+    setModalData((prev) => {
+      if (prev.types.includes(type)) {
+        return { ...prev, types: prev.types.filter((t) => t !== type) };
+      } else {
+        return { ...prev, types: [...prev.types, type] };
+      }
+    });
+  }, []);
 
-  const handleWheel = (e, key) => {
+  const handleWheel = useCallback((e, key) => {
     e.preventDefault();
     e.stopPropagation();
     const delta = e.deltaY > 0 ? -1 : 1;
-    const currentVal = parseInt(mapStats[key] || "0", 10);
-    const newVal = Math.max(0, currentVal + delta);
-    setMapStats((prev) => ({ ...prev, [key]: newVal.toString() }));
-  };
+    setMapStats((prev) => {
+      const currentVal = parseInt(prev[key] || "0", 10);
+      const newVal = Math.max(0, currentVal + delta);
+      return { ...prev, [key]: newVal.toString() };
+    });
+  }, []);
 
   // 가로 스크롤 드래그
   const scrollRef = useRef(null);

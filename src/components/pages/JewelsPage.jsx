@@ -240,17 +240,16 @@ export default function JewelsPage() {
     corruptedData,
   ]);
 
-  const toggleTypeButton = useCallback(
-    (type) => {
-      const types = modalData.types;
+  const toggleTypeButton = useCallback((type) => {
+    setModalData((prev) => {
+      const types = prev.types;
       if (types.includes(type)) {
-        setModalData({ ...modalData, types: types.filter((t) => t !== type) });
+        return { ...prev, types: types.filter((t) => t !== type) };
       } else {
-        setModalData({ ...modalData, types: [...types, type] });
+        return { ...prev, types: [...types, type] };
       }
-    },
-    [modalData]
-  );
+    });
+  }, []);
 
   const scrollRef = useRef(null);
   const isDraggingScroll = useRef(false);

@@ -183,6 +183,9 @@
 }
 
 /* Admin Mode Styles */
+.flask-page-wrapper .admin-mode .list {
+  cursor: default;
+}
 .flask-page-wrapper .admin-mode .option {
   cursor: grab;
 }

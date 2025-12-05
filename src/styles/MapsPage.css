@@ -178,6 +178,9 @@
 }
 
 /* Admin Mode Styles */
+.maps-page-wrapper .admin-mode .list {
+  cursor: default;
+}
 .maps-page-wrapper .admin-mode .option {
   cursor: grab;
 }

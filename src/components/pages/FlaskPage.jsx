@@ -329,17 +329,16 @@ export default function FlaskPage() {
     suffixData,
   ]);
 
-  const toggleTypeButton = useCallback(
-    (type) => {
-      const types = modalData.types;
+  const toggleTypeButton = useCallback((type) => {
+    setModalData((prev) => {
+      const types = prev.types;
       if (types.includes(type)) {
-        setModalData({ ...modalData, types: types.filter((t) => t !== type) });
+        return { ...prev, types: types.filter((t) => t !== type) };
       } else {
-        setModalData({ ...modalData, types: [...types, type] });
+        return { ...prev, types: [...types, type] };
       }
-    },
-    [modalData]
-  );
+    });
+  }, []);
 
   // 프리셋 드래그 핸들러를 위한 wrapper 함수
   const onPresetDragStart = useCallback(

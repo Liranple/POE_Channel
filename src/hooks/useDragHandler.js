@@ -36,15 +36,21 @@ export default function useDragHandler(adminMode) {
         document.body.style.overflow = "hidden";
       }
 
+      // 드래그 시작 시 즉시 시각적 피드백 (렉 방지)
+      // 애니메이션 제거 및 GPU 가속 준비
+      div.style.animation = "none";
+      div.style.willChange = "transform";
+      div.classList.add("dragging");
+
       // placeholder 생성
       const placeholder = document.createElement("div");
       placeholder.className = "option";
       placeholder.style.visibility = "hidden";
       placeholder.style.height = rect.height + "px";
+      placeholder.style.animation = "none";
       listEl.insertBefore(placeholder, div.nextSibling);
 
       // 드래그 중인 요소 스타일 설정 (GPU 가속 사용)
-      div.classList.add("dragging");
       document.body.classList.add("dragging-active");
       div.style.position = "fixed";
       div.style.width = rect.width + "px";
@@ -52,7 +58,6 @@ export default function useDragHandler(adminMode) {
       div.style.top = rect.top + "px";
       div.style.zIndex = "9999";
       div.style.pointerEvents = "none";
-      div.style.willChange = "transform";
       document.body.appendChild(div);
 
       let isDragging = true;

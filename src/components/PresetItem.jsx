@@ -1,5 +1,9 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import useHoldDelete from "../hooks/useHoldDelete";
+
+// 정적 스타일 객체
+const grabStyle = { cursor: "grab" };
+const pointerStyle = { cursor: "pointer" };
 
 const PresetItem = memo(function PresetItem({
   preset,
@@ -18,6 +22,9 @@ const PresetItem = memo(function PresetItem({
     }
   };
 
+  const cursorStyle = adminMode ? grabStyle : pointerStyle;
+  const progressStyle = useMemo(() => ({ width: `${progress}%` }), [progress]);
+
   return (
     <div
       className="preset-item"
@@ -33,9 +40,9 @@ const PresetItem = memo(function PresetItem({
           onDragStart(e, index);
         }
       }}
-      style={{ cursor: adminMode ? "grab" : "pointer" }}
+      style={cursorStyle}
     >
-      <div className="delete-progress" style={{ width: `${progress}%` }}></div>
+      <div className="delete-progress" style={progressStyle}></div>
       <span className="preset-name">{preset.name}</span>
       {adminMode && (
         <div

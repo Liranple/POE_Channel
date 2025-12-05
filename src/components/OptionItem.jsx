@@ -1,6 +1,12 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import useHoldDelete from "../hooks/useHoldDelete";
 import { JEWEL_TYPE_MAP } from "../data/JewelData";
+
+// 정적 배열 - 컴포넌트 외부에 선언하여 재생성 방지
+const TYPE_ORDER = ["생명력", "마나", "특수", "팅크"];
+
+// 정적 스타일 객체
+const spanStyle = { position: "relative", zIndex: 2 };
 
 const OptionItem = memo(
   function OptionItem({
@@ -62,7 +68,7 @@ const OptionItem = memo(
           className="delete-progress"
           style={{ width: `${progress}%` }}
         ></div>
-        <span style={{ position: "relative", zIndex: 2 }}>
+        <span style={spanStyle}>
           <span className="option-text-inner">{opt.optionText}</span>
           {isExcluded && <span className="not-badge">NOT</span>}
           {isMaxSelected && <span className="max-badge">MAX</span>}
@@ -74,9 +80,8 @@ const OptionItem = memo(
               .map((t) => t.trim())
               .filter(Boolean)
               .sort((a, b) => {
-                const order = ["생명력", "마나", "특수", "팅크"];
                 // Jewel types order doesn't matter much, but let's keep them together
-                return order.indexOf(a) - order.indexOf(b);
+                return TYPE_ORDER.indexOf(a) - TYPE_ORDER.indexOf(b);
               })
               .map((type, idx) => {
                 const normalizedType = type.normalize

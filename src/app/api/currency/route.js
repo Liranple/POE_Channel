@@ -1,9 +1,10 @@
 // Next.js API Route - POE Ninja 프록시 (CORS 우회)
 
+import { CURRENT_LEAGUE, CACHE_DURATION } from "@/config/league";
+
 // 메모리 캐싱
 let cachedData = null;
 let cachedTimestamp = null;
-const CACHE_DURATION = 3600 * 1000; // 1시간
 
 // 다음 정시 timestamp 계산
 function getNextHourTimestamp() {
@@ -21,40 +22,52 @@ export async function GET() {
     if (
       cachedData &&
       cachedTimestamp &&
-      now - cachedTimestamp < CACHE_DURATION
+      now - cachedTimestamp < CACHE_DURATION.API
     ) {
       return Response.json(cachedData);
     }
 
-    const league = "Keepers"; // 현재 리그명 (필요시 변경)
-    const DIVINE_RATE = 160; // Divine 1개 = 약 160 Chaos (대략적인 환율)
-
     // 새로운 POE1 전용 API 엔드포인트
-    const url = `https://poe.ninja/poe1/api/economy/exchange/current/overview?league=${league}&type=DivinationCard`;
+    const cardUrl = `https://poe.ninja/poe1/api/economy/exchange/current/overview?league=${CURRENT_LEAGUE}&type=DivinationCard`;
+    const currencyUrl = `https://poe.ninja/poe1/api/economy/exchange/current/overview?league=${CURRENT_LEAGUE}&type=Currency`;
 
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent": "POE-Channel/1.0",
-      },
-      // 서버 사이드에서 1시간 캐싱
-      next: { revalidate: 3600 },
-    });
+    // 카드 데이터와 Divine 시세를 병렬로 가져오기
+    const [cardResponse, currencyResponse] = await Promise.all([
+      fetch(cardUrl, {
+        headers: { "User-Agent": "POE-Channel/1.0" },
+        next: { revalidate: 3600 },
+      }),
+      fetch(currencyUrl, {
+        headers: { "User-Agent": "POE-Channel/1.0" },
+        next: { revalidate: 3600 },
+      }),
+    ]);
 
-    if (!response.ok) {
-      throw new Error(`POE Ninja API error: ${response.status}`);
+    if (!cardResponse.ok) {
+      throw new Error(`POE Ninja Card API error: ${cardResponse.status}`);
     }
 
-    const data = await response.json();
+    const cardData = await cardResponse.json();
+
+    // Divine Orb 시세 가져오기 (실패해도 기본값 사용)
+    let divineRate = 160; // 기본값 (API 실패 시 fallback)
+    if (currencyResponse.ok) {
+      const currencyData = await currencyResponse.json();
+      const divine = currencyData.lines?.find((c) => c.id === "divine-orb");
+      if (divine?.primaryValue) {
+        divineRate = divine.primaryValue;
+      }
+    }
 
     // 필요한 데이터만 추출 (모든 카드 포함)
-    const cards = data.lines.map((card) => ({
+    const cards = cardData.lines.map((card) => ({
       id: card.id,
       name: card.id
         .split("-")
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" "), // kebab-case를 Title Case로 변환
       chaosValue: Math.round(card.primaryValue),
-      divineValue: Math.round((card.primaryValue / DIVINE_RATE) * 10) / 10, // 소숫점 1자리
+      divineValue: Math.round((card.primaryValue / divineRate) * 10) / 10, // 실시간 Divine 시세 적용
       icon: `https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvRGl2aW5hdGlvbi9JbnZlbnRvcnlJY29uIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/f34bf8cbb5/InventoryIcon.png`,
     }));
 
@@ -64,7 +77,7 @@ export async function GET() {
     // 응답 데이터 생성 및 캐싱
     cachedData = {
       success: true,
-      league,
+      league: CURRENT_LEAGUE,
       timestamp: hourTimestamp,
       cards,
     };

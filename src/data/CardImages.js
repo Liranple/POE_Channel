@@ -1,9 +1,3 @@
-export const CARD_IMAGES = {
-  // 카드 이름: "이미지 URL" (기존 툴팁용 - 이제 사용 안 할 수도 있음)
-  "거울의 집": "",
-  // ...
-};
-
 export const CARD_ART_IMAGES = {
   // 카드 이름: "삽화 이미지 URL"
   "거울의 집": "/images/cards/HouseOfMirrors.png",
@@ -39,34 +33,6 @@ export const CARD_ART_IMAGES = {
   호수: "/images/cards/TheLake.png",
   "빛나는 발견물": "/images/cards/LuminousTrove.png",
   "훼손된 미덕": "/images/cards/DesecratedVirtue.png",
-};
-
-export const REWARD_IMAGES = {
-  // 보상 이름: "이미지 URL"
-  "칼란드라의 거울": "",
-  "마법사의 피": "",
-  "거울 파편": "",
-  "원형의 성서": "",
-  니미스: "",
-  "숭고한 환영": "",
-  "히네코라의 머리카락": "",
-  "헤드 헌터": "",
-  "신성한 오브": "",
-  "죽어가는 해": "",
-  "장대한 파장": "",
-  "분열의 오브": "",
-  "공허의 탄생": "",
-  "각성한 보조 젬": "",
-  "장막의 엑잘티드 오브": "",
-  "기이한 본능": "",
-  "기습 시약": "",
-  "계몽 보조 젬": "",
-  "교살의 손아귀": "",
-  포기: "",
-  "운명의 저항": "",
-  "실험적 장신구": "",
-  "투영하는 안개": "",
-  목소리: "",
 };
 
 export const LOCATION_IMAGES = {

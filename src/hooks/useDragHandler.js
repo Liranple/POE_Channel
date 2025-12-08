@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { ANIMATION } from "../constants";
+import { ANIMATION } from "../config/constants";
 
 /**
  * 드래그 핸들러 커스텀 훅

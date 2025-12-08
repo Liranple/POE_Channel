@@ -2,11 +2,11 @@
 
 import { GEM_NAME_TO_KOREAN } from "@/data/GemNameMapping";
 import { GEM_VENDOR_INFO } from "@/data/GemVendorData";
+import { CURRENT_LEAGUE, CACHE_DURATION } from "@/config/league";
 
 // 캐시된 데이터와 타임스탬프를 저장
 let cachedData = null;
 let cachedTimestamp = null;
-const CACHE_DURATION = 3600 * 1000; // 1시간 (밀리초)
 
 // 현재 정시 timestamp 계산
 function getCurrentHourTimestamp() {
@@ -24,7 +24,7 @@ export async function GET() {
     if (
       cachedData &&
       cachedTimestamp &&
-      now - cachedTimestamp < CACHE_DURATION
+      now - cachedTimestamp < CACHE_DURATION.API
     ) {
       return Response.json({
         success: true,
@@ -35,9 +35,7 @@ export async function GET() {
       });
     }
 
-    const league = "Keepers"; // 현재 리그명
-
-    const url = `https://poe.ninja/poe1/api/economy/stash/current/item/overview?league=${league}&type=SkillGem`;
+    const url = `https://poe.ninja/poe1/api/economy/stash/current/item/overview?league=${CURRENT_LEAGUE}&type=SkillGem`;
 
     const response = await fetch(url, {
       headers: {
@@ -111,11 +109,11 @@ export async function GET() {
 
     // 캐시 저장
     cachedTimestamp = Date.now();
-    cachedData = { league, gems };
+    cachedData = { league: CURRENT_LEAGUE, gems };
 
     return Response.json({
       success: true,
-      league,
+      league: CURRENT_LEAGUE,
       timestamp: getCurrentHourTimestamp(),
       gems,
       cached: false,

@@ -14,7 +14,7 @@ import useDraggableScroll from "../../hooks/useDraggableScroll";
 import usePreset from "../../hooks/usePreset";
 import useDragHandler from "../../hooks/useDragHandler";
 import useOptionData from "../../hooks/useOptionData";
-import { STORAGE_KEYS } from "../../constants";
+import { STORAGE_KEYS } from "../../config/constants";
 import "../../styles/JewelsPage.css";
 
 /**

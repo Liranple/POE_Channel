@@ -5,7 +5,7 @@ import useDraggableScroll from "../../hooks/useDraggableScroll";
 import usePreset from "../../hooks/usePreset";
 import useDragHandler from "../../hooks/useDragHandler";
 import useOptionData from "../../hooks/useOptionData";
-import { STORAGE_KEYS, TAG_ORDER } from "../../constants";
+import { STORAGE_KEYS, TAG_ORDER } from "../../config/constants";
 
 import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../../data/FlaskData";
 import OptionItem from "../OptionItem";

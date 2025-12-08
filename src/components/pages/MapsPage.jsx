@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import useDraggableScroll from "../../hooks/useDraggableScroll";
 import useDragHandler from "../../hooks/useDragHandler";
 import useOptionData from "../../hooks/useOptionData";
-import { STORAGE_KEYS } from "../../constants";
+import { STORAGE_KEYS } from "../../config/constants";
 
 import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../../data/MapData";
 import OptionItem from "../OptionItem";

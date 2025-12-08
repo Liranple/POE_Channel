@@ -10,12 +10,7 @@ import React, {
 } from "react";
 /* eslint-disable @next/next/no-img-element */
 import { CARD_DATA } from "../../data/CardData";
-import {
-  CARD_IMAGES,
-  CARD_ART_IMAGES,
-  REWARD_IMAGES,
-  LOCATION_IMAGES,
-} from "../../data/CardImages";
+import { CARD_ART_IMAGES, LOCATION_IMAGES } from "../../data/CardImages";
 import { REWARD_DATA } from "../../data/RewardData";
 import DivinationCard from "../DivinationCard";
 import RewardTooltip from "../RewardTooltip";
@@ -279,11 +274,6 @@ export default function CardsPage() {
       setHoverImage(null);
       setHoverReward(null);
       updatePosition();
-    } else if (CARD_IMAGES[card.name]) {
-      setHoverImage(CARD_IMAGES[card.name]);
-      setHoverCard(null);
-      setHoverReward(null);
-      updatePosition();
     }
   };
 
@@ -304,11 +294,6 @@ export default function CardsPage() {
     if (REWARD_DATA[rewardName]) {
       setHoverReward(rewardName);
       setHoverImage(null);
-      setHoverCard(null);
-      updatePosition();
-    } else if (REWARD_IMAGES[rewardName]) {
-      setHoverImage(REWARD_IMAGES[rewardName]);
-      setHoverReward(null);
       setHoverCard(null);
       updatePosition();
     }

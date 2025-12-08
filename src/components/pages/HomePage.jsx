@@ -2,15 +2,9 @@
 /* eslint-disable @next/next/no-img-element */
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { NOTICES } from "../../data/notices/NoticeData";
+import { NOTICES } from "../../config/notices";
+import { LEAGUE_INFO } from "../../config/league";
 import "../../styles/HomePage.css";
-
-// 리그 정보
-const LEAGUE_INFO = {
-  name: "Keepers of the Flame",
-  nameKo: "불꽃의 수호자",
-  startDate: new Date("2025-11-01T04:00:00+09:00"), // 한국 시간 기준 (11월 1일 04:00)
-};
 
 // 아이템 시세 캐시
 let itemsCache = { data: null, timestamp: 0, cachedAt: 0 };

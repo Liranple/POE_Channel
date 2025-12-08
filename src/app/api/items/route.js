@@ -1,5 +1,7 @@
 // Next.js API Route - 유니크 아이템 시세 프록시
 
+import { CURRENT_LEAGUE, CACHE_DURATION } from "@/config/league";
+
 // 조회할 아이템 목록 (영문명 → 한글명, 이미지)
 const TRACKED_ITEMS = {
   Mageblood: {
@@ -57,7 +59,6 @@ const TRACKED_ITEMS = {
 // 캐시 저장
 let cachedData = null;
 let cachedTimestamp = null;
-const CACHE_DURATION = 3600 * 1000; // 1시간
 
 // 현재 정시 timestamp 계산
 function getCurrentHourTimestamp() {
@@ -75,7 +76,7 @@ export async function GET() {
     if (
       cachedData &&
       cachedTimestamp &&
-      now - cachedTimestamp < CACHE_DURATION
+      now - cachedTimestamp < CACHE_DURATION.API
     ) {
       return Response.json({
         success: true,
@@ -84,8 +85,6 @@ export async function GET() {
         cached: true,
       });
     }
-
-    const league = "Keepers";
     const types = [
       "UniqueArmour",
       "UniqueAccessory",
@@ -95,7 +94,7 @@ export async function GET() {
 
     // 모든 타입의 데이터 병렬로 가져오기
     const fetchPromises = types.map(async (type) => {
-      const url = `https://poe.ninja/poe1/api/economy/stash/current/item/overview?league=${league}&type=${type}`;
+      const url = `https://poe.ninja/poe1/api/economy/stash/current/item/overview?league=${CURRENT_LEAGUE}&type=${type}`;
       const response = await fetch(url, {
         headers: { "User-Agent": "POE-Channel/1.0" },
         next: { revalidate: 3600 },

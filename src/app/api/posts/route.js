@@ -48,11 +48,29 @@ function getClientIP(request) {
   return forwarded?.split(",")[0]?.trim() || realIP || "127.0.0.1";
 }
 
+// 비밀번호를 제거하고 게시글 반환 (보안)
+function stripPasswords(posts) {
+  return posts.map((post) => ({
+    ...post,
+    password: undefined, // 비밀번호 제거
+    comments: post.comments?.map((comment) => ({
+      ...comment,
+      password: undefined, // 댓글 비밀번호 제거
+      replies: comment.replies?.map((reply) => ({
+        ...reply,
+        password: undefined, // 답글 비밀번호 제거
+      })),
+    })),
+  }));
+}
+
 // 게시글 목록 조회
 export async function GET() {
   try {
     const posts = await redis.get(POSTS_KEY);
-    return NextResponse.json({ posts: posts || [] });
+    // 비밀번호를 제거하고 반환
+    const safePosts = stripPasswords(posts || []);
+    return NextResponse.json({ posts: safePosts });
   } catch (error) {
     console.error("Failed to fetch posts:", error);
     return NextResponse.json(

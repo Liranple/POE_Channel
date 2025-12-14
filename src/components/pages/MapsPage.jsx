@@ -5,10 +5,12 @@ import useDraggableScroll from "../../hooks/useDraggableScroll";
 import useDragHandler from "../../hooks/useDragHandler";
 import useOptionData from "../../hooks/useOptionData";
 import { STORAGE_KEYS } from "../../config/constants";
+import { OPTION_STORAGE_KEYS } from "../../utils/optionStorage";
 
 import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../../data/MapData";
 import OptionItem from "../OptionItem";
 import PresetItem from "../PresetItem";
+import ResetModal from "../ResetModal";
 import "../../styles/MapsPage.css";
 
 /**
@@ -47,6 +49,9 @@ export default function MapsPage() {
     suffixData,
     setPrefixData,
     setSuffixData,
+    addOption: addOptionToData,
+    modifyOption: modifyOptionInData,
+    deleteOption: deleteOptionFromData,
     isInitialized,
   } = useOptionData("map", DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA);
 
@@ -94,6 +99,9 @@ export default function MapsPage() {
   const modalBgRef = useRef(null);
   const modalDown = useRef(false);
   const presetModalDown = useRef(false);
+
+  // 초기화 모달 상태
+  const [resetModalVisible, setResetModalVisible] = useState(false);
 
   // 로컬 스토리지에서 프리셋 로드
   useEffect(() => {
@@ -441,47 +449,89 @@ export default function MapsPage() {
     setModalVisible(true);
   }, []);
 
-  const handleModalSave = () => {
-    const newItem = {
-      id: currentEditOption ? currentEditOption.id : Date.now(),
-      affix:
-        modalListId === "prefixList"
-          ? "prefix"
-          : modalListId === "suffixList"
-          ? "suffix"
-          : "corrupted",
-      optionText: modalData.optionText,
-      filterRegex: modalData.filterRegex,
-      type: modalData.types.join(", "),
-    };
+  // 중복 검사: 다른 옵션과 이름/정규식이 같은지 확인 (추가/수정 모드 모두)
+  const duplicateError = useMemo(() => {
+    if (!modalVisible) return null;
 
-    if (modalMode === "add") {
-      if (modalListId === "prefixList") {
-        setPrefixData([...prefixData, newItem]);
-      } else if (modalListId === "suffixList") {
-        setSuffixData([...suffixData, newItem]);
+    const { optionText, filterRegex } = modalData;
+
+    // 현재 대상 리스트 결정
+    const targetData = modalListId === "prefixList" ? prefixData : suffixData;
+
+    for (const opt of targetData) {
+      // 수정 모드에서는 현재 편집 중인 옵션은 제외
+      if (
+        modalMode === "edit" &&
+        currentEditOption &&
+        opt.id === currentEditOption.id
+      ) {
+        continue;
       }
-    } else {
-      // Edit
-      if (modalListId === "prefixList") {
-        setPrefixData(
-          prefixData.map((item) => (item.id === newItem.id ? newItem : item))
-        );
-      } else if (modalListId === "suffixList") {
-        setSuffixData(
-          suffixData.map((item) => (item.id === newItem.id ? newItem : item))
-        );
+      // 이름 중복 검사
+      if (
+        optionText &&
+        optionText.trim() &&
+        opt.optionText === optionText.trim()
+      ) {
+        return "동일한 이름이 존재합니다";
+      }
+      // 정규식 중복 검사
+      if (
+        filterRegex &&
+        filterRegex.trim() &&
+        opt.filterRegex === filterRegex.trim()
+      ) {
+        return "동일한 정규식이 존재합니다";
       }
     }
-    setModalVisible(false);
-  };
 
-  const deleteOption = useCallback((opt, data, setData, listId) => {
-    const idx = data.indexOf(opt);
-    if (idx > -1) {
-      const newData = [...data];
-      newData.splice(idx, 1);
-      setData(newData);
+    return null;
+  }, [
+    modalMode,
+    modalVisible,
+    modalData,
+    modalListId,
+    prefixData,
+    suffixData,
+    currentEditOption,
+  ]);
+
+  const handleModalSave = useCallback(() => {
+    const listType = modalListId === "prefixList" ? "prefix" : "suffix";
+    const affix = listType;
+    const type = modalData.types.join(", ");
+
+    if (modalMode === "add") {
+      const newOption = {
+        affix: affix,
+        optionText: modalData.optionText,
+        filterRegex: modalData.filterRegex || "tag" + Date.now(),
+        type: type,
+      };
+      addOptionToData(listType, newOption);
+    } else {
+      // Edit
+      const modifications = {
+        optionText: modalData.optionText,
+        filterRegex: modalData.filterRegex,
+        type: type,
+      };
+      modifyOptionInData(listType, currentEditOption.id, modifications);
+    }
+    setModalVisible(false);
+  }, [
+    modalData,
+    modalMode,
+    modalListId,
+    currentEditOption,
+    addOptionToData,
+    modifyOptionInData,
+  ]);
+
+  const deleteOption = useCallback(
+    (opt, data, setData, listId) => {
+      const listType = listId === "prefixList" ? "prefix" : "suffix";
+      deleteOptionFromData(listType, opt.id);
 
       // Also remove from selected if present
       setSelected((prev) => {
@@ -492,8 +542,9 @@ export default function MapsPage() {
         }
         return prev;
       });
-    }
-  }, []);
+    },
+    [deleteOptionFromData]
+  );
 
   const toggleType = useCallback((type) => {
     setModalData((prev) => {
@@ -550,7 +601,13 @@ export default function MapsPage() {
         <div className="wrap" style={{ paddingBottom: 0 }}>
           <header>
             <h1>지도 정규식 빌더</h1>
-            <div className="admin-container">
+            <div className="admin-container" style={{ position: "relative" }}>
+              <button
+                className="reset-btn"
+                onClick={() => setResetModalVisible(true)}
+              >
+                초기화
+              </button>
               <span style={{ color: "var(--text)", fontWeight: 700 }}>
                 관리자 모드
               </span>
@@ -1008,12 +1065,15 @@ export default function MapsPage() {
                 disabled={
                   !modalData.optionText ||
                   !modalData.filterRegex ||
-                  modalData.types.length === 0
+                  modalData.types.length === 0 ||
+                  (modalMode === "add" && duplicateError)
                 }
               >
-                {!modalData.optionText ||
-                !modalData.filterRegex ||
-                modalData.types.length === 0
+                {modalMode === "add" && duplicateError
+                  ? duplicateError
+                  : !modalData.optionText ||
+                    !modalData.filterRegex ||
+                    modalData.types.length === 0
                   ? "모든 항목을 입력해주세요"
                   : modalMode === "add"
                   ? "추가"
@@ -1023,6 +1083,17 @@ export default function MapsPage() {
           </div>
         </>
       )}
+
+      {/* 초기화 확인 모달 */}
+      <ResetModal
+        visible={resetModalVisible}
+        onClose={() => setResetModalVisible(false)}
+        onConfirm={() => {
+          localStorage.removeItem(STORAGE_KEYS.MAP_PRESETS);
+          localStorage.removeItem(OPTION_STORAGE_KEYS.map);
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

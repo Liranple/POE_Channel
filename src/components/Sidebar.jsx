@@ -1,15 +1,9 @@
 "use client";
 
 import { memo, useCallback } from "react";
-import { FaSun, FaMoon, FaRegCommentDots } from "react-icons/fa";
+import { FaSun, FaMoon } from "react-icons/fa";
 
 // 정적 스타일 객체 - 컴포넌트 외부에 선언하여 재생성 방지
-const headerFlexStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "10px",
-};
-
 const footerStyle = {
   padding: "16px",
   borderTop: "1px solid var(--sidebar-border)",
@@ -35,6 +29,14 @@ const themeButtonStyle = {
   transition: "0.2s",
 };
 
+// 로고 클릭 가능하도록 스타일 추가
+const logoContainerStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  cursor: "pointer",
+};
+
 const Sidebar = memo(function Sidebar({
   activeTab,
   onTabChange,
@@ -50,10 +52,21 @@ const Sidebar = memo(function Sidebar({
     e.currentTarget.style.opacity = "1";
   }, []);
 
+  // 로고 클릭 시 메인 페이지로 이동
+  const handleLogoClick = useCallback(() => {
+    onTabChange("home");
+  }, [onTabChange]);
+
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <div style={headerFlexStyle}>
+        <div
+          style={logoContainerStyle}
+          onClick={handleLogoClick}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && handleLogoClick()}
+        >
           <img
             src="/images/ui/Logo.png"
             alt="Logo"

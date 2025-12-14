@@ -157,6 +157,13 @@ const OptionItem = memo(
     if (prevProps.opt.id !== nextProps.opt.id) return false;
     if (prevProps.adminMode !== nextProps.adminMode) return false;
 
+    // Check if opt content changed (for edit functionality)
+    if (prevProps.opt.optionText !== nextProps.opt.optionText) return false;
+    if (prevProps.opt.filterRegex !== nextProps.opt.filterRegex) return false;
+    if (prevProps.opt.maxRollRegex !== nextProps.opt.maxRollRegex) return false;
+    if (prevProps.opt.type !== nextProps.opt.type) return false;
+    if (prevProps.opt.itemLevel !== nextProps.opt.itemLevel) return false;
+
     // Check selection state
     if (Array.isArray(prevProps.selected)) {
       const prevSelected = prevProps.selected.includes(

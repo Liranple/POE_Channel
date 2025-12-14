@@ -5,29 +5,22 @@ import {
   useMemo,
   useCallback,
   useEffect,
-  Suspense,
-  lazy,
+  useSyncExternalStore,
 } from "react";
 import dynamic from "next/dynamic";
 import {
-  FaHome,
   FaFlask,
   FaMap,
   FaMapMarkerAlt,
   FaRegCommentDots,
   FaGem,
 } from "react-icons/fa";
-import ErrorBoundary from "./ErrorBoundary";
-
 import { PiDiamondsFourFill } from "react-icons/pi";
-import Sidebar from "../components/Sidebar";
-import {
-  loadTheme,
-  saveTheme,
-  OPTION_STORAGE_KEYS,
-} from "../utils/optionStorage";
+import ErrorBoundary from "./ErrorBoundary";
+import Sidebar from "./Sidebar";
+import { loadTheme, saveTheme } from "../utils/optionStorage";
 
-// 기존 로딩 스피너 컴포넌트
+// 로딩 스피너 컴포넌트
 const PageLoader = () => (
   <div
     style={{
@@ -56,34 +49,30 @@ const PageLoader = () => (
 );
 
 // 동적 임포트로 코드 스플리팅 (초기 로딩 속도 향상)
-const HomePage = dynamic(() => import("../components/pages/HomePage"), {
+const HomePage = dynamic(() => import("./pages/HomePage"), {
   loading: () => <PageLoader />,
 });
-const FlaskPage = dynamic(() => import("../components/pages/FlaskPage"), {
+const FlaskPage = dynamic(() => import("./pages/FlaskPage"), {
   loading: () => <PageLoader />,
 });
-const CardsPage = dynamic(() => import("../components/pages/CardsPage"), {
+const CardsPage = dynamic(() => import("./pages/CardsPage"), {
   loading: () => <PageLoader />,
 });
-const JewelsPage = dynamic(() => import("../components/pages/JewelsPage"), {
+const JewelsPage = dynamic(() => import("./pages/JewelsPage"), {
   loading: () => <PageLoader />,
 });
-const MapsPage = dynamic(() => import("../components/pages/MapsPage"), {
+const MapsPage = dynamic(() => import("./pages/MapsPage"), {
   loading: () => <PageLoader />,
 });
-const DiscussionPage = dynamic(
-  () => import("../components/pages/DiscussionPage"),
-  {
-    loading: () => <PageLoader />,
-  }
-);
-const GemsPage = dynamic(() => import("../components/pages/GemsPage"), {
+const DiscussionPage = dynamic(() => import("./pages/DiscussionPage"), {
+  loading: () => <PageLoader />,
+});
+const GemsPage = dynamic(() => import("./pages/GemsPage"), {
   loading: () => <PageLoader />,
 });
 
-// 탭 설정 - 여기서 탭을 쉽게 추가/제거/수정할 수 있습니다
+// 탭 설정
 const TABS = [
-  { id: "home", label: "메인 페이지", icon: <FaHome size={20} /> },
   { id: "maps", label: "지도", icon: <FaMap size={20} /> },
   { id: "flask", label: "플라스크", icon: <FaFlask size={20} /> },
   { id: "jewels", label: "주얼", icon: <PiDiamondsFourFill size={20} /> },
@@ -96,46 +85,36 @@ const TABS = [
   },
 ];
 
-// 서버/클라이언트 초기 테마 동기화를 위한 함수
-const getInitialTheme = () => {
-  if (typeof window !== "undefined") {
-    const saved = localStorage.getItem("poe-channel-theme");
-    return saved || "dark";
-  }
-  return "dark";
-};
+// hydration 상태 관리를 위한 useSyncExternalStore 설정
+const emptySubscribe = () => () => {};
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 export default function AppLayout() {
-  // 초기값은 home, 클라이언트에서 sessionStorage 확인 후 업데이트
-  const [activeTab, setActiveTab] = useState("home");
-  const [isHydrated, setIsHydrated] = useState(false);
-  const [theme, setTheme] = useState("dark");
-
-  // 클라이언트에서만 sessionStorage에서 탭 복원 (새로고침 시 유지, 탭 닫으면 초기화)
-  useEffect(() => {
-    // 테마 먼저 적용 (깜빡임 방지)
-    const savedTheme = loadTheme();
-    if (savedTheme === "light") {
-      document.documentElement.classList.add("theme-light");
+  // 클라이언트에서 sessionStorage에서 탭 복원 (지연 초기화)
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("activeTab") || "home";
     }
-    setTheme(savedTheme);
+    return "home";
+  });
 
-    const savedTab = sessionStorage.getItem("activeTab");
-    if (savedTab) {
-      setActiveTab(savedTab);
+  // hydration 상태 관리 (SSR/CSR 안전)
+  const isHydrated = useSyncExternalStore(
+    emptySubscribe,
+    getSnapshot,
+    getServerSnapshot
+  );
+
+  // localStorage에서 테마 로드 (지연 초기화)
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== "undefined") {
+      return loadTheme();
     }
+    return "dark";
+  });
 
-    setIsHydrated(true);
-  }, []);
-
-  const toggleTheme = useCallback(() => {
-    setTheme((prev) => {
-      const newTheme = prev === "dark" ? "light" : "dark";
-      saveTheme(newTheme); // 테마 저장
-      return newTheme;
-    });
-  }, []);
-
+  // 테마 클래스 적용
   useEffect(() => {
     if (theme === "light") {
       document.documentElement.classList.add("theme-light");
@@ -144,9 +123,16 @@ export default function AppLayout() {
     }
   }, [theme]);
 
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const newTheme = prev === "dark" ? "light" : "dark";
+      saveTheme(newTheme);
+      return newTheme;
+    });
+  }, []);
+
   const handleTabChange = useCallback((tabId) => {
     setActiveTab(tabId);
-    // sessionStorage에 현재 탭 저장 (새로고침 시 유지, 탭 닫으면 초기화)
     sessionStorage.setItem("activeTab", tabId);
   }, []);
 
@@ -181,8 +167,6 @@ export default function AppLayout() {
           </div>
         );
     }
-    // ErrorBoundary로 각 페이지 감싸기 (한 페이지 에러가 전체 앱에 영향 안 줌)
-    // key를 activeTab으로 설정하여 탭 변경 시 에러 상태 초기화
     return <ErrorBoundary key={activeTab}>{pageComponent}</ErrorBoundary>;
   }, [activeTab]);
 

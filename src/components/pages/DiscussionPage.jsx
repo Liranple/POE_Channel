@@ -23,6 +23,9 @@ export default function DiscussionPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // 제출 중 상태 (중복 등록 방지)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // 폼 상태
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -321,20 +324,26 @@ export default function DiscussionPage() {
   const handlePostSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim() || !postPassword) return;
+    if (isSubmitting) return; // 중복 등록 방지
 
-    await savePosts("create_post", {
-      password: postPassword,
-      title,
-      content,
-      date: formatDate(),
-    });
+    setIsSubmitting(true);
+    try {
+      await savePosts("create_post", {
+        password: postPassword,
+        title,
+        content,
+        date: formatDate(),
+      });
 
-    setTitle("");
-    setContent("");
-    setPostPassword("");
-    setCurrentPage(1); // 새 글 작성 후 첫 페이지로 이동
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
+      setTitle("");
+      setContent("");
+      setPostPassword("");
+      setCurrentPage(1); // 새 글 작성 후 첫 페이지로 이동
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -353,27 +362,33 @@ export default function DiscussionPage() {
     const input = commentInputs[postId];
     if (!input || !input.content || !input.content.trim() || !input.password)
       return;
+    if (isSubmitting) return; // 중복 등록 방지
 
-    const commentId = crypto.randomUUID();
+    setIsSubmitting(true);
+    try {
+      const commentId = crypto.randomUUID();
 
-    await savePosts("create_comment", {
-      postId,
-      commentId,
-      password: input.password,
-      content: input.content,
-      date: formatDate(),
-    });
+      await savePosts("create_comment", {
+        postId,
+        commentId,
+        password: input.password,
+        content: input.content,
+        date: formatDate(),
+      });
 
-    setCommentInputs((prev) => {
-      const newState = { ...prev };
-      delete newState[postId];
-      return newState;
-    });
+      setCommentInputs((prev) => {
+        const newState = { ...prev };
+        delete newState[postId];
+        return newState;
+      });
 
-    // Reset textarea height
-    const textarea = e.target.querySelector("textarea");
-    if (textarea) {
-      textarea.style.height = "30px";
+      // Reset textarea height
+      const textarea = e.target.querySelector("textarea");
+      if (textarea) {
+        textarea.style.height = "30px";
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -395,33 +410,39 @@ export default function DiscussionPage() {
     const input = replyInputs[commentId];
     if (!input || !input.content || !input.content.trim() || !input.password)
       return;
+    if (isSubmitting) return; // 중복 등록 방지
 
-    const replyId = crypto.randomUUID();
-    const replyDepth =
-      activeReply.type === "comment" ? 0 : (activeReply.depth || 0) + 1;
+    setIsSubmitting(true);
+    try {
+      const replyId = crypto.randomUUID();
+      const replyDepth =
+        activeReply.type === "comment" ? 0 : (activeReply.depth || 0) + 1;
 
-    await savePosts("create_reply", {
-      postId,
-      commentId,
-      replyId,
-      password: input.password,
-      content: input.content,
-      date: formatDate(),
-      depth: replyDepth,
-      parentReplyId: activeReply.type === "reply" ? activeReply.id : null,
-    });
+      await savePosts("create_reply", {
+        postId,
+        commentId,
+        replyId,
+        password: input.password,
+        content: input.content,
+        date: formatDate(),
+        depth: replyDepth,
+        parentReplyId: activeReply.type === "reply" ? activeReply.id : null,
+      });
 
-    setReplyInputs((prev) => {
-      const newState = { ...prev };
-      delete newState[commentId];
-      return newState;
-    });
-    setActiveReply(null);
+      setReplyInputs((prev) => {
+        const newState = { ...prev };
+        delete newState[commentId];
+        return newState;
+      });
+      setActiveReply(null);
 
-    // Reset textarea height
-    const textarea = e.target.querySelector("textarea");
-    if (textarea) {
-      textarea.style.height = "30px";
+      // Reset textarea height
+      const textarea = e.target.querySelector("textarea");
+      if (textarea) {
+        textarea.style.height = "30px";
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

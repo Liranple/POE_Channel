@@ -125,16 +125,17 @@
   font-size: 16px;
 }
 
-.price-cell {
+/* 가격 셀 오른쪽 정렬 - gems-table td보다 높은 우선순위 필요 */
+.gems-table td.price-cell {
   text-align: right;
   padding-right: 16px;
 }
 
-.price-cell.price-20 {
+.gems-table td.price-cell.price-20 {
   background: rgba(27, 162, 155, 0.03);
 }
 
-.price-cell.price-21 {
+.gems-table td.price-cell.price-21 {
   background: rgba(210, 47, 47, 0.03);
 }
 

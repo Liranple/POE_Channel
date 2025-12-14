@@ -6,10 +6,12 @@ import usePreset from "../../hooks/usePreset";
 import useDragHandler from "../../hooks/useDragHandler";
 import useOptionData from "../../hooks/useOptionData";
 import { STORAGE_KEYS, TAG_ORDER } from "../../config/constants";
+import { OPTION_STORAGE_KEYS } from "../../utils/optionStorage";
 
 import { DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA } from "../../data/FlaskData";
 import OptionItem from "../OptionItem";
 import PresetItem from "../PresetItem";
+import ResetModal from "../ResetModal";
 
 /**
  * 플라스크 정규식 빌더 페이지
@@ -30,6 +32,9 @@ export default function FlaskPage() {
     suffixData,
     setPrefixData,
     setSuffixData,
+    addOption: addOptionToData,
+    modifyOption: modifyOptionInData,
+    deleteOption: deleteOptionFromData,
     isInitialized,
   } = useOptionData("flask", DEFAULT_PREFIX_DATA, DEFAULT_SUFFIX_DATA);
 
@@ -71,6 +76,9 @@ export default function FlaskPage() {
   const modalBgRef = useRef(null);
   const modalDown = useRef(false);
   const presetModalDown = useRef(false);
+
+  // 초기화 모달 상태
+  const [resetModalVisible, setResetModalVisible] = useState(false);
 
   const toggleOption = useCallback((opt) => {
     const normalRegex = opt.filterRegex;
@@ -224,15 +232,16 @@ export default function FlaskPage() {
     };
   }, [selected, prefixData, suffixData]);
 
-  const deleteOption = useCallback((opt, data, setData, listId) => {
-    const idx = data.indexOf(opt);
-    if (idx > -1) {
-      const newData = [...data];
-      newData.splice(idx, 1);
-      setData(newData);
-      setSelected((prev) => prev.filter((t) => t !== opt.filterRegex));
-    }
-  }, []);
+  const deleteOption = useCallback(
+    (opt, data, setData, listId) => {
+      const listType = listId === "prefixList" ? "prefix" : "suffix";
+      deleteOptionFromData(listType, opt.id);
+      setSelected((prev) =>
+        prev.filter((t) => t !== opt.filterRegex && t !== opt.maxRollRegex)
+      );
+    },
+    [deleteOptionFromData]
+  );
 
   const openModal = useCallback((opt, mode, listId) => {
     setModalMode(mode);
@@ -263,60 +272,94 @@ export default function FlaskPage() {
     setModalVisible(true);
   }, []);
 
+  // 중복 검사: 다른 옵션과 이름/정규식이 같은지 확인 (추가/수정 모드 모두)
+  const duplicateError = useMemo(() => {
+    if (!modalVisible) return null;
+
+    const { optionText, filterRegex, maxRollRegex } = modalData;
+
+    // 현재 대상 리스트 결정
+    const targetData = modalListId === "prefixList" ? prefixData : suffixData;
+
+    for (const opt of targetData) {
+      // 수정 모드에서는 현재 편집 중인 옵션은 제외
+      if (
+        modalMode === "edit" &&
+        currentEditOption &&
+        opt.id === currentEditOption.id
+      ) {
+        continue;
+      }
+      // 이름 중복 검사
+      if (
+        optionText &&
+        optionText.trim() &&
+        opt.optionText === optionText.trim()
+      ) {
+        return "동일한 이름이 존재합니다";
+      }
+      // 정규식 중복 검사
+      if (
+        filterRegex &&
+        filterRegex.trim() &&
+        opt.filterRegex === filterRegex.trim()
+      ) {
+        return "동일한 정규식이 존재합니다";
+      }
+      // Max roll 정규식 중복 검사
+      if (
+        maxRollRegex &&
+        maxRollRegex.trim() &&
+        opt.maxRollRegex === maxRollRegex.trim()
+      ) {
+        return "동일한 정규식이 존재합니다";
+      }
+    }
+
+    return null;
+  }, [
+    modalMode,
+    modalVisible,
+    modalData,
+    modalListId,
+    prefixData,
+    suffixData,
+    currentEditOption,
+  ]);
+
   const handleModalSave = useCallback(() => {
     const { optionText, filterRegex, maxRollRegex, itemLevel, types } =
       modalData;
 
     // 유형 정렬: 생명력(HP) → 마나(MP) → 특수(SP) → 팅크(TK) 순서
     const typeOrder = ["생명력", "마나", "특수", "팅크"];
-    const sortedTypes = types.sort((a, b) => {
+    const sortedTypes = [...types].sort((a, b) => {
       return typeOrder.indexOf(a) - typeOrder.indexOf(b);
     });
     const type = sortedTypes.join(",");
 
+    const listType = modalListId === "prefixList" ? "prefix" : "suffix";
+
     if (modalMode === "edit" && currentEditOption) {
-      const updateData = (data, setData) => {
-        const newData = data.map((item) => {
-          if (item === currentEditOption) {
-            return {
-              ...item,
-              optionText: optionText,
-              filterRegex: filterRegex,
-              maxRollRegex: maxRollRegex,
-              itemLevel: itemLevel,
-              type: type,
-            };
-          }
-          return item;
-        });
-        setData(newData);
+      const modifications = {
+        optionText: optionText,
+        filterRegex: filterRegex,
+        maxRollRegex: maxRollRegex,
+        itemLevel: itemLevel,
+        type: type,
       };
-
-      if (modalListId === "prefixList") {
-        updateData(prefixData, setPrefixData);
-      } else {
-        updateData(suffixData, setSuffixData);
-      }
+      modifyOptionInData(listType, currentEditOption.id, modifications);
     } else if (modalMode === "add") {
-      const arr = modalListId === "prefixList" ? prefixData : suffixData;
-      const setArr =
-        modalListId === "prefixList" ? setPrefixData : setSuffixData;
-      // ID는 각 배열 내에서 유일하면 됨 (기존 100단위 구분 제거)
-      const maxId = arr.reduce((m, o) => Math.max(m, o.id), 0);
       const affix = modalListId === "prefixList" ? "prefix" : "suffix";
-
-      setArr([
-        ...arr,
-        {
-          id: maxId + 1,
-          affix: affix,
-          optionText: optionText || "새 옵션",
-          filterRegex: filterRegex || "tag" + (maxId + 1),
-          maxRollRegex: maxRollRegex,
-          itemLevel: itemLevel,
-          type: type,
-        },
-      ]);
+      const newOption = {
+        affix: affix,
+        optionText: optionText || "새 옵션",
+        filterRegex: filterRegex || "tag" + Date.now(),
+        maxRollRegex: maxRollRegex,
+        itemLevel: itemLevel,
+        type: type,
+      };
+      addOptionToData(listType, newOption);
     }
 
     setModalVisible(false);
@@ -325,8 +368,8 @@ export default function FlaskPage() {
     modalMode,
     currentEditOption,
     modalListId,
-    prefixData,
-    suffixData,
+    modifyOptionInData,
+    addOptionToData,
   ]);
 
   const toggleTypeButton = useCallback((type) => {
@@ -388,7 +431,13 @@ export default function FlaskPage() {
         <div className="wrap" style={{ paddingBottom: 0 }}>
           <header>
             <h1>플라스크 정규식 빌더</h1>
-            <div className="admin-container">
+            <div className="admin-container" style={{ position: "relative" }}>
+              <button
+                className="reset-btn"
+                onClick={() => setResetModalVisible(true)}
+              >
+                초기화
+              </button>
               <span style={{ color: "var(--text)", fontWeight: 700 }}>
                 관리자 모드
               </span>
@@ -760,13 +809,16 @@ export default function FlaskPage() {
                   !modalData.optionText ||
                   !modalData.filterRegex ||
                   !modalData.itemLevel ||
-                  modalData.types.length === 0
+                  modalData.types.length === 0 ||
+                  (modalMode === "add" && duplicateError)
                 }
               >
-                {!modalData.optionText ||
-                !modalData.filterRegex ||
-                !modalData.itemLevel ||
-                modalData.types.length === 0
+                {modalMode === "add" && duplicateError
+                  ? duplicateError
+                  : !modalData.optionText ||
+                    !modalData.filterRegex ||
+                    !modalData.itemLevel ||
+                    modalData.types.length === 0
                   ? "모든 항목을 입력해주세요"
                   : modalMode === "edit"
                   ? "저장"
@@ -776,6 +828,16 @@ export default function FlaskPage() {
           </div>
         </>
       )}
+
+      <ResetModal
+        visible={resetModalVisible}
+        onClose={() => setResetModalVisible(false)}
+        onConfirm={() => {
+          localStorage.removeItem(STORAGE_KEYS.FLASK_PRESETS);
+          localStorage.removeItem(OPTION_STORAGE_KEYS.flask);
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

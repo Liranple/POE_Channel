@@ -185,15 +185,17 @@ export default function useDragHandler(adminMode) {
         listEl.insertBefore(div, placeholder);
         placeholder.remove();
 
-        // 새로운 순서로 데이터 업데이트
-        const newOrder = [];
+        // 새로운 순서로 데이터 업데이트 (ID 배열만 전달)
+        const newOrderIds = [];
         listEl.querySelectorAll(".option").forEach((el) => {
           const id = parseInt(el.dataset.id, 10);
-          const foundOpt = data.find((o) => o.id === id);
-          if (foundOpt) newOrder.push(foundOpt);
+          if (!isNaN(id)) {
+            newOrderIds.push(id);
+          }
         });
 
-        setData(newOrder);
+        // ID 배열을 전달하면 useOptionData에서 현재 데이터를 기반으로 재정렬
+        setData(newOrderIds);
       };
 
       // 이벤트 리스너 등록

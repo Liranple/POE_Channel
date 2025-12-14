@@ -178,14 +178,14 @@ export default function CardsPage() {
     return () => clearTimeout(timeoutId);
   }, [fetchPriceData]);
 
-  // 카드의 Divine 가격 가져오기 (소숫점 1자리)
+  // 카드의 Divine 가격 가져오기 (소숫점 1자리, 항상 표시)
   const getCardPrice = useCallback(
     (cardName) => {
       const cardId = CARD_NAME_TO_ID[cardName];
       if (!cardId) return null;
       const price = priceData[cardId];
       if (price === undefined) return null;
-      return Math.round(price * 10) / 10; // 소숫점 1자리 반올림
+      return (Math.round(price * 10) / 10).toFixed(1); // 소숫점 1자리 항상 표시 (1 -> "1.0")
     },
     [priceData]
   );

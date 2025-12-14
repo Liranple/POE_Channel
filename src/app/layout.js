@@ -23,7 +23,7 @@ const cinzel = Cinzel({
 
 export const metadata = {
   title: "POE Channel",
-  description: "Path of Exile 플라스크, 카드, 주얼, 지도 등 다양한 도구 모음",
+  description: "Path of Exile Channel - Your Ultimate PoE Companion",
 };
 
 export default function RootLayout({ children }) {

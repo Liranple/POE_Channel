@@ -10,11 +10,13 @@ import {
 } from "../../data/JewelData";
 import OptionItem from "../OptionItem";
 import PresetItem from "../PresetItem";
+import ResetModal from "../ResetModal";
 import useDraggableScroll from "../../hooks/useDraggableScroll";
 import usePreset from "../../hooks/usePreset";
 import useDragHandler from "../../hooks/useDragHandler";
 import useOptionData from "../../hooks/useOptionData";
 import { STORAGE_KEYS } from "../../config/constants";
+import { OPTION_STORAGE_KEYS } from "../../utils/optionStorage";
 import "../../styles/JewelsPage.css";
 
 /**
@@ -38,6 +40,9 @@ export default function JewelsPage() {
     setPrefixData,
     setSuffixData,
     setExtraData: setCorruptedData,
+    addOption: addOptionToData,
+    modifyOption: modifyOptionInData,
+    deleteOption: deleteOptionFromData,
     isInitialized,
   } = useOptionData(
     "jewel",
@@ -82,6 +87,9 @@ export default function JewelsPage() {
   const modalBgRef = useRef(null);
   const modalDown = useRef(false);
   const presetModalDown = useRef(false);
+
+  // 초기화 모달 상태
+  const [resetModalVisible, setResetModalVisible] = useState(false);
 
   const toggleOption = useCallback((opt) => {
     const normalRegex = opt.filterRegex;
@@ -131,15 +139,21 @@ export default function JewelsPage() {
     [presets, handlePresetDragStart, setPresets, savePresetsToStorage]
   );
 
-  const deleteOption = useCallback((opt, data, setData, listId) => {
-    const idx = data.indexOf(opt);
-    if (idx > -1) {
-      const newData = [...data];
-      newData.splice(idx, 1);
-      setData(newData);
+  const deleteOption = useCallback(
+    (opt, data, setData, listId) => {
+      let listType;
+      if (listId === "prefixList") {
+        listType = "prefix";
+      } else if (listId === "suffixList") {
+        listType = "suffix";
+      } else {
+        listType = "extra";
+      }
+      deleteOptionFromData(listType, opt.id);
       setSelected((prev) => prev.filter((t) => t !== opt.filterRegex));
-    }
-  }, []);
+    },
+    [deleteOptionFromData]
+  );
 
   const openModal = useCallback((opt, mode, listId) => {
     setModalMode(mode);
@@ -166,67 +180,96 @@ export default function JewelsPage() {
     setModalVisible(true);
   }, []);
 
+  // 중복 검사: 다른 옵션과 이름/정규식이 같은지 확인 (추가/수정 모드 모두)
+  const duplicateError = useMemo(() => {
+    if (!modalVisible) return null;
+
+    const { optionText, filterRegex } = modalData;
+
+    // 현재 대상 리스트 결정
+    let targetData;
+    if (modalListId === "prefixList") {
+      targetData = prefixData;
+    } else if (modalListId === "suffixList") {
+      targetData = suffixData;
+    } else {
+      targetData = corruptedData;
+    }
+
+    for (const opt of targetData) {
+      // 수정 모드에서는 현재 편집 중인 옵션은 제외
+      if (
+        modalMode === "edit" &&
+        currentEditOption &&
+        opt.id === currentEditOption.id
+      ) {
+        continue;
+      }
+      // 이름 중복 검사
+      if (
+        optionText &&
+        optionText.trim() &&
+        opt.optionText === optionText.trim()
+      ) {
+        return "동일한 이름이 존재합니다";
+      }
+      // 정규식 중복 검사
+      if (
+        filterRegex &&
+        filterRegex.trim() &&
+        opt.filterRegex === filterRegex.trim()
+      ) {
+        return "동일한 정규식이 존재합니다";
+      }
+    }
+
+    return null;
+  }, [
+    modalMode,
+    modalVisible,
+    modalData,
+    modalListId,
+    prefixData,
+    suffixData,
+    corruptedData,
+    currentEditOption,
+  ]);
+
   const handleModalSave = useCallback(() => {
     const { optionText, filterRegex, types } = modalData;
 
     // 유형 정렬 (JEWEL_TYPES 순서대로)
     const typeOrder = JEWEL_TYPES.map((t) => t.id);
-    const sortedTypes = types.sort((a, b) => {
+    const sortedTypes = [...types].sort((a, b) => {
       return typeOrder.indexOf(a) - typeOrder.indexOf(b);
     });
     const type = sortedTypes.join(",");
 
+    let listType;
+    if (modalListId === "prefixList") {
+      listType = "prefix";
+    } else if (modalListId === "suffixList") {
+      listType = "suffix";
+    } else {
+      listType = "extra";
+    }
+
     if (modalMode === "edit" && currentEditOption) {
-      const updateData = (data, setData) => {
-        const newData = data.map((item) => {
-          if (item === currentEditOption) {
-            return {
-              ...item,
-              optionText: optionText,
-              filterRegex: filterRegex,
-              type: type,
-            };
-          }
-          return item;
-        });
-        setData(newData);
+      const modifications = {
+        optionText: optionText,
+        filterRegex: filterRegex,
+        type: type,
       };
-
-      if (modalListId === "prefixList") {
-        updateData(prefixData, setPrefixData);
-      } else if (modalListId === "suffixList") {
-        updateData(suffixData, setSuffixData);
-      } else {
-        updateData(corruptedData, setCorruptedData);
-      }
+      modifyOptionInData(listType, currentEditOption.id, modifications);
     } else if (modalMode === "add") {
-      let arr, setArr, affix;
-      if (modalListId === "prefixList") {
-        arr = prefixData;
-        setArr = setPrefixData;
-        affix = "prefix";
-      } else if (modalListId === "suffixList") {
-        arr = suffixData;
-        setArr = setSuffixData;
-        affix = "suffix";
-      } else {
-        arr = corruptedData;
-        setArr = setCorruptedData;
-        affix = "corrupted";
-      }
-
-      const maxId = arr.reduce((m, o) => Math.max(m, o.id), 0);
-
-      setArr([
-        ...arr,
-        {
-          id: maxId + 1,
-          affix: affix,
-          optionText: optionText || "새 옵션",
-          filterRegex: filterRegex || "tag" + (maxId + 1),
-          type: type,
-        },
-      ]);
+      const affix = listType === "extra" ? "corrupted" : listType;
+      const newOption = {
+        affix: affix,
+        optionText: optionText || "새 옵션",
+        filterRegex: filterRegex || "tag" + Date.now(),
+        type: type,
+      };
+      addOptionToData(listType, newOption);
     }
 
     setModalVisible(false);
@@ -235,9 +278,8 @@ export default function JewelsPage() {
     modalMode,
     currentEditOption,
     modalListId,
-    prefixData,
-    suffixData,
-    corruptedData,
+    modifyOptionInData,
+    addOptionToData,
   ]);
 
   const toggleTypeButton = useCallback((type) => {
@@ -284,7 +326,13 @@ export default function JewelsPage() {
         <div className="wrap" style={{ paddingBottom: 0 }}>
           <header>
             <h1>주얼 정규식 빌더</h1>
-            <div className="admin-container">
+            <div className="admin-container" style={{ position: "relative" }}>
+              <button
+                className="reset-btn"
+                onClick={() => setResetModalVisible(true)}
+              >
+                초기화
+              </button>
               <span style={{ color: "var(--text)", fontWeight: 700 }}>
                 관리자 모드
               </span>
@@ -648,12 +696,15 @@ export default function JewelsPage() {
                 disabled={
                   !modalData.optionText ||
                   !modalData.filterRegex ||
-                  modalData.types.length === 0
+                  modalData.types.length === 0 ||
+                  (modalMode === "add" && duplicateError)
                 }
               >
-                {!modalData.optionText ||
-                !modalData.filterRegex ||
-                modalData.types.length === 0
+                {modalMode === "add" && duplicateError
+                  ? duplicateError
+                  : !modalData.optionText ||
+                    !modalData.filterRegex ||
+                    modalData.types.length === 0
                   ? "모든 항목을 입력해주세요"
                   : modalMode === "edit"
                   ? "저장"
@@ -663,6 +714,16 @@ export default function JewelsPage() {
           </div>
         </>
       )}
+
+      <ResetModal
+        visible={resetModalVisible}
+        onClose={() => setResetModalVisible(false)}
+        onConfirm={() => {
+          localStorage.removeItem(STORAGE_KEYS.JEWEL_PRESETS);
+          localStorage.removeItem(OPTION_STORAGE_KEYS.jewel);
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

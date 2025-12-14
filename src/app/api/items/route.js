@@ -1,6 +1,11 @@
 // Next.js API Route - 유니크 아이템 시세 프록시
 
 import { CURRENT_LEAGUE, CACHE_DURATION } from "@/config/league";
+import {
+  savePriceHistory,
+  getLatestHistory,
+  fetchWithRetry,
+} from "@/lib/priceHistory";
 
 // 조회할 아이템 목록 (영문명 → 한글명, 이미지)
 const TRACKED_ITEMS = {
@@ -85,6 +90,7 @@ export async function GET() {
         cached: true,
       });
     }
+
     const types = [
       "UniqueArmour",
       "UniqueAccessory",
@@ -92,25 +98,54 @@ export async function GET() {
       "UniqueJewel",
     ];
 
-    // 모든 타입의 데이터 병렬로 가져오기
-    const fetchPromises = types.map(async (type) => {
-      const url = `https://poe.ninja/poe1/api/economy/stash/current/item/overview?league=${CURRENT_LEAGUE}&type=${type}`;
-      const response = await fetch(url, {
-        headers: { "User-Agent": "POE-Channel/1.0" },
-        next: { revalidate: 3600 },
+    let allItems = [];
+    let fetchSuccess = false;
+
+    try {
+      // 모든 타입의 데이터 병렬로 가져오기 (리트라이 포함)
+      const fetchPromises = types.map(async (type) => {
+        const url = `https://poe.ninja/poe1/api/economy/stash/current/item/overview?league=${CURRENT_LEAGUE}&type=${type}`;
+        const response = await fetchWithRetry(url, {
+          headers: { "User-Agent": "POE-Channel/1.0" },
+          next: { revalidate: 3600 },
+        });
+        return response.json();
       });
 
-      if (!response.ok) {
-        throw new Error(`POE Ninja API error for ${type}: ${response.status}`);
+      const results = await Promise.all(fetchPromises);
+
+      // 모든 데이터를 합치기
+      allItems = results.flatMap((data) => data.lines || []);
+      fetchSuccess = true;
+    } catch (fetchError) {
+      console.error("All retries failed for items API:", fetchError.message);
+
+      // Fallback: DB에서 가장 최근 데이터 가져오기
+      const fallbackData = await getLatestHistory("items");
+      if (fallbackData) {
+        console.log(
+          `[Items] Using fallback data from ${new Date(
+            fallbackData.timestamp
+          ).toISOString()}`
+        );
+
+        const responseData = {
+          success: true,
+          timestamp: fallbackData.timestamp,
+          items: fallbackData.data.items,
+          fallback: true,
+        };
+
+        // 메모리 캐시에도 저장
+        cachedData = fallbackData.data.items;
+        cachedTimestamp = now;
+
+        return Response.json(responseData);
       }
 
-      return response.json();
-    });
-
-    const results = await Promise.all(fetchPromises);
-
-    // 모든 데이터를 합치기
-    const allItems = results.flatMap((data) => data.lines || []);
+      // Fallback도 없으면 에러 반환
+      throw fetchError;
+    }
 
     // 추적 아이템 필터링 및 매핑
     const items = [];
@@ -133,6 +168,13 @@ export async function GET() {
     // 캐시 저장
     cachedData = items;
     cachedTimestamp = now;
+
+    // 히스토리에 저장 (성공한 경우에만, 백그라운드로 실행)
+    if (fetchSuccess) {
+      savePriceHistory("items", { items, league: CURRENT_LEAGUE }).catch(
+        (err) => console.error("Failed to save items history:", err)
+      );
+    }
 
     return Response.json({
       success: true,

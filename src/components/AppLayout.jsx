@@ -19,6 +19,7 @@ import { PiDiamondsFourFill } from "react-icons/pi";
 import ErrorBoundary from "./ErrorBoundary";
 import Sidebar from "./Sidebar";
 import { loadTheme, saveTheme } from "../utils/optionStorage";
+import { APP_VERSION } from "../config/league";
 
 // 로딩 스피너 컴포넌트
 const PageLoader = () => (
@@ -215,6 +216,9 @@ export default function AppLayout() {
           <p style={{ margin: 0, opacity: 0.7 }}>
             This product isn&apos;t affiliated with or endorsed by Grinding Gear
             Games in any way.
+          </p>
+          <p style={{ margin: "4px 0 0 0", opacity: 0.5, fontSize: "12px" }}>
+            Release {APP_VERSION} · Stable
           </p>
         </footer>
       </main>

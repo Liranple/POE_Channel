@@ -7,8 +7,6 @@ export const GRAND_SPECTRUM_DATA = [
     properties: [
       "중복 사용 제한 : <white>3</white>",
       "---",
-      "<red>타락 고정 속성</red>",
-      "---",
       "<blue>장대한 파장 하나당 모든 원소 저항 </blue><white>+7</white><blue>%</blue>",
       "---",
       "<red>타락</red>",
@@ -26,8 +24,6 @@ export const GRAND_SPECTRUM_DATA = [
     tags: ["주얼"],
     properties: [
       "중복 사용 제한 : <white>3</white>",
-      "---",
-      "<red>타락 고정 속성</red>",
       "---",
       "<blue>장대한 파장 하나당 치명타 확률 </blue><white>25</white><blue>% 증가</blue>",
       "---",
@@ -47,8 +43,6 @@ export const GRAND_SPECTRUM_DATA = [
     properties: [
       "중복 사용 제한 : <white>3</white>",
       "---",
-      "<red>타락 고정 속성</red>",
-      "---",
       "<blue>장대한 파장 하나당 원소 피해 </blue><white>15</white><blue>% 증가</blue>",
       "---",
       "<red>타락</red>",
@@ -66,8 +60,6 @@ export const GRAND_SPECTRUM_DATA = [
     tags: ["주얼"],
     properties: [
       "중복 사용 제한 : <white>3</white>",
-      "---",
-      "<red>타락 고정 속성</red>",
       "---",
       "<blue>장대한 파장 하나당 최소 인내 충전 </blue><white>+1</white>",
       "---",
@@ -87,8 +79,6 @@ export const GRAND_SPECTRUM_DATA = [
     properties: [
       "중복 사용 제한 : <white>3</white>",
       "---",
-      "<red>타락 고정 속성</red>",
-      "---",
       "<blue>장대한 파장 하나당 소환수의 치명타 피해 배율 </blue><white>+10</white><blue>%</blue>",
       "---",
       "<red>타락</red>",
@@ -106,8 +96,6 @@ export const GRAND_SPECTRUM_DATA = [
     tags: ["주얼"],
     properties: [
       "중복 사용 제한 : <white>3</white>",
-      "---",
-      "<red>타락 고정 속성</red>",
       "---",
       "<blue>장대한 파장 하나당 </blue><white>12</white><blue>%의 확률로 원소 상태 이상 긴급회피</blue>",
       "---",
@@ -127,8 +115,6 @@ export const GRAND_SPECTRUM_DATA = [
     properties: [
       "중복 사용 제한 : <white>3</white>",
       "---",
-      "<red>타락 고정 속성</red>",
-      "---",
       "<blue>장대한 파장 하나당 최소 격분 충전 </blue><white>+1</white>",
       "---",
       "<red>타락</red>",
@@ -147,8 +133,6 @@ export const GRAND_SPECTRUM_DATA = [
     properties: [
       "중복 사용 제한 : <white>3</white>",
       "---",
-      "<red>타락 고정 속성</red>",
-      "---",
       "<blue>장대한 파장 하나당 최소 권능 충전 </blue><white>+1</white>",
       "---",
       "<red>타락</red>",
@@ -166,8 +150,6 @@ export const GRAND_SPECTRUM_DATA = [
     tags: ["주얼"],
     properties: [
       "중복 사용 제한 : <white>3</white>",
-      "---",
-      "<red>타락 고정 속성</red>",
       "---",
       "<blue>장대한 파장 하나당 최대 생명력 </blue><white>5</white><blue>% 증가</blue>",
       "---",

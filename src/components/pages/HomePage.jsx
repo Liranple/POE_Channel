@@ -136,8 +136,8 @@ export default function HomePage() {
     }
   };
 
-  // 최근 3개 공지사항만 표시
-  const recentNotices = NOTICES.slice(0, 3);
+  // 최근 3개 공지사항만 표시 (id가 높은 것이 위로)
+  const recentNotices = [...NOTICES].sort((a, b) => b.id - a.id).slice(0, 3);
 
   // 리그 시작 날짜 포맷
   const formatStartDate = (date) => {

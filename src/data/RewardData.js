@@ -131,8 +131,6 @@ export const REWARD_DATA = {
     properties: [
       "요구 사항 레벨 <white>44</white>",
       "---",
-      "<red>타락 고정 속성</red>",
-      "---",
       "<blue>민첩 </blue><white>+(30-50)</white>",
       "<blue>화염 저항 </blue><white>+(15-25)</white><blue>%</blue>",
       "<blue>냉기 저항 </blue><white>+(15-25)</white><blue>%</blue>",
@@ -198,8 +196,6 @@ export const REWARD_DATA = {
     tags: ["허리띠"],
     properties: [
       "요구 사항 레벨 <white>40</white>",
-      "---",
-      "<red>타락 고정 속성</red>",
       "---",
       "<blue>힘 </blue><white>+(40-55)</white>",
       "<blue>민첩 </blue><white>+(40-55)</white>",

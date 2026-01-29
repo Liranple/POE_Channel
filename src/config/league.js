@@ -56,4 +56,4 @@ export const CACHE_DURATION = {
 // 1.0.x - 버그 수정, 자잘한 개선
 // 1.x.0 - 새 페이지/탭 추가 등 기능 추가
 // x.0.0 - 대규모 변경
-export const APP_VERSION = "1.0.1";
+export const APP_VERSION = "1.1.0";

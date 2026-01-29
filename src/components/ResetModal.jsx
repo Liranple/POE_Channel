@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import "./ResetModal.css";
+import "../styles/ResetModal.css";
 
 /**
  * 캐시 초기화 확인 모달

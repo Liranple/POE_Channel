@@ -48,7 +48,7 @@ export default function JewelsPage() {
     "jewel",
     DEFAULT_PREFIX_DATA,
     DEFAULT_SUFFIX_DATA,
-    DEFAULT_CORRUPTED_DATA
+    DEFAULT_CORRUPTED_DATA,
   );
 
   // 커스텀 훅 사용
@@ -136,7 +136,7 @@ export default function JewelsPage() {
         savePresetsToStorage(newPresets);
       });
     },
-    [presets, handlePresetDragStart, setPresets, savePresetsToStorage]
+    [presets, handlePresetDragStart, setPresets, savePresetsToStorage],
   );
 
   const deleteOption = useCallback(
@@ -152,7 +152,7 @@ export default function JewelsPage() {
       deleteOptionFromData(listType, opt.id);
       setSelected((prev) => prev.filter((t) => t !== opt.filterRegex));
     },
-    [deleteOptionFromData]
+    [deleteOptionFromData],
   );
 
   const openModal = useCallback((opt, mode, listId) => {
@@ -703,12 +703,12 @@ export default function JewelsPage() {
                 {modalMode === "add" && duplicateError
                   ? duplicateError
                   : !modalData.optionText ||
-                    !modalData.filterRegex ||
-                    modalData.types.length === 0
-                  ? "모든 항목을 입력해주세요"
-                  : modalMode === "edit"
-                  ? "저장"
-                  : "추가"}
+                      !modalData.filterRegex ||
+                      modalData.types.length === 0
+                    ? "모든 항목을 입력해주세요"
+                    : modalMode === "edit"
+                      ? "저장"
+                      : "추가"}
               </button>
             </div>
           </div>

@@ -12,7 +12,7 @@ export default function GemsPage() {
   const [loading, setLoading] = useState(!gemsCache.data);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(
-    gemsCache.timestamp ? new Date(gemsCache.timestamp) : null
+    gemsCache.timestamp ? new Date(gemsCache.timestamp) : null,
   );
 
   // 시세 데이터 가져오기 (1시간 캐싱)
@@ -77,8 +77,7 @@ export default function GemsPage() {
     return () => clearTimeout(timeoutId);
   }, [fetchGems]);
 
-  const chaosIcon =
-    "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lSZXJvbGxSYXJlIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/d119a0d734/CurrencyRerollRare.png";
+  const chaosIcon = "/images/items/CurrencyRerollRare.webp";
 
   // Act별 로마숫자
   const actLabels = { 1: "Ⅰ", 2: "Ⅱ", 3: "Ⅲ", 4: "Ⅳ" };
@@ -186,8 +185,6 @@ export default function GemsPage() {
             </tbody>
           </table>
         </div>
-
-        <p className="data-source">Data from poe.ninja</p>
       </div>
     </div>
   );

@@ -219,7 +219,7 @@ export default function AppLayout() {
           }}
         >
           <p style={{ margin: "0 0 4px 0", fontWeight: 600 }}>
-            © 2025 POE Channel. All rights reserved.
+            © 2026 POE Channel. All rights reserved.
           </p>
           <p style={{ margin: 0, opacity: 0.7 }}>
             This product isn&apos;t affiliated with or endorsed by Grinding Gear

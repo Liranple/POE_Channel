@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { NOTICES } from "../../config/notices";
 import { LEAGUE_INFO } from "../../config/league";
 import "../../styles/HomePage.css";
+import EventLeague from "./EventLeague";
 
 // 아이템 시세 캐시
 let itemsCache = { data: null, timestamp: 0, cachedAt: 0 };
@@ -43,7 +44,7 @@ export default function HomePage() {
 
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
-        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
@@ -140,19 +141,15 @@ export default function HomePage() {
   const recentNotices = [...NOTICES].sort((a, b) => b.id - a.id).slice(0, 3);
 
   // 리그 시작 날짜 포맷
+  const pad2 = (n) => String(n).padStart(2, "0");
   const formatStartDate = (date) => {
-    return date
-      .toLocaleString("ko-KR", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
-      .replace(/\. /g, "-")
-      .replace(".", "")
-      .replace(" ", " ");
+    const Y = date.getFullYear();
+    const M = pad2(date.getMonth() + 1);
+    const D = pad2(date.getDate());
+    const h = pad2(date.getHours());
+    const m = pad2(date.getMinutes());
+    // YYYY-MM-DD  HH:MM (두 칸 공백으로 날짜와 시간 구분)
+    return `${Y}-${M}-${D}  ${h}:${m}`;
   };
 
   return (
@@ -171,10 +168,24 @@ export default function HomePage() {
       </section>
 
       {/* ==================== 리그 타이머 ==================== */}
-      <section className="league-timer-section">
+      <section
+        className="league-timer-section"
+        style={{ position: "relative" }}
+      >
+        <span
+          style={{
+            position: "absolute",
+            left: 18,
+            top: 16,
+            fontSize: 16,
+            opacity: 0.85,
+          }}
+        >
+          3.27
+        </span>
         <h1 className="league-name">{LEAGUE_INFO.name}</h1>
         <p className="league-start-info">
-          {LEAGUE_INFO.nameKo} · 시작: {formatStartDate(LEAGUE_INFO.startDate)}
+          {LEAGUE_INFO.nameKo} · 시작 : {formatStartDate(LEAGUE_INFO.startDate)}
         </p>
         <div className="league-elapsed">
           <div className="time-block">
@@ -206,6 +217,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ==================== 이벤트 리그 (토글 가능) ==================== */}
+      <EventLeague />
 
       {/* ==================== 공지사항 ==================== */}
       <section className="notices-section">

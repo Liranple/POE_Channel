@@ -15,6 +15,7 @@ import {
   FaRegCommentDots,
   FaGem,
 } from "react-icons/fa";
+import { RiGlobalFill } from "react-icons/ri";
 import { PiDiamondsFourFill } from "react-icons/pi";
 import ErrorBoundary from "./ErrorBoundary";
 import Sidebar from "./Sidebar";
@@ -71,6 +72,9 @@ const DiscussionPage = dynamic(() => import("./pages/DiscussionPage"), {
 const GemsPage = dynamic(() => import("./pages/GemsPage"), {
   loading: () => <PageLoader />,
 });
+const SitesPage = dynamic(() => import("./pages/SitesPage"), {
+  loading: () => <PageLoader />,
+});
 
 // 탭 설정
 const TABS = [
@@ -79,6 +83,7 @@ const TABS = [
   { id: "jewels", label: "주얼", icon: <PiDiamondsFourFill size={20} /> },
   { id: "cards", label: "카드 드랍처", icon: <FaMapMarkerAlt size={20} /> },
   { id: "gems", label: "보조 젬 시세", icon: <FaGem size={20} /> },
+  { id: "sites", label: "주요 사이트", icon: <RiGlobalFill size={20} /> },
   {
     id: "discussion",
     label: "자유 토론장",
@@ -160,6 +165,9 @@ export default function AppLayout() {
         break;
       case "gems":
         pageComponent = <GemsPage />;
+        break;
+      case "sites":
+        pageComponent = <SitesPage />;
         break;
       default:
         pageComponent = (

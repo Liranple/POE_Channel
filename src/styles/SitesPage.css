@@ -1,0 +1,93 @@
+/* ==================== Sites Page Styles ==================== */
+
+.sites-page-wrapper .page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease-out;
+  padding: 20px;
+}
+
+.sites-page-wrapper .page-content h1 {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+  margin: 0 0 12px 0;
+}
+
+.sites-page-wrapper .page-note {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.sites-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.site-item .site-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--sidebar-border);
+  background: var(--card-bg);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.site-item .site-link:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-common);
+}
+
+.site-icon-wrap {
+  flex: 0 0 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.site-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: contain;
+  background: transparent;
+}
+
+.site-info {
+  flex: 1;
+  min-width: 0; /* allow text truncation in narrow containers */
+}
+
+.site-label {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.site-description {
+  font-size: 12px;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.external-icon {
+  opacity: 0.8;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -49,18 +49,25 @@ export default function EventLeague() {
   if (now >= start && now <= end) status = "live";
   if (now > end) status = "ended";
 
-  const diff =
-    status === "upcoming"
-      ? start.getTime() - now.getTime()
-      : end.getTime() - now.getTime();
+  // 표시할 시간: 시작일로부터 경과된 시간(이벤트 시작 전에는 0으로 표시, 종료 후에는 전체 경과 시간 고정)
+  let elapsedMs = 0;
+  if (now < start) {
+    elapsedMs = 0;
+  } else if (now >= start && now <= end) {
+    elapsedMs = now.getTime() - start.getTime();
+  } else {
+    elapsedMs = end.getTime() - start.getTime();
+  }
 
-  const positiveDiff = Math.max(0, diff);
-  const days = Math.floor(positiveDiff / (1000 * 60 * 60 * 24));
+  const positiveElapsed = Math.max(0, elapsedMs);
+  const days = Math.floor(positiveElapsed / (1000 * 60 * 60 * 24));
   const hours = Math.floor(
-    (positiveDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+    (positiveElapsed % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
   );
-  const minutes = Math.floor((positiveDiff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((positiveDiff % (1000 * 60)) / 1000);
+  const minutes = Math.floor(
+    (positiveElapsed % (1000 * 60 * 60)) / (1000 * 60),
+  );
+  const seconds = Math.floor((positiveElapsed % (1000 * 60)) / 1000);
 
   return (
     <section
@@ -127,9 +134,7 @@ export default function EventLeague() {
               </span>
               <span className="time-label">Seconds</span>
             </div>
-            {status === "live" && (
-              <div style={{ marginTop: 8, fontSize: 13 }}>이벤트 진행 중</div>
-            )}
+            {/* '이벤트 진행 중' 문구 제거 - 진행 시간은 타이머(시작일 기준 경과)로 표기됨 */}
           </>
         )}
       </div>

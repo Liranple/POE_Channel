@@ -161,7 +161,7 @@
   background: var(--card-bg);
   border: 1px solid var(--sidebar-border);
   border-radius: 12px;
-  padding: 20px;
+  padding: 15px 20px;
   margin-bottom: 24px;
 }
 
@@ -185,7 +185,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  height: 144px; /* 3개 공지 고정 높이 + 여유 */
+  height: 162px; /* 3개 공지 고정 높이 + 여유 */
   overflow: visible;
   padding: 2px; /* transform 시 border 잘림 방지 */
   margin: -2px;
@@ -335,7 +335,7 @@
   background: var(--card-bg);
   border: 1px solid var(--sidebar-border);
   border-radius: 12px;
-  padding: 20px;
+  padding: 15px 20px;
 }
 
 .items-grid {

@@ -31,7 +31,7 @@
 
 // POE Ninja API URL에 사용되는 리그명 (영문)
 // 예: "Keepers", "Settlers", "Necropolis" 등
-export const CURRENT_LEAGUE = "Keepers";
+export const CURRENT_LEAGUE = "Phrecia+2.0";
 
 // 메인 페이지에 표시되는 리그 정보
 export const LEAGUE_INFO = {

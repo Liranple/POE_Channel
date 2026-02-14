@@ -21,7 +21,7 @@ export const GEM_NAME_TO_KOREAN = {
   "Armageddon Brand": "종말의 낙인",
   "Assassin's Mark": "암살자의 징표",
   "Artillery Ballista": "야포 발리스타",
-  "Ball Lightning": "볼 라이트닝",
+  "Ball Lightning": "구형 번개",
   Bane: "파멸",
   Barrage: "연발 사격",
   "Bear Trap": "곰 덫",
@@ -537,7 +537,7 @@ export const GEM_NAME_TO_KOREAN = {
 
 // 한글→영어 역매핑 (자동 생성)
 export const GEM_KOREAN_TO_NAME = Object.fromEntries(
-  Object.entries(GEM_NAME_TO_KOREAN).map(([eng, kor]) => [kor, eng])
+  Object.entries(GEM_NAME_TO_KOREAN).map(([eng, kor]) => [kor, eng]),
 );
 
 // 젬 이름 검색 함수 (영어 → 한글)

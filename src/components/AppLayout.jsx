@@ -14,6 +14,7 @@ import {
   FaMapMarkerAlt,
   FaRegCommentDots,
   FaGem,
+  FaGift,
 } from "react-icons/fa";
 import { RiGlobalFill } from "react-icons/ri";
 import { PiDiamondsFourFill } from "react-icons/pi";
@@ -75,6 +76,9 @@ const GemsPage = dynamic(() => import("./pages/GemsPage"), {
 const SitesPage = dynamic(() => import("./pages/SitesPage"), {
   loading: () => <PageLoader />,
 });
+const DropsPage = dynamic(() => import("./pages/DropsPage"), {
+  loading: () => <PageLoader />,
+});
 
 // 탭 설정
 const TABS = [
@@ -83,6 +87,7 @@ const TABS = [
   { id: "jewels", label: "주얼", icon: <PiDiamondsFourFill size={20} /> },
   { id: "cards", label: "카드 드랍처", icon: <FaMapMarkerAlt size={20} /> },
   { id: "gems", label: "보조 젬 시세", icon: <FaGem size={20} /> },
+  { id: "drops", label: "드롭스 정보", icon: <FaGift size={20} /> },
   { id: "sites", label: "주요 사이트", icon: <RiGlobalFill size={20} /> },
   {
     id: "discussion",
@@ -109,7 +114,7 @@ export default function AppLayout() {
   const isHydrated = useSyncExternalStore(
     emptySubscribe,
     getSnapshot,
-    getServerSnapshot
+    getServerSnapshot,
   );
 
   // localStorage에서 테마 로드 (지연 초기화)
@@ -165,6 +170,9 @@ export default function AppLayout() {
         break;
       case "gems":
         pageComponent = <GemsPage />;
+        break;
+      case "drops":
+        pageComponent = <DropsPage />;
         break;
       case "sites":
         pageComponent = <SitesPage />;

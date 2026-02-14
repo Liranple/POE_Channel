@@ -1,0 +1,160 @@
+.drops-page-wrapper .page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease-out;
+  padding: 20px;
+}
+
+.drops-page-wrapper .page-content h1 {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+  margin: 0 0 12px 0;
+}
+
+.drops-page-wrapper .page-note {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.events-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.event-block {
+  border-radius: 8px;
+}
+
+.event-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.event-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.event-period {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.event-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Card/button style follows SitesPage .site-link */
+.drops-page-wrapper .event-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--sidebar-border);
+  background: var(--card-bg);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.drops-page-wrapper .event-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-common);
+}
+
+.drops-page-wrapper .reward-icon-wrap {
+  flex: 0 0 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drops-page-wrapper .reward-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: contain;
+  background: transparent;
+}
+
+.drops-page-wrapper .reward-name {
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 0; /* allow truncation */
+}
+
+.drops-page-wrapper .reward-row {
+  display: grid;
+  grid-template-columns: 44px 1fr auto 40px;
+  grid-auto-rows: auto;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+
+/* right area contains the time (row1) and watching text will be placed into row2 */
+.drops-page-wrapper .reward-row > .reward-right {
+  grid-column: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.drops-page-wrapper .reward-time {
+  display: block;
+  font-weight: 700;
+}
+
+.drops-page-wrapper .reward-time.active {
+  color: #6fe39a; /* green */
+}
+.drops-page-wrapper .reward-time.urgent {
+  color: #ff6b6b; /* red */
+}
+.drops-page-wrapper .reward-time.ended {
+  color: #ff6b6b;
+}
+.drops-page-wrapper .reward-time.muted {
+  color: #6fe39a;
+}
+
+/* watching text sits under the time in the same grid column */
+.drops-page-wrapper .reward-right .reward-sub {
+  font-size: 12px;
+  color: var(--muted);
+  opacity: 0.9;
+  margin-top: 2px;
+  text-align: right;
+}
+
+/* external icon is absolutely positioned to the right edge of the button */
+.drops-page-wrapper .external-icon {
+  opacity: 0.9;
+  grid-column: 4 / 5;
+  justify-self: center;
+  display: flex;
+  align-items: center;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -3,12 +3,7 @@ import "../../styles/SitesPage.css";
 import { FaExternalLinkAlt } from "react-icons/fa";
 
 const SITES = [
-  {
-    label: "POE Ninja",
-    url: "https://poe.ninja",
-    description: "시세와 리그 통계",
-    icon: "https://www.google.com/s2/favicons?sz=64&domain_url=poe.ninja",
-  },
+
   {
     label: "Path of Exile",
     url: "https://poe.game.daum.net/",
@@ -20,6 +15,12 @@ const SITES = [
     url: "https://poe.game.daum.net/trade",
     description: "거래 검색",
     icon: "/images/ui/trade.png",
+  },
+    {
+    label: "POE Ninja",
+    url: "https://poe.ninja",
+    description: "시세와 리그 통계",
+    icon: "https://www.google.com/s2/favicons?sz=64&domain_url=poe.ninja",
   },
   {
     label: "PoE DB",

@@ -1,4 +1,4 @@
-// Next.js API Route - POE Ninja ?꾨줉??(CORS ?고쉶)
+// Next.js API Route - POE Ninja 프록시 (CORS 우회)
 
 import { CURRENT_LEAGUE, CACHE_DURATION } from "@/config/league";
 import {
@@ -12,7 +12,7 @@ import {
   getCurrentHourTimestamp,
 } from "@/lib/poeNinja";
 
-// 硫붾え由?罹먯떛
+// 메모리 캐싱
 let cachedData = null;
 let cachedTimestamp = null;
 
@@ -21,7 +21,7 @@ export async function GET() {
   try {
     const now = Date.now();
 
-    // 罹먯떆媛 ?좏슚?섎㈃ 罹먯떆???곗씠??諛섑솚
+    // 캐시가 유효하면 캐시된 데이터 반환
     if (
       cachedData &&
       cachedTimestamp &&
@@ -30,7 +30,7 @@ export async function GET() {
       return Response.json(cachedData);
     }
 
-    // ?덈줈??POE1 ?꾩슜 API ?붾뱶?ъ씤??
+    // 새로운 POE1 전용 API 엔드포인트
     const cardUrl = `${POE_NINJA_BASE_URL}/exchange/current/overview?league=${CURRENT_LEAGUE}&type=DivinationCard`;
     const currencyUrl = `${POE_NINJA_BASE_URL}/exchange/current/overview?league=${CURRENT_LEAGUE}&type=Currency`;
 
@@ -38,13 +38,13 @@ export async function GET() {
     let fetchSuccess = false;
 
     try {
-      // 由ы듃?쇱씠媛 ?ы븿??fetch濡?移대뱶 ?곗씠??媛?몄삤湲?
+      // 리트라이가 포함된 fetch로 카드 데이터 가져오기
       const cardResponse = await fetchWithRetry(cardUrl, POE_NINJA_REQUEST_OPTIONS);
 
       cardData = await cardResponse.json();
 
-      // Divine Orb ?쒖꽭 媛?몄삤湲?(?ㅽ뙣?대룄 湲곕낯媛??ъ슜)
-      divineRate = 160; // 湲곕낯媛?
+      // Divine Orb 시세 가져오기 (실패해도 기본값 사용)
+      divineRate = 160; // 기본값
       try {
         const currencyResponse = await fetchWithRetry(currencyUrl, POE_NINJA_REQUEST_OPTIONS);
         const currencyData = await currencyResponse.json();
@@ -63,7 +63,7 @@ export async function GET() {
     } catch (fetchError) {
       console.error("All retries failed for currency API:", fetchError.message);
 
-      // Fallback: DB?먯꽌 媛??理쒓렐 ?곗씠??媛?몄삤湲?
+      // Fallback: DB에서 가장 최근 데이터 가져오기
       const fallbackData = await getLatestHistory("currency");
       if (fallbackData) {
         console.log(
@@ -78,36 +78,36 @@ export async function GET() {
           timestamp: fallbackData.timestamp,
           cards: fallbackData.data.cards,
           divineRate: fallbackData.data.divineRate,
-          fallback: true, // ?대씪?댁뼵?몄뿉??fallback ?щ? ?뺤씤 媛??
+          fallback: true, // 클라이언트에서 fallback 여부 확인 가능
         };
 
-        // 硫붾え由?罹먯떆?먮룄 ???(?ㅼ쓬 ?붿껌 ??鍮좊Ⅸ ?묐떟)
+        // 메모리 캐시에도 저장 (다음 요청 시 빠른 응답)
         cachedData = responseData;
         cachedTimestamp = now;
 
         return Response.json(responseData);
       }
 
-      // Fallback???놁쑝硫??먮윭 諛섑솚
+      // Fallback도 없으면 에러 반환
       throw fetchError;
     }
 
-    // ?꾩슂???곗씠?곕쭔 異붿텧 (紐⑤뱺 移대뱶 ?ы븿)
+    // 필요한 데이터만 추출 (모든 카드 포함)
     const cards = cardData.lines.map((card) => ({
       id: card.id,
       name: card.id
         .split("-")
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" "), // kebab-case瑜?Title Case濡?蹂??
+        .join(" "), // kebab-case를 Title Case로 변환
       chaosValue: Math.round(card.primaryValue),
-      divineValue: Math.round((card.primaryValue / divineRate) * 10) / 10, // ?ㅼ떆媛?Divine ?쒖꽭 ?곸슜
+      divineValue: Math.round((card.primaryValue / divineRate) * 10) / 10, // 실시간 Divine 시세 적용
       icon: `https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvRGl2aW5hdGlvbi9JbnZlbnRvcnlJY29uIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/f34bf8cbb5/InventoryIcon.png`,
     }));
 
-    // ?뺤떆 timestamp濡??ㅼ젙
+    // 정시 timestamp로 설정
     const hourTimestamp = getCurrentHourTimestamp();
 
-    // ?묐떟 ?곗씠???앹꽦 諛?罹먯떛
+    // 응답 데이터 생성 및 캐싱
     cachedData = {
       success: true,
       league: CURRENT_LEAGUE,
@@ -117,7 +117,7 @@ export async function GET() {
     };
     cachedTimestamp = now;
 
-    // ?덉뒪?좊━?????(?깃났??寃쎌슦?먮쭔, 諛깃렇?쇱슫?쒕줈 ?ㅽ뻾)
+    // 히스토리에 저장 (성공한 경우에만, 백그라운드로 실행)
     if (fetchSuccess) {
       savePriceHistory("currency", {
         cards,

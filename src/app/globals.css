@@ -84,7 +84,7 @@ body {
   transform: translateY(8px);
 }
 
-/* ==================== ????됱뵠?袁⑹뜍 ==================== */
+/* ==================== 앱 레이아웃 ==================== */
 
 .app-layout {
   display: flex;
@@ -93,7 +93,7 @@ body {
   overflow: hidden;
 }
 
-/* ==================== ?????뺤뺍 ?????==================== */
+/* ==================== 사이드바 스타일 ==================== */
 
 .sidebar {
   width: 240px;
@@ -112,13 +112,13 @@ body {
   border-bottom: 1px solid var(--sidebar-border);
 }
 
-/* ?????뺤뺍 嚥≪뮄?????筌왖 */
+/* 사이드바 로고 이미지 */
 .sidebar-logo {
   width: 70px;
   height: 70px;
   margin: -10px;
   object-fit: contain;
-  /* 嚥≪뮄????깃맒?? variables.css??--logo-color嚥?鈺곌퀣??(filter ???? */
+  /* 로고 색상은 variables.css의 --logo-color로 조절 (filter 사용) */
   filter: drop-shadow(0.5px 0 0 var(--logo-color))
     drop-shadow(-0.5px 0 0 var(--logo-color))
     drop-shadow(0 0.5px 0 var(--logo-color))
@@ -131,7 +131,7 @@ body {
   margin: 0;
   font-family: var(--font-cinzel), "Cinzel", serif;
   letter-spacing: 1px;
-  /* ????? ??깃맒?? variables.css??--logo-title-color嚥?鈺곌퀣??*/
+  /* 타이틀 색상은 variables.css의 --logo-title-color로 조절 */
   color: var(--logo-title-color);
   -webkit-text-fill-color: var(--logo-title-color);
 }
@@ -253,18 +253,18 @@ body {
   flex-shrink: 0;
 }
 
-/* ==================== 筌롫뗄???꾩꼹?쀯㎘??怨몃열 ==================== */
+/* ==================== 메인 콘텐츠 영역 ==================== */
 
 .main-content {
   flex: 1;
   overflow: auto;
   background: transparent;
   /* padding: 20px; removed to allow sticky elements to reach top */
-  scrollbar-gutter: stable; /* ??쎄쾿嚥▲끇而?獄쎛??獄쎻뫗? */
+  scrollbar-gutter: stable; /* 스크롤바 밀림 방지 */
   scroll-behavior: smooth;
 }
 
-/* ==================== ??쎄쾿嚥▲끇而??????==================== */
+/* ==================== 스크롤바 스타일 ==================== */
 
 .sidebar-nav::-webkit-scrollbar,
 .main-content::-webkit-scrollbar {
@@ -288,7 +288,7 @@ body {
   background: var(--scrollbar-thumb-hover);
 }
 
-/* ==================== 獄쏆꼷????遺우쁽??(?????뺤뺍 ?온?? ==================== */
+/* ==================== 반응형 디자인 (사이드바 관련) ==================== */
 
 @media (max-width: 768px) {
   .app-layout {

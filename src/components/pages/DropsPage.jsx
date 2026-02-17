@@ -1,63 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/DropsPage.css";
 import { FaExternalLinkAlt } from "react-icons/fa";
-
-const EVENTS = [
-  {
-    id: "launch",
-    title: "최후의 드루이드 Launch",
-    period: { start: "2025-12-13T00:00:00", end: "2025-12-28T23:59:59" },
-    groups: [
-      {
-        items: [
-          {
-            img: "/images/drops/AtzirisRoyalCacheStash.webp",
-            name: "앗지리의 왕실 은닉함 보관함",
-          },
-        ],
-        start: "2025-12-20T19:00:00",
-        end: "2025-12-25T18:59:00",
-        watchingText: "Watching 3 hour",
-        url: "https://www.twitch.tv/directory/category/path-of-exile-2",
-      },
-      {
-        items: [
-          {
-            img: "/images/drops/BloodMoonWolfPackSkillEffect.webp",
-            name: "핏빛 달 늑대 무리 스킬 이펙트",
-          },
-          {
-            img: "/images/drops/MaskoftheVaal.webp",
-            name: "바알의 가면",
-          },
-        ],
-        start: "2025-12-13T04:00:00",
-        end: "2025-12-20T18:59:00",
-        watchingText: "Watching 3 hour",
-        url: "https://www.twitch.tv/directory/category/path-of-exile-2",
-      },
-    ],
-  },
-  {
-    id: "gameawards",
-    title: "The Game Awards",
-    period: { start: "2025-12-12T00:00:00", end: "2025-12-12T23:59:59" },
-    groups: [
-      {
-        items: [
-          {
-            img: "/images/drops/VerdantDruidPortal.webp",
-            name: "마지의 드루이드 포탈",
-          },
-        ],
-        start: "2025-12-12T09:00:00",
-        end: "2025-12-12T13:30:00",
-        watchingText: "Watching 30 minute",
-        url: "https://www.twitch.tv/directory/category/the-game-awards",
-      },
-    ],
-  },
-];
+import { EVENTS } from "../../data/DropsData";
+import Image from "next/image";
 
 function pad(n) {
   return String(n).padStart(2, "0");
@@ -70,7 +15,7 @@ function formatRemaining(ms) {
   const hours = Math.floor((totalSeconds % 86400) / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-  return `${days}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  return `${days} : ${pad(hours)} : ${pad(minutes)} : ${pad(seconds)}`;
 }
 
 function formatDateOnly(d) {
@@ -91,22 +36,26 @@ export default function DropsPage() {
 
   return (
     <div className="drops-page-wrapper">
-      <div className="page-content">
+      <div className="page-content page-fade-in">
         <h1>드롭스 정보</h1>
         <p className="page-note">
           현재 진행 중이거나 종료된 Twitch Drops 이벤트 정보를 확인해보세요.
         </p>
 
-        <div className="events-list">
-          {EVENTS.map((ev) => (
-            <section className="event-block" key={ev.id}>
+        <div className="events-list stagger-fade-list">
+          {EVENTS.map((ev, index) => (
+            <section
+              className="event-block stagger-fade-item"
+              style={{ "--stagger-delay": `${Math.min(index, 10) * 0.03}s` }}
+              key={ev.title}
+            >
               <div className="event-header">
                 <h2 className="event-title">{ev.title}</h2>
                 <div className="event-period">
                   {formatDateOnly(ev.period.start) ===
                   formatDateOnly(ev.period.end)
-                    ? formatDateOnly(ev.period.start)
-                    : `${formatDateOnly(ev.period.start)} ~ ${formatDateOnly(ev.period.end)}`}
+                    ? `  ${formatDateOnly(ev.period.start)}`
+                    : `  ${formatDateOnly(ev.period.start)} ~ ${formatDateOnly(ev.period.end)}`}
                 </div>
               </div>
 
@@ -129,15 +78,69 @@ export default function DropsPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <div className="rewards-col">
-                        {g.items.map((it, idx) => (
-                          <div className="reward-row" key={idx}>
-                            <img
-                              src={it.img}
-                              alt={it.name}
-                              className="reward-img"
-                            />
-                            <div className="reward-name">{it.name}</div>
+                      {g.items.length === 1 ? (
+                        <div className="rewards-col rewards-col-single">
+                          {g.items.map((it, idx) => (
+                            <div className="reward-row" key={idx}>
+                              <div className="reward-box-left">
+                                <Image
+                                  src={it.img}
+                                  alt={it.name}
+                                  className="reward-img"
+                                  width={40}
+                                  height={40}
+                                />
+                                <div className="reward-name">{it.name}</div>
+                              </div>
+                              <div className="reward-box-right">
+                                <div className="reward-right">
+                                  <div
+                                    className={`reward-time ${
+                                      notStarted
+                                        ? "muted"
+                                        : ended
+                                          ? "ended"
+                                          : lessThanOneDay
+                                            ? "urgent"
+                                            : "active"
+                                    }`}
+                                  >
+                                    {notStarted && <span>진행 대기중</span>}
+                                    {started && !ended && (
+                                      <span>{formatRemaining(end - now)}</span>
+                                    )}
+                                    {started && ended && <span>종료</span>}
+                                  </div>
+                                  {started && !ended ? (
+                                    <div className="reward-sub">{`Watching ${g.watchingText}`}</div>
+                                  ) : null}
+                                </div>
+                                <div className="external-icon">
+                                  <FaExternalLinkAlt />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rewards-container">
+                          <div className="rewards-col rewards-col-multi">
+                            {g.items.map((it, idx) => (
+                              <div className="reward-row-multi" key={idx}>
+                                <div className="reward-box-left">
+                                  <Image
+                                    src={it.img}
+                                    alt={it.name}
+                                    className="reward-img"
+                                    width={40}
+                                    height={40}
+                                  />
+                                  <div className="reward-name">{it.name}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="rewards-time-box">
                             <div className="reward-right">
                               <div
                                 className={`reward-time ${
@@ -151,19 +154,21 @@ export default function DropsPage() {
                                 }`}
                               >
                                 {notStarted && <span>진행 대기중</span>}
-                                {!notStarted && !ended && (
+                                {started && !ended && (
                                   <span>{formatRemaining(end - now)}</span>
                                 )}
-                                {ended && <span>종료</span>}
+                                {started && ended && <span>종료</span>}
                               </div>
-                              <div className="reward-sub">{g.watchingText}</div>
+                              {started && !ended ? (
+                                <div className="reward-sub">{`Watching ${g.watchingText}`}</div>
+                              ) : null}
                             </div>
                             <div className="external-icon">
                               <FaExternalLinkAlt />
                             </div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      )}
                     </a>
                   );
                 })}

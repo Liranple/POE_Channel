@@ -5,7 +5,7 @@ import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import { BsArrowReturnRight } from "react-icons/bs";
 import { motion, useDragControls, AnimatePresence } from "framer-motion";
 import "../../styles/DiscussionPage.css";
-import { formatDate, validatePassword, generateId } from "../../utils";
+import { formatDate } from "../../utils";
 
 /**
  * 게시글 데이터 구조:
@@ -643,7 +643,7 @@ export default function DiscussionPage() {
   if (isLoading) {
     return (
       <div className="discussion-page-wrapper">
-        <div className="page-content">
+        <div className="page-content page-fade-in">
           <h1>자유 토론장</h1>
           <p className="page-description">게시글을 불러오는 중...</p>
         </div>
@@ -654,7 +654,7 @@ export default function DiscussionPage() {
   if (error) {
     return (
       <div className="discussion-page-wrapper">
-        <div className="page-content">
+        <div className="page-content page-fade-in">
           <h1>자유 토론장</h1>
           <p className="page-description" style={{ color: "#ff6b6b" }}>
             {error}
@@ -679,7 +679,7 @@ export default function DiscussionPage() {
 
   return (
     <div className="discussion-page-wrapper">
-      <div className="page-content">
+      <div className="page-content page-fade-in">
         <h1>자유 토론장</h1>
         <p className="page-description">
           자유 토론장에 오신 것을 환영합니다! 자유롭게 의견을 나누고 정보를
@@ -745,9 +745,13 @@ export default function DiscussionPage() {
         </div>
 
         {/* 글 목록 */}
-        <div className="posts-list">
-          {currentPosts.map((post) => (
-            <div key={post.id} className="post-card">
+        <div className="posts-list stagger-fade-list">
+          {currentPosts.map((post, index) => (
+            <div
+              key={post.id}
+              className="post-card stagger-fade-item"
+              style={{ "--stagger-delay": `${Math.min(index, 10) * 0.03}s` }}
+            >
               <div
                 className={`post-main-section ${
                   expandedPosts.has(post.id) ? "expanded" : ""

@@ -21,7 +21,7 @@ body {
   overflow: hidden;
 }
 
-/* 로딩 스피너 애니메이션 */
+/* Loading spinner animation */
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -31,7 +31,60 @@ body {
   }
 }
 
-/* ==================== 앱 레이아웃 ==================== */
+/* ==================== Shared Page Animations ==================== */
+
+@keyframes pageFadeInUnified {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes itemStaggerFadeInUnified {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-fade-in,
+.stagger-fade-item,
+.stagger-fade-row > td {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.main-content.page-anim-ready .page-fade-in {
+  animation: pageFadeInUnified 0.3s ease-out both !important;
+}
+
+.main-content.page-anim-ready .stagger-fade-item {
+  animation: itemStaggerFadeInUnified 0.3s ease-out both;
+  animation-delay: var(--stagger-delay, 0s);
+}
+
+.main-content.page-anim-ready .stagger-fade-row > td {
+  animation: itemStaggerFadeInUnified 0.3s ease-out both;
+  animation-delay: var(--stagger-delay, 0s);
+}
+
+.main-content.page-anim-pending .page-fade-in,
+.main-content.page-anim-pending .stagger-fade-item,
+.main-content.page-anim-pending .stagger-fade-row > td {
+  animation: none !important;
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+/* ==================== ????됱뵠?袁⑹뜍 ==================== */
 
 .app-layout {
   display: flex;
@@ -40,7 +93,7 @@ body {
   overflow: hidden;
 }
 
-/* ==================== 사이드바 스타일 ==================== */
+/* ==================== ?????뺤뺍 ?????==================== */
 
 .sidebar {
   width: 240px;
@@ -59,13 +112,13 @@ body {
   border-bottom: 1px solid var(--sidebar-border);
 }
 
-/* 사이드바 로고 이미지 */
+/* ?????뺤뺍 嚥≪뮄?????筌왖 */
 .sidebar-logo {
   width: 70px;
   height: 70px;
   margin: -10px;
   object-fit: contain;
-  /* 로고 색상은 variables.css의 --logo-color로 조절 (filter 사용) */
+  /* 嚥≪뮄????깃맒?? variables.css??--logo-color嚥?鈺곌퀣??(filter ???? */
   filter: drop-shadow(0.5px 0 0 var(--logo-color))
     drop-shadow(-0.5px 0 0 var(--logo-color))
     drop-shadow(0 0.5px 0 var(--logo-color))
@@ -78,7 +131,7 @@ body {
   margin: 0;
   font-family: var(--font-cinzel), "Cinzel", serif;
   letter-spacing: 1px;
-  /* 타이틀 색상은 variables.css의 --logo-title-color로 조절 */
+  /* ????? ??깃맒?? variables.css??--logo-title-color嚥?鈺곌퀣??*/
   color: var(--logo-title-color);
   -webkit-text-fill-color: var(--logo-title-color);
 }
@@ -174,18 +227,44 @@ body {
   text-overflow: ellipsis;
 }
 
-/* ==================== 메인 콘텐츠 영역 ==================== */
+.sidebar-tab-label-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar-drops-new {
+  font-size: 10px;
+  line-height: 1;
+  padding: 0;
+  color: #fff7b5;
+  text-shadow: 0 0 3px rgba(255, 245, 140, 0.45);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+
+.sidebar-drops-alert {
+  color: #ff3a3a;
+  font-size: 18px;
+  filter: drop-shadow(0 0 4px rgba(255, 58, 58, 0.65));
+  flex-shrink: 0;
+}
+
+/* ==================== 筌롫뗄???꾩꼹?쀯㎘??怨몃열 ==================== */
 
 .main-content {
   flex: 1;
   overflow: auto;
   background: transparent;
   /* padding: 20px; removed to allow sticky elements to reach top */
-  scrollbar-gutter: stable; /* 스크롤바 밀림 방지 */
+  scrollbar-gutter: stable; /* ??쎄쾿嚥▲끇而?獄쎛??獄쎻뫗? */
   scroll-behavior: smooth;
 }
 
-/* ==================== 스크롤바 스타일 ==================== */
+/* ==================== ??쎄쾿嚥▲끇而??????==================== */
 
 .sidebar-nav::-webkit-scrollbar,
 .main-content::-webkit-scrollbar {
@@ -209,7 +288,7 @@ body {
   background: var(--scrollbar-thumb-hover);
 }
 
-/* ==================== 반응형 디자인 (사이드바 관련) ==================== */
+/* ==================== 獄쏆꼷????遺우쁽??(?????뺤뺍 ?온?? ==================== */
 
 @media (max-width: 768px) {
   .app-layout {
@@ -263,9 +342,17 @@ body {
     white-space: nowrap;
   }
 
+  .sidebar-tab-label-wrap {
+    justify-content: center;
+    width: 100%;
+  }
+
   .main-content {
     padding: 12px;
     overflow-y: auto;
     height: calc(100vh - 70px);
   }
 }
+
+
+

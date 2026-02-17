@@ -428,7 +428,7 @@ export default function FlaskPage() {
   return (
     <div className="flask-page-wrapper">
       <div className="sticky-top-area">
-        <div className="wrap" style={{ paddingBottom: 0 }}>
+        <div className="wrap page-fade-in" style={{ paddingBottom: 0 }}>
           <header>
             <h1>플라스크 정규식 빌더</h1>
             <div className="admin-container" style={{ position: "relative" }}>
@@ -559,7 +559,7 @@ export default function FlaskPage() {
         </div>
       </div>
 
-      <div className="wrap">
+      <div className="wrap page-fade-in">
         <div
           className={`page-layout flask-page ${adminMode ? "admin-mode" : ""}`}
         >

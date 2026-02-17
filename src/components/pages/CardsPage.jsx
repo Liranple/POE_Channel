@@ -1,6 +1,6 @@
 "use client";
 
-import React, {
+import {
   useState,
   useRef,
   useLayoutEffect,
@@ -12,6 +12,7 @@ import React, {
 import { CARD_DATA } from "../../data/CardData";
 import { CARD_ART_IMAGES, LOCATION_IMAGES } from "../../data/CardImages";
 import { REWARD_DATA } from "../../data/RewardData";
+import { parseColoredTaggedText } from "../../utils/parseColoredTaggedText";
 import DivinationCard from "../DivinationCard";
 import RewardTooltip from "../RewardTooltip";
 import "../../styles/CardsPage.css";
@@ -165,17 +166,20 @@ export default function CardsPage() {
     };
 
     // 첫 정시에 실행 후, 이후 1시간마다 반복
+    let intervalId = null;
     const timeoutId = setTimeout(() => {
       fetchPriceData(true); // 강제 새로고침
       // 정시 이후 1시간마다 반복
-      const intervalId = setInterval(
+      intervalId = setInterval(
         () => fetchPriceData(true),
         60 * 60 * 1000
       );
-      return () => clearInterval(intervalId);
     }, getTimeUntilNextHour());
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [fetchPriceData]);
 
   // 카드의 Divine 가격 가져오기 (소숫점 1자리, 항상 표시)
@@ -198,42 +202,6 @@ export default function CardsPage() {
       return priceB - priceA; // 높은 가격순
     });
   }, [getCardPrice]);
-
-  // Helper to parse custom tags
-  const parseRewardText = (text) => {
-    if (typeof text !== "string") return text;
-    const parts = text.split(
-      /(<(?:grey|white|unique|blue|red)>[\s\S]*?<\/(?:grey|white|unique|blue|red)>|\n)/g
-    );
-    return parts.map((part, index) => {
-      if (part === "\n") return <br key={index} />;
-      const match = part.match(
-        /<(grey|white|unique|blue|red)>([\s\S]*?)<\/\1>/
-      );
-      if (match) {
-        const [_, colorType, content] = match;
-        const colors = {
-          grey: "#7f7f7f",
-          white: "#c8c8c8",
-          unique: "#af6025",
-          blue: "#8888ff",
-          red: "#d20000",
-        };
-        const contentParts = content.split("\n").map((line, i, arr) => (
-          <React.Fragment key={i}>
-            {line}
-            {i < arr.length - 1 && <br />}
-          </React.Fragment>
-        ));
-        return (
-          <span key={index} style={{ color: colors[colorType] }}>
-            {contentParts}
-          </span>
-        );
-      }
-      return part;
-    });
-  };
 
   const getRewardClass = (rewardText) => {
     if (!rewardText) return "currency";
@@ -321,7 +289,7 @@ export default function CardsPage() {
     setHoverReward(null);
   };
 
-  const updatePosition = () => {
+  const updatePosition = useCallback(() => {
     const { x: clientX, y: clientY } = rawMousePos.current;
     const x = clientX + 20;
     const windowHeight = window.innerHeight;
@@ -357,17 +325,17 @@ export default function CardsPage() {
     }
 
     setMousePos({ x, y });
-  };
+  }, [hoverCard]);
 
   useLayoutEffect(() => {
     if (hoverCard || hoverReward || hoverImage) {
       updatePosition();
     }
-  }, [hoverCard, hoverReward, hoverImage]);
+  }, [hoverCard, hoverReward, hoverImage, updatePosition]);
 
   return (
     <div className="cards-page-wrapper">
-      <div className="page-content">
+      <div className="page-content page-fade-in">
         <h1>카드 드랍처</h1>
         <p className="price-update-notice">
           ※ 시세는 매 정시마다 자동 갱신됩니다
@@ -393,7 +361,13 @@ export default function CardsPage() {
               {sortedCardData.map((card, index) => {
                 const price = getCardPrice(card.name);
                 return (
-                  <tr key={index}>
+                  <tr
+                    key={index}
+                    className="stagger-fade-row"
+                    style={{
+                      "--stagger-delay": `${Math.min(index, 10) * 0.03}s`,
+                    }}
+                  >
                     <td>
                       <span
                         className="card-name"
@@ -429,7 +403,7 @@ export default function CardsPage() {
                         onMouseMove={handleMouseMove}
                         onMouseLeave={handleMouseLeave}
                       >
-                        {parseRewardText(card.reward)}
+                        {parseColoredTaggedText(card.reward)}
                       </span>
                     </td>
                     <td>

@@ -6,6 +6,11 @@ import {
   getLatestHistory,
   fetchWithRetry,
 } from "@/lib/priceHistory";
+import {
+  POE_NINJA_BASE_URL,
+  POE_NINJA_REQUEST_OPTIONS,
+  getCurrentHourTimestamp,
+} from "@/lib/poeNinja";
 
 // 조회할 아이템 목록 (영문명 → 한글명, 이미지)
 const TRACKED_ITEMS = {
@@ -65,13 +70,6 @@ const TRACKED_ITEMS = {
 let cachedData = null;
 let cachedTimestamp = null;
 
-// 현재 정시 timestamp 계산
-function getCurrentHourTimestamp() {
-  const now = new Date();
-  const currentHour = new Date(now);
-  currentHour.setMinutes(0, 0, 0);
-  return currentHour.getTime();
-}
 
 export async function GET() {
   try {
@@ -104,11 +102,8 @@ export async function GET() {
     try {
       // 모든 타입의 데이터 병렬로 가져오기 (리트라이 포함)
       const fetchPromises = types.map(async (type) => {
-        const url = `https://poe.ninja/poe1/api/economy/stash/current/item/overview?league=${CURRENT_LEAGUE}&type=${type}`;
-        const response = await fetchWithRetry(url, {
-          headers: { "User-Agent": "POE-Channel/1.0" },
-          next: { revalidate: 3600 },
-        });
+        const url = `${POE_NINJA_BASE_URL}/stash/current/item/overview?league=${CURRENT_LEAGUE}&type=${type}`;
+        const response = await fetchWithRetry(url, POE_NINJA_REQUEST_OPTIONS);
         return response.json();
       });
 

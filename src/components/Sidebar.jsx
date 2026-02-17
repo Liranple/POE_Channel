@@ -1,7 +1,8 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
 import { memo, useCallback } from "react";
-import { FaSun, FaMoon } from "react-icons/fa";
+import { FaSun, FaMoon, FaExclamationTriangle } from "react-icons/fa";
 
 // 정적 스타일 객체 - 컴포넌트 외부에 선언하여 재생성 방지
 const footerStyle = {
@@ -41,6 +42,7 @@ const Sidebar = memo(function Sidebar({
   activeTab,
   onTabChange,
   tabs,
+  dropsSidebarStatus,
   theme,
   toggleTheme,
 }) {
@@ -85,7 +87,19 @@ const Sidebar = memo(function Sidebar({
             onClick={() => onTabChange(tab.id)}
           >
             <span className="sidebar-tab-icon">{tab.icon}</span>
-            <span className="sidebar-tab-label">{tab.label}</span>
+            <span className="sidebar-tab-label-wrap">
+              <span className="sidebar-tab-label">{tab.label}</span>
+              {tab.id === "drops" && dropsSidebarStatus === "new" && (
+                <span className="sidebar-drops-new">NEW</span>
+              )}
+              {tab.id === "drops" && dropsSidebarStatus === "urgent" && (
+                <FaExclamationTriangle
+                  className="sidebar-drops-alert"
+                  aria-label="Drops ending soon"
+                  title="Drops ending soon"
+                />
+              )}
+            </span>
           </button>
         ))}
       </nav>

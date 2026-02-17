@@ -24,7 +24,7 @@
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 12px;
+  gap: 20px;
 }
 
 .event-block {
@@ -33,14 +33,15 @@
 
 .event-header {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 8px;
+  align-items: end;
+  gap: 15px;
+  margin-bottom: 10px;
 }
 
 .event-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
+  color: #8a65cf;
   margin: 0;
 }
 
@@ -57,7 +58,7 @@
 
 /* Card/button style follows SitesPage .site-link */
 .drops-page-wrapper .event-button {
-  display: flex;
+  /* display: flex; */
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
@@ -67,6 +68,7 @@
   color: var(--text);
   text-decoration: none;
   font-weight: 600;
+  min-height: 67px;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
@@ -97,10 +99,11 @@
 }
 
 .drops-page-wrapper .reward-row {
-  display: grid;
-  grid-template-columns: 44px 1fr auto 40px;
-  grid-auto-rows: auto;
+  display: flex;
+  /* grid-template-columns: 44px 1fr auto 40px; */
+  /* grid-auto-rows: auto; */
   gap: 12px;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
 }
@@ -137,7 +140,6 @@
   font-size: 12px;
   color: var(--muted);
   opacity: 0.9;
-  margin-top: 2px;
   text-align: right;
 }
 
@@ -149,6 +151,77 @@
   display: flex;
   align-items: center;
 }
+
+.reward-box-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reward-box-right {
+  display: flex;
+  gap: 18px;
+}
+
+.reward-box-right > .reward-right {
+  min-width: 120px;
+  text-align: right;
+}
+
+/* Multi-item 레이아웃 */
+.rewards-container {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  align-items: center;
+}
+
+.rewards-col-multi {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.reward-row-multi {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.reward-row-multi .reward-box-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rewards-time-box {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.rewards-time-box .reward-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 120px;
+  text-align: right;
+}
+
+.rewards-time-box .external-icon {
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 
 @keyframes fadeIn {
   from {

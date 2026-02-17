@@ -1,11 +1,12 @@
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
 
-// Redis 클라이언트 초기화
+// Redis ?대씪?댁뼵??珥덇린??
 const redis = Redis.fromEnv();
 
-// Rate Limiter 설정 (분당 20회 제한)
+// Rate Limiter ?ㅼ젙 (遺꾨떦 20???쒗븳)
 const ratelimit = new Ratelimit({
   redis,
   limiter: Ratelimit.slidingWindow(20, "1m"),
@@ -13,18 +14,26 @@ const ratelimit = new Ratelimit({
   prefix: "ratelimit:posts",
 });
 
+const verifyRatelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(60, "1m"),
+  analytics: true,
+  prefix: "ratelimit:posts:verify",
+});
+
 const POSTS_KEY = "discussion:posts";
 
-// 입력값 길이 제한
+// ?낅젰媛?湲몄씠 ?쒗븳
 const MAX_TITLE_LENGTH = 100;
 const MAX_CONTENT_LENGTH = 5000;
 const MAX_PASSWORD_LENGTH = 50;
+const HASH_PREFIX = "sha256:";
 
 /**
- * 입력값 Sanitization - XSS 방지 및 길이 제한
- * @param {string} input - 원본 입력값
- * @param {number} maxLength - 최대 길이
- * @returns {string} - 정제된 문자열
+ * ?낅젰媛?Sanitization - XSS 諛⑹? 諛?湲몄씠 ?쒗븳
+ * @param {string} input - ?먮낯 ?낅젰媛?
+ * @param {number} maxLength - 理쒕? 湲몄씠
+ * @returns {string} - ?뺤젣??臾몄옄??
  */
 function sanitizeInput(input, maxLength = 10000) {
   if (typeof input !== "string") return "";
@@ -39,8 +48,43 @@ function sanitizeInput(input, maxLength = 10000) {
     .slice(0, maxLength);
 }
 
+function normalizePasswordInput(input) {
+  return sanitizeInput(input, MAX_PASSWORD_LENGTH);
+}
+
+function hashPassword(password) {
+  const pepper = process.env.POST_PASSWORD_PEPPER || "";
+  const digest = crypto
+    .createHash("sha256")
+    .update(`${pepper}:${password}`)
+    .digest("hex");
+  return `${HASH_PREFIX}${digest}`;
+}
+
+function createStoredPassword(inputPassword) {
+  return hashPassword(normalizePasswordInput(inputPassword));
+}
+
+function isHashedPassword(storedPassword) {
+  return (
+    typeof storedPassword === "string" && storedPassword.startsWith(HASH_PREFIX)
+  );
+}
+
+function verifyStoredPassword(storedPassword, inputPassword) {
+  if (typeof storedPassword !== "string") return false;
+
+  const normalizedPassword = normalizePasswordInput(inputPassword);
+  if (isHashedPassword(storedPassword)) {
+    return storedPassword === hashPassword(normalizedPassword);
+  }
+
+  // Legacy plaintext compatibility
+  return storedPassword === normalizedPassword;
+}
+
 /**
- * IP 주소 추출
+ * IP 二쇱냼 異붿텧
  */
 function getClientIP(request) {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -48,27 +92,27 @@ function getClientIP(request) {
   return forwarded?.split(",")[0]?.trim() || realIP || "127.0.0.1";
 }
 
-// 비밀번호를 제거하고 게시글 반환 (보안)
+// 鍮꾨?踰덊샇瑜??쒓굅?섍퀬 寃뚯떆湲 諛섑솚 (蹂댁븞)
 function stripPasswords(posts) {
   return posts.map((post) => ({
     ...post,
-    password: undefined, // 비밀번호 제거
+    password: undefined, // 鍮꾨?踰덊샇 ?쒓굅
     comments: post.comments?.map((comment) => ({
       ...comment,
-      password: undefined, // 댓글 비밀번호 제거
+      password: undefined, // ?볤? 鍮꾨?踰덊샇 ?쒓굅
       replies: comment.replies?.map((reply) => ({
         ...reply,
-        password: undefined, // 답글 비밀번호 제거
+        password: undefined, // ?듦? 鍮꾨?踰덊샇 ?쒓굅
       })),
     })),
   }));
 }
 
-// 게시글 목록 조회
+// 寃뚯떆湲 紐⑸줉 議고쉶
 export async function GET() {
   try {
     const posts = await redis.get(POSTS_KEY);
-    // 비밀번호를 제거하고 반환
+    // 鍮꾨?踰덊샇瑜??쒓굅?섍퀬 諛섑솚
     const safePosts = stripPasswords(posts || []);
     return NextResponse.json({ posts: safePosts });
   } catch (error) {
@@ -80,10 +124,10 @@ export async function GET() {
   }
 }
 
-// 게시글 생성
+// 寃뚯떆湲 ?앹꽦
 export async function POST(request) {
   try {
-    // Rate Limiting 체크
+    // Rate Limiting 泥댄겕
     const ip = getClientIP(request);
     const { success, limit, remaining, reset } = await ratelimit.limit(ip);
 
@@ -107,7 +151,7 @@ export async function POST(request) {
     const body = await request.json();
     const { action, data } = body;
 
-    // 현재 게시글 가져오기
+    // ?꾩옱 寃뚯떆湲 媛?몄삤湲?
     let posts = (await redis.get(POSTS_KEY)) || [];
 
     switch (action) {
@@ -115,7 +159,7 @@ export async function POST(request) {
         const newPost = {
           id: Date.now(),
           author: "익명",
-          password: sanitizeInput(data.password, MAX_PASSWORD_LENGTH),
+          password: createStoredPassword(data.password),
           title: sanitizeInput(data.title, MAX_TITLE_LENGTH),
           content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
           date: data.date,
@@ -153,7 +197,7 @@ export async function POST(request) {
                 {
                   id: data.commentId,
                   author: "익명",
-                  password: sanitizeInput(data.password, MAX_PASSWORD_LENGTH),
+                  password: createStoredPassword(data.password),
                   content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
                   date: data.date,
                   replies: [],
@@ -201,7 +245,7 @@ export async function POST(request) {
               const newReply = {
                 id: data.replyId,
                 author: "익명",
-                password: sanitizeInput(data.password, MAX_PASSWORD_LENGTH),
+                password: createStoredPassword(data.password),
                 content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
                 date: data.date,
                 depth: data.depth || 0,
@@ -210,17 +254,17 @@ export async function POST(request) {
               let newReplies = [...(comment.replies || [])];
 
               if (!data.parentReplyId) {
-                // 댓글에 대한 답글은 맨 뒤에 추가
+                // ?볤???????듦?? 留??ㅼ뿉 異붽?
                 newReplies.push(newReply);
               } else {
-                // 답글에 대한 답글은 해당 답글 바로 뒤에 추가
+                // ?듦???????듦?? ?대떦 ?듦? 諛붾줈 ?ㅼ뿉 異붽?
                 const parentIndex = newReplies.findIndex(
                   (r) => r.id === data.parentReplyId
                 );
                 if (parentIndex !== -1) {
                   let insertIndex = parentIndex + 1;
                   const parentDepth = newReplies[parentIndex].depth || 0;
-                  // 부모 답글보다 깊이가 더 깊은 답글들 건너뜀
+                  // 遺紐??듦?蹂대떎 源딆씠媛 ??源딆? ?듦???嫄대꼫?
                   while (
                     insertIndex < newReplies.length &&
                     (newReplies[insertIndex].depth || 0) > parentDepth
@@ -273,7 +317,7 @@ export async function POST(request) {
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
-    // Redis에 저장
+    // Redis?????
     await redis.set(POSTS_KEY, posts);
 
     return NextResponse.json({ success: true, posts });
@@ -286,10 +330,30 @@ export async function POST(request) {
   }
 }
 
-// 비밀번호 검증
+// 鍮꾨?踰덊샇 寃利?
 export async function PUT(request) {
   try {
-    const { type, id, password, postId, commentId } = await request.json();
+    const ip = getClientIP(request);
+    const { success, limit, remaining, reset } = await verifyRatelimit.limit(ip);
+
+    if (!success) {
+      return NextResponse.json(
+        {
+          error: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.",
+          retryAfter: Math.ceil((reset - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": limit.toString(),
+            "X-RateLimit-Remaining": remaining.toString(),
+            "X-RateLimit-Reset": reset.toString(),
+          },
+        }
+      );
+    }
+
+    const { type, id, password } = await request.json();
 
     const posts = (await redis.get(POSTS_KEY)) || [];
 
@@ -322,11 +386,10 @@ export async function PUT(request) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
 
-    // 마스터 비밀번호 또는 원래 비밀번호로 검증
+    // 留덉뒪??鍮꾨?踰덊샇 ?먮뒗 ?먮옒/hashed 鍮꾨?踰덊샇濡?寃利?
     const masterPassword = process.env.MASTER_PASSWORD;
-    const isValid =
-      targetPassword === password ||
-      (masterPassword && password === masterPassword);
+    const isMasterValid = !!masterPassword && password === masterPassword;
+    const isValid = isMasterValid || verifyStoredPassword(targetPassword, password);
     return NextResponse.json({ valid: isValid });
   } catch (error) {
     console.error("Failed to verify password:", error);
@@ -336,3 +399,4 @@ export async function PUT(request) {
     );
   }
 }
+

@@ -68,13 +68,16 @@ export default function GemsPage() {
     };
 
     // 첫 정시에 실행 후, 이후 1시간마다 반복
+    let intervalId = null;
     const timeoutId = setTimeout(() => {
       fetchGems(true); // 강제 새로고침
-      const intervalId = setInterval(() => fetchGems(true), 60 * 60 * 1000);
-      return () => clearInterval(intervalId);
+      intervalId = setInterval(() => fetchGems(true), 60 * 60 * 1000);
     }, getTimeUntilNextHour());
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [fetchGems]);
 
   const chaosIcon = "/images/items/CurrencyRerollRare.webp";
@@ -84,7 +87,7 @@ export default function GemsPage() {
 
   return (
     <div className="gems-page-wrapper">
-      <div className="page-content">
+      <div className="page-content page-fade-in">
         <h1>보조 젬 시세</h1>
         <p className="price-update-notice">
           ※ 시세는 매 정시마다 자동 갱신됩니다
@@ -130,7 +133,13 @@ export default function GemsPage() {
                 </tr>
               ) : (
                 gems.map((gem, index) => (
-                  <tr key={gem.id || index}>
+                  <tr
+                    key={gem.id || index}
+                    className="stagger-fade-row"
+                    style={{
+                      "--stagger-delay": `${Math.min(index, 10) * 0.03}s`,
+                    }}
+                  >
                     <td className="icon-cell">
                       <img
                         src={gem.icon}

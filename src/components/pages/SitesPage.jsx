@@ -1,6 +1,7 @@
 import React from "react";
 import "../../styles/SitesPage.css";
 import { FaExternalLinkAlt } from "react-icons/fa";
+import Image from "next/image";
 
 const SITES = [
 
@@ -64,20 +65,30 @@ const SITES = [
     description: "위키",
     icon: "https://www.google.com/s2/favicons?sz=64&domain_url=https://www.poewiki.net/wiki/Path_of_Exile_Wiki",
   },
+    {
+    label: "Cthugha Item Filter",
+    url: "https://poe.game.daum.net/account/view-profile/Liranple-6584/item-filters",
+    description: "Cthugha 아이템 필터",
+    icon: "/images/ui/cthugha.png",
+  },
 ];
 
 export default function SitesPage() {
   return (
     <div className="sites-page-wrapper">
-      <div className="page-content">
+      <div className="page-content page-fade-in">
         <h1>주요 사이트</h1>
         <p className="page-note">
           자주 참고하는 외부 사이트입니다. 항목을 클릭하면 새 탭으로 열립니다.
         </p>
 
-        <ul className="sites-list">
-          {SITES.map((s) => (
-            <li key={s.url} className="site-item">
+        <ul className="sites-list stagger-fade-list">
+          {SITES.map((s, index) => (
+            <li
+              key={s.url}
+              className="site-item stagger-fade-item"
+              style={{ "--stagger-delay": `${Math.min(index, 10) * 0.03}s` }}
+            >
               <a
                 className="site-link"
                 href={s.url}
@@ -85,7 +96,9 @@ export default function SitesPage() {
                 rel="noopener noreferrer"
               >
                 <div className="site-icon-wrap">
-                  <img
+                  <Image
+                    width={32}
+                    height={32}
                     className="site-icon"
                     src={s.icon}
                     alt={`${s.label} favicon`}

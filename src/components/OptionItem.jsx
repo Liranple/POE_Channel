@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { memo, useMemo } from "react";
 import useHoldDelete from "../hooks/useHoldDelete";
 import { JEWEL_TYPE_MAP } from "../data/JewelData";

@@ -1,6 +1,7 @@
-import React, { useRef, useLayoutEffect, memo } from "react";
+import { useRef, useLayoutEffect, memo } from "react";
 /* eslint-disable @next/next/no-img-element */
 import "../styles/DivinationCard.css";
+import { parseColoredTaggedText } from "../utils/parseColoredTaggedText";
 
 const DivinationCard = memo(function DivinationCard({ cardData, artUrl }) {
   const flavorRef = useRef(null);
@@ -29,48 +30,6 @@ const DivinationCard = memo(function DivinationCard({ cardData, artUrl }) {
 
   const { name, reward, cardReward, stackSize } = cardData;
   const displayReward = cardReward || reward;
-
-  // Helper to parse custom tags in reward string
-  const parseRewardText = (text) => {
-    if (typeof text !== "string") return text;
-
-    // Split by tags <grey>, <white>, <unique>, <blue>, <red> (allowing newlines inside) or newlines outside
-    const parts = text.split(
-      /(<(?:grey|white|unique|blue|red)>[\s\S]*?<\/(?:grey|white|unique|blue|red)>|\n)/g
-    );
-
-    return parts.map((part, index) => {
-      if (part === "\n") return <br key={index} />;
-
-      const match = part.match(
-        /<(grey|white|unique|blue|red)>([\s\S]*?)<\/\1>/
-      );
-      if (match) {
-        const [_, colorType, content] = match;
-        const colors = {
-          grey: "#7f7f7f",
-          white: "#c8c8c8",
-          unique: "#af6025",
-          blue: "#8888ff",
-          red: "#d20000",
-        };
-        // Handle newlines inside the tag content
-        const contentParts = content.split("\n").map((line, i, arr) => (
-          <React.Fragment key={i}>
-            {line}
-            {i < arr.length - 1 && <br />}
-          </React.Fragment>
-        ));
-
-        return (
-          <span key={index} style={{ color: colors[colorType] }}>
-            {contentParts}
-          </span>
-        );
-      }
-      return part;
-    });
-  };
 
   // Determine reward type color
   let rewardClass = "currency"; // Default to currency (includes Mirror of Kalandra)
@@ -140,8 +99,8 @@ const DivinationCard = memo(function DivinationCard({ cardData, artUrl }) {
                   {part.text}
                 </span>
               ))
-            : parseRewardText(displayReward)}
-        </div>
+            : parseColoredTaggedText(displayReward)}
+          </div>
       </div>
 
       {/* Separator */}

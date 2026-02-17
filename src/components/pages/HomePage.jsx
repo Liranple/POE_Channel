@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { NOTICES } from "../../config/notices";
 import { LEAGUE_INFO } from "../../config/league";
 import "../../styles/HomePage.css";
@@ -21,6 +22,7 @@ export default function HomePage() {
 
   // 공지사항 모달 상태
   const [selectedNotice, setSelectedNotice] = useState(null);
+  const [isMounted, setIsMounted] = useState(false);
   const mouseDownInsideRef = useRef(false);
 
   // 아이템 시세 상태
@@ -30,6 +32,10 @@ export default function HomePage() {
 
   // Divine 아이콘 (로컬 이미지)
   const divineIcon = "/images/items/CurrencyModValues.webp";
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // ==================== 리그 경과 시간 계산 ====================
   useEffect(() => {
@@ -104,13 +110,16 @@ export default function HomePage() {
       return nextHour.getTime() - now.getTime();
     };
 
+    let intervalId = null;
     const timeoutId = setTimeout(() => {
       fetchItems(true);
-      const intervalId = setInterval(() => fetchItems(true), 60 * 60 * 1000);
-      return () => clearInterval(intervalId);
+      intervalId = setInterval(() => fetchItems(true), 60 * 60 * 1000);
     }, getTimeUntilNextHour());
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [fetchItems]);
 
   // ==================== 공지사항 모달 핸들러 ====================
@@ -152,156 +161,167 @@ export default function HomePage() {
     return `${Y}-${M}-${D}  ${h}:${m}`;
   };
 
-  return (
-    <div className="home-page-wrapper">
-      {/* ==================== 로고 섹션 ==================== */}
-      <section className="logo-section">
-        <div className="logo-content">
-          <img
-            src="/images/ui/Logo.png"
-            alt="POE Channel Logo"
-            className="main-logo"
-          />
-          <h1 className="site-title">POE Channel</h1>
-          <p className="site-tagline">Your Ultimate Path of Exile Companion</p>
-        </div>
-      </section>
-
-      {/* ==================== 리그 타이머 ==================== */}
-      <section
-        className="league-timer-section"
-        style={{ position: "relative" }}
-      >
-        <span
-          style={{
-            position: "absolute",
-            left: 18,
-            top: 16,
-            fontSize: 16,
-            opacity: 0.85,
-          }}
-        >
-          3.27
-        </span>
-        <h1 className="league-name">{LEAGUE_INFO.name}</h1>
-        <p className="league-start-info">
-          {LEAGUE_INFO.nameKo} · 시작 : {formatStartDate(LEAGUE_INFO.startDate)}
-        </p>
-        <div className="league-elapsed">
-          <div className="time-block">
-            <span className="time-value">
-              {String(elapsed.days).padStart(2, "0")}
-            </span>
-            <span className="time-label">Days</span>
-          </div>
-          <span className="time-separator">:</span>
-          <div className="time-block">
-            <span className="time-value">
-              {String(elapsed.hours).padStart(2, "0")}
-            </span>
-            <span className="time-label">Hours</span>
-          </div>
-          <span className="time-separator">:</span>
-          <div className="time-block">
-            <span className="time-value">
-              {String(elapsed.minutes).padStart(2, "0")}
-            </span>
-            <span className="time-label">Minutes</span>
-          </div>
-          <span className="time-separator">:</span>
-          <div className="time-block">
-            <span className="time-value">
-              {String(elapsed.seconds).padStart(2, "0")}
-            </span>
-            <span className="time-label">Seconds</span>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== 이벤트 리그 (토글 가능) ==================== */}
-      <EventLeague />
-
-      {/* ==================== 공지사항 ==================== */}
-      <section className="notices-section">
-        <div className="section-header">
-          <h2 className="section-title">공지사항</h2>
-        </div>
-        <div className="notices-list">
-          {recentNotices.length > 0 ? (
-            recentNotices.map((notice) => (
-              <div
-                key={notice.id}
-                className="notice-item"
-                onClick={() => handleNoticeClick(notice)}
-              >
-                <span className="notice-title">{notice.title}</span>
-                <span className="notice-date">{notice.date}</span>
-              </div>
-            ))
-          ) : (
-            <div className="no-notices">등록된 공지사항이 없습니다</div>
-          )}
-        </div>
-      </section>
-
-      {/* ==================== 아이템 시세 ==================== */}
-      <section className="items-section">
-        <div className="section-header">
-          <h2 className="section-title">주요 아이템 시세</h2>
-        </div>
-
-        {itemsLoading ? (
-          <div className="items-loading">로딩 중...</div>
-        ) : itemsError ? (
-          <div className="items-error">⚠️ 시세 정보를 불러오지 못했습니다</div>
-        ) : (
-          <div className="items-grid">
-            {items.map((item) => (
-              <div key={item.name} className="item-widget">
-                <div className="item-icon-wrapper">
-                  <img
-                    src={`/images/items/${item.icon}`}
-                    alt={item.nameKo}
-                    className="item-icon"
-                  />
+  const noticeModal =
+    selectedNotice && isMounted
+      ? createPortal(
+          <div
+            className="notice-modal-overlay"
+            onMouseDown={handleOverlayMouseDown}
+            onMouseUp={handleOverlayMouseUp}
+          >
+            <div className="notice-modal">
+              <div className="notice-modal-header">
+                <div>
+                  <h3 className="notice-modal-title">{selectedNotice.title}</h3>
+                  <span className="notice-modal-date">{selectedNotice.date}</span>
                 </div>
-                <div className="item-info">
-                  <div className="item-name">{item.nameKo}</div>
-                  <div className="item-price">
-                    {item.divineValue >= 1
-                      ? item.divineValue.toFixed(1)
-                      : `${Math.round(item.chaosValue)}c`}
-                    {item.divineValue >= 1 && (
-                      <img src={divineIcon} alt="div" className="divine-icon" />
-                    )}
+              </div>
+              <div className="notice-modal-content">
+                <div className="notice-body">{selectedNotice.content}</div>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
+
+  return (
+    <>
+      <div className="home-page-wrapper page-fade-in">
+        {/* ==================== 로고 섹션 ==================== */}
+        <section className="logo-section">
+          <div className="logo-content">
+            <img
+              src="/images/ui/Logo.png"
+              alt="POE Channel Logo"
+              className="main-logo"
+            />
+            <h1 className="site-title">POE Channel</h1>
+            <p className="site-tagline">Your Ultimate Path of Exile Companion</p>
+          </div>
+        </section>
+
+        {/* ==================== 리그 타이머 ==================== */}
+        <section
+          className="league-timer-section"
+          style={{ position: "relative" }}
+        >
+          <span
+            style={{
+              position: "absolute",
+              left: 18,
+              top: 16,
+              fontSize: 16,
+              opacity: 0.85,
+            }}
+          >
+            3.27
+          </span>
+          <h1 className="league-name">{LEAGUE_INFO.name}</h1>
+          <p className="league-start-info">
+            {LEAGUE_INFO.nameKo} · 시작 : {formatStartDate(LEAGUE_INFO.startDate)}
+          </p>
+          <div className="league-elapsed">
+            <div className="time-block">
+              <span className="time-value">
+                {String(elapsed.days).padStart(2, "0")}
+              </span>
+              <span className="time-label">Days</span>
+            </div>
+            <span className="time-separator">:</span>
+            <div className="time-block">
+              <span className="time-value">
+                {String(elapsed.hours).padStart(2, "0")}
+              </span>
+              <span className="time-label">Hours</span>
+            </div>
+            <span className="time-separator">:</span>
+            <div className="time-block">
+              <span className="time-value">
+                {String(elapsed.minutes).padStart(2, "0")}
+              </span>
+              <span className="time-label">Minutes</span>
+            </div>
+            <span className="time-separator">:</span>
+            <div className="time-block">
+              <span className="time-value">
+                {String(elapsed.seconds).padStart(2, "0")}
+              </span>
+              <span className="time-label">Seconds</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ==================== 이벤트 리그 (토글 가능) ==================== */}
+        <EventLeague />
+
+        {/* ==================== 공지사항 ==================== */}
+        <section className="notices-section">
+          <div className="section-header">
+            <h2 className="section-title">공지사항</h2>
+          </div>
+          <div className="notices-list stagger-fade-list">
+            {recentNotices.length > 0 ? (
+              recentNotices.map((notice, index) => (
+                <div
+                  key={notice.id}
+                  className="notice-item stagger-fade-item"
+                  style={{ "--stagger-delay": `${Math.min(index, 10) * 0.03}s` }}
+                  onClick={() => handleNoticeClick(notice)}
+                >
+                  <span className="notice-title">{notice.title}</span>
+                  <span className="notice-date">{notice.date}</span>
+                </div>
+              ))
+            ) : (
+              <div className="no-notices">등록된 공지사항이 없습니다</div>
+            )}
+          </div>
+        </section>
+
+        {/* ==================== 아이템 시세 ==================== */}
+        <section className="items-section">
+          <div className="section-header">
+            <h2 className="section-title">주요 아이템 시세</h2>
+          </div>
+
+          {itemsLoading ? (
+            <div className="items-loading">로딩 중...</div>
+          ) : itemsError ? (
+            <div className="items-error">⚠️ 시세 정보를 불러오지 못했습니다</div>
+          ) : (
+            <div className="items-grid stagger-fade-list">
+              {items.map((item, index) => (
+                <div
+                  key={item.name}
+                  className="item-widget stagger-fade-item"
+                  style={{ "--stagger-delay": `${Math.min(index, 10) * 0.03}s` }}
+                >
+                  <div className="item-icon-wrapper">
+                    <img
+                      src={`/images/items/${item.icon}`}
+                      alt={item.nameKo}
+                      className="item-icon"
+                    />
+                  </div>
+                  <div className="item-info">
+                    <div className="item-name">{item.nameKo}</div>
+                    <div className="item-price">
+                      {item.divineValue >= 1
+                        ? item.divineValue.toFixed(1)
+                        : `${Math.round(item.chaosValue)}c`}
+                      {item.divineValue >= 1 && (
+                        <img src={divineIcon} alt="div" className="divine-icon" />
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* ==================== 공지사항 모달 ==================== */}
-      {selectedNotice && (
-        <div
-          className="notice-modal-overlay"
-          onMouseDown={handleOverlayMouseDown}
-          onMouseUp={handleOverlayMouseUp}
-        >
-          <div className="notice-modal">
-            <div className="notice-modal-header">
-              <div>
-                <h3 className="notice-modal-title">{selectedNotice.title}</h3>
-                <span className="notice-modal-date">{selectedNotice.date}</span>
-              </div>
+              ))}
             </div>
-            <div className="notice-modal-content">
-              <div className="notice-body">{selectedNotice.content}</div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+          )}
+        </section>
+      </div>
+      {noticeModal}
+    </>
   );
 }

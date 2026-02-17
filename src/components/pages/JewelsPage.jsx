@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
 import {
@@ -323,7 +324,7 @@ export default function JewelsPage() {
   return (
     <div className="jewels-page-wrapper">
       <div className="sticky-top-area">
-        <div className="wrap" style={{ paddingBottom: 0 }}>
+        <div className="wrap page-fade-in" style={{ paddingBottom: 0 }}>
           <header>
             <h1>주얼 정규식 빌더</h1>
             <div className="admin-container" style={{ position: "relative" }}>
@@ -439,7 +440,7 @@ export default function JewelsPage() {
         </div>
       </div>
 
-      <div className="wrap">
+      <div className="wrap page-fade-in">
         <div
           className={`page-layout jewels-page ${adminMode ? "admin-mode" : ""}`}
         >

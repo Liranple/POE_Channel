@@ -8,18 +8,16 @@ import {
   getLatestHistory,
   fetchWithRetry,
 } from "@/lib/priceHistory";
+import {
+  POE_NINJA_BASE_URL,
+  POE_NINJA_REQUEST_OPTIONS,
+  getCurrentHourTimestamp,
+} from "@/lib/poeNinja";
 
 // 캐시된 데이터와 타임스탬프를 저장
 let cachedData = null;
 let cachedTimestamp = null;
 
-// 현재 정시 timestamp 계산
-function getCurrentHourTimestamp() {
-  const now = new Date();
-  const currentHour = new Date(now);
-  currentHour.setMinutes(0, 0, 0); // 현재 정시로 설정
-  return currentHour.getTime();
-}
 
 export async function GET() {
   try {
@@ -40,17 +38,14 @@ export async function GET() {
       });
     }
 
-    const url = `https://poe.ninja/poe1/api/economy/stash/current/item/overview?league=${CURRENT_LEAGUE}&type=SkillGem`;
+    const url = `${POE_NINJA_BASE_URL}/stash/current/item/overview?league=${CURRENT_LEAGUE}&type=SkillGem`;
 
     let data;
     let fetchSuccess = false;
 
     try {
       // 리트라이가 포함된 fetch
-      const response = await fetchWithRetry(url, {
-        headers: { "User-Agent": "POE-Channel/1.0" },
-        next: { revalidate: 3600 },
-      });
+      const response = await fetchWithRetry(url, POE_NINJA_REQUEST_OPTIONS);
 
       data = await response.json();
       fetchSuccess = true;

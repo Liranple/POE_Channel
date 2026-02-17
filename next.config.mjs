@@ -4,6 +4,18 @@ const nextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30일 캐시
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "www.google.com",
+        pathname: "/s2/favicons/**",
+      },
+      {
+        protocol: "https",
+        hostname: "vilsol.github.io",
+        pathname: "/timeless-jewels/**",
+      },
+    ],
   },
 
   // 프로덕션 빌드 최적화

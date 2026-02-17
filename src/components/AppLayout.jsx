@@ -22,6 +22,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import Sidebar from "./Sidebar";
 import { loadTheme, saveTheme } from "../utils/optionStorage";
 import { APP_VERSION } from "../config/league";
+import { EVENTS } from "../data/DropsData";
 
 // 로딩 스피너 컴포넌트
 const PageLoader = () => (
@@ -100,6 +101,25 @@ const TABS = [
 const emptySubscribe = () => () => {};
 const getSnapshot = () => true;
 const getServerSnapshot = () => false;
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+function getDropsSidebarStatus(nowTimestamp) {
+  for (const event of EVENTS) {
+    for (const group of event.groups) {
+      const start = new Date(group.start).getTime();
+      const end = new Date(group.end).getTime();
+
+      if (Number.isNaN(start) || Number.isNaN(end)) continue;
+      if (nowTimestamp < start || nowTimestamp > end) continue;
+
+      const remaining = end - nowTimestamp;
+      if (remaining > 0 && remaining < ONE_DAY_MS) return "urgent";
+      return "new";
+    }
+  }
+
+  return null;
+}
 
 export default function AppLayout() {
   // 클라이언트에서 sessionStorage에서 탭 복원 (지연 초기화)
@@ -124,6 +144,8 @@ export default function AppLayout() {
     }
     return "dark";
   });
+  const [dropsNow, setDropsNow] = useState(() => Date.now());
+  const [pageAnimReady, setPageAnimReady] = useState(false);
 
   // 테마 클래스 적용
   useEffect(() => {
@@ -134,6 +156,31 @@ export default function AppLayout() {
     }
   }, [theme]);
 
+  useEffect(() => {
+    const id = setInterval(() => setDropsNow(Date.now()), 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    let raf1 = 0;
+    let raf2 = 0;
+    let timeoutId = 0;
+
+    raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => {
+        timeoutId = window.setTimeout(() => {
+          setPageAnimReady(true);
+        }, 20);
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(raf1);
+      window.cancelAnimationFrame(raf2);
+      window.clearTimeout(timeoutId);
+    };
+  }, [activeTab]);
+
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
       const newTheme = prev === "dark" ? "light" : "dark";
@@ -143,9 +190,16 @@ export default function AppLayout() {
   }, []);
 
   const handleTabChange = useCallback((tabId) => {
+    if (tabId === activeTab) return;
+    setPageAnimReady(false);
     setActiveTab(tabId);
     sessionStorage.setItem("activeTab", tabId);
-  }, []);
+  }, [activeTab]);
+
+  const dropsSidebarStatus = useMemo(
+    () => getDropsSidebarStatus(dropsNow),
+    [dropsNow]
+  );
 
   const content = useMemo(() => {
     let pageComponent;
@@ -203,11 +257,12 @@ export default function AppLayout() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         tabs={TABS}
+        dropsSidebarStatus={dropsSidebarStatus}
         theme={theme}
         toggleTheme={toggleTheme}
       />
       <main
-        className="main-content"
+        className={`main-content ${pageAnimReady ? "page-anim-ready" : "page-anim-pending"}`}
         style={{
           flex: 1,
           overflowY: "auto",

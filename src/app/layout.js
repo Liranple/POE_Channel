@@ -3,6 +3,7 @@ import "../styles/variables.css";
 import "./globals.css";
 import "../styles/FlaskPage.css";
 import "../styles/JewelsPage.css";
+import { OPTION_STORAGE_KEYS } from "../utils/optionStorage";
 
 // 폰트 최적화 - 로컬 호스팅 & 프리로드
 const notoSansKr = Noto_Sans_KR({
@@ -27,11 +28,13 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const themeStorageKey = OPTION_STORAGE_KEYS.theme;
+
   // 테마 초기화 스크립트 - HTML 파싱 시점에 즉시 실행하여 깜빡임 방지
   const themeInitScript = `
     (function() {
       try {
-        var theme = localStorage.getItem('poe-channel-theme');
+        var theme = localStorage.getItem('${themeStorageKey}') || localStorage.getItem('poe-channel-theme');
         if (theme === 'light') {
           document.documentElement.classList.add('theme-light');
         }

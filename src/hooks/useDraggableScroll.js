@@ -1,4 +1,4 @@
-import { useRef, useCallback, useMemo } from "react";
+import { useRef, useCallback, useMemo, useEffect } from "react";
 
 // 정적 스타일 객체 - 컴포넌트 외부에 선언하여 재생성 방지
 const scrollStyle = {
@@ -15,7 +15,10 @@ export default function useDraggableScroll(enabled = true) {
   const scrollLeft = useRef(0);
   const scrollTop = useRef(0);
   const enabledRef = useRef(enabled);
-  enabledRef.current = enabled;
+
+  useEffect(() => {
+    enabledRef.current = enabled;
+  }, [enabled]);
 
   const hasDragged = useRef(false);
 

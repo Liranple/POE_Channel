@@ -22,6 +22,8 @@ export const OPTION_STORAGE_KEYS = {
   theme: "poe_theme",
 };
 
+const LEGACY_THEME_KEYS = ["poe-channel-theme"];
+
 /**
  * 저장되는 변경분 구조:
  * {
@@ -228,7 +230,18 @@ export const updateOrder = (changes, newOrder) => {
 export const loadTheme = () => {
   if (typeof window === "undefined") return "dark";
   try {
-    return localStorage.getItem(OPTION_STORAGE_KEYS.theme) || "dark";
+    const savedTheme = localStorage.getItem(OPTION_STORAGE_KEYS.theme);
+    if (savedTheme) return savedTheme;
+
+    for (const legacyKey of LEGACY_THEME_KEYS) {
+      const legacyTheme = localStorage.getItem(legacyKey);
+      if (legacyTheme) {
+        localStorage.setItem(OPTION_STORAGE_KEYS.theme, legacyTheme);
+        return legacyTheme;
+      }
+    }
+
+    return "dark";
   } catch (e) {
     return "dark";
   }
@@ -241,6 +254,7 @@ export const saveTheme = (theme) => {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(OPTION_STORAGE_KEYS.theme, theme);
+    LEGACY_THEME_KEYS.forEach((key) => localStorage.removeItem(key));
   } catch (e) {
     console.error("Failed to save theme:", e);
   }

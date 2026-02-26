@@ -3,7 +3,34 @@ const poe2 = "https://www.twitch.tv/directory/category/path-of-exile-2";
 const TGA = "https://www.twitch.tv/directory/category/the-game-awards";
 const live = "https://www.twitch.tv/pathofexile";
 
+// 임시이미지 >> /images/drops/Twitch.png
+
+// Drops page stagger animation settings (only affects DropsPage)
+export const DROPS_PAGE_ANIMATION = {
+  STAGGER_STEP_SECONDS: 0.05,
+  STAGGER_MAX_INDEX: 10,
+  ITEM_DURATION_SECONDS: 0.3,
+};
+
 export const EVENTS = [
+   {
+    title: "허상 Live Stream",
+    period: { start: "2026-02-27T04:00:00", end: "2026-02-28T04:00:00" },
+    groups: [
+      {
+        items: [
+          {
+            img: "/images/drops/Twitch.png",
+            name: "허상 무기 이펙트",
+          },
+        ],
+        start: "2026-02-27T04:00:00",
+        end: "2026-02-28T04:00:00",
+        watchingText: "45 minute",
+        url: live,
+      },
+    ],
+  },
   {
     title: "최후의 드루이드 Launch",
     period: { start: "2025-12-13T04:00:00", end: "2025-12-28T19:00:00" },

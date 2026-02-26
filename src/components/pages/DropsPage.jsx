@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/DropsPage.css";
 import { FaExternalLinkAlt } from "react-icons/fa";
-import { EVENTS } from "../../data/DropsData";
+import { EVENTS, DROPS_PAGE_ANIMATION } from "../../data/DropsData";
 import Image from "next/image";
 
 function pad(n) {
@@ -28,6 +28,9 @@ function formatDateOnly(d) {
 
 export default function DropsPage() {
   const [now, setNow] = useState(() => new Date());
+  const dropsAnimationStyle = {
+    "--drops-item-duration": `${DROPS_PAGE_ANIMATION.ITEM_DURATION_SECONDS}s`,
+  };
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
@@ -35,7 +38,7 @@ export default function DropsPage() {
   }, []);
 
   return (
-    <div className="drops-page-wrapper">
+    <div className="drops-page-wrapper" style={dropsAnimationStyle}>
       <div className="page-content page-fade-in">
         <h1>드롭스 정보</h1>
         <p className="page-note">
@@ -46,7 +49,9 @@ export default function DropsPage() {
           {EVENTS.map((ev, index) => (
             <section
               className="event-block stagger-fade-item"
-              style={{ "--stagger-delay": `${Math.min(index, 10) * 0.03}s` }}
+              style={{
+                "--stagger-delay": `${Math.min(index, DROPS_PAGE_ANIMATION.STAGGER_MAX_INDEX) * DROPS_PAGE_ANIMATION.STAGGER_STEP_SECONDS}s`,
+              }}
               key={ev.title}
             >
               <div className="event-header">

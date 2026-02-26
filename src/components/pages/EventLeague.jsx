@@ -1,18 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { ENABLE_EVENT_DISPLAY } from "../../config/league";
+import { EVENT } from "../../config/league";
 
-// 이벤트 표시 토글 (웹에서 조작하지 않습니다)
-// 파일을 열어 아래 값을 true 또는 false로 변경하면
-// 메인 페이지에서 이벤트 레이아웃을 표시/미표시 할 수 있습니다.
-// 예: const ENABLE_EVENT_DISPLAY = true
-const ENABLE_EVENT_DISPLAY = true; // <- 여기 true/false 변경
+// 이벤트 표시 토글은 src/config/league.js의 ENABLE_EVENT_DISPLAY로 관리합니다.
 
-const EVENT = {
-  name: "Legacy of Phrecia",
-  nameKo: "프레시아의 유산",
-  start: new Date("2026-01-30T06:00:00"),
-  end: new Date("2026-02-20T06:00:00"),
-};
+
 
 function pad2(n) {
   return String(n).padStart(2, "0");
@@ -39,7 +32,7 @@ export default function EventLeague() {
     return () => clearInterval(id);
   }, []);
 
-  // 파일 상단의 `ENABLE_EVENT_DISPLAY` 값으로만 표시 제어
+  // league.js의 ENABLE_EVENT_DISPLAY 값으로 표시 제어
   if (!ENABLE_EVENT_DISPLAY) return null;
 
   const start = EVENT.start;

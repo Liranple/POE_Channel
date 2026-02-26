@@ -33,6 +33,17 @@
 // 예: "Keepers", "Settlers", "Necropolis" 등
 export const CURRENT_LEAGUE = "Phrecia+2.0";
 
+// EventLeague display toggle on HomePage
+// true: show, false: hide
+export const ENABLE_EVENT_DISPLAY = false;
+
+export const EVENT = {
+  name: "Legacy of Phrecia",
+  nameKo: "프레시아의 유산",
+  start: new Date("2026-01-30T06:00:00"),
+  end: new Date("2026-02-20T06:00:00"),
+};
+
 // 메인 페이지에 표시되는 리그 정보
 export const LEAGUE_INFO = {
   // 영문 리그명 (전체)

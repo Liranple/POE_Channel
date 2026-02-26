@@ -5,6 +5,11 @@
   padding: 20px;
 }
 
+/* DropsPage-only override for global stagger item duration */
+.main-content.page-anim-ready .drops-page-wrapper .stagger-fade-item {
+  animation-duration: var(--drops-item-duration, 0.3s);
+}
+
 .drops-page-wrapper .page-content h1 {
   font-size: 32px;
   font-weight: 800;

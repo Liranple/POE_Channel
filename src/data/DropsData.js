@@ -12,14 +12,14 @@ export const DROPS_PAGE_ANIMATION = {
 };
 
 export const EVENTS = [
-   {
+  {
     title: "허상 Live Stream",
     period: { start: "2026-02-27T04:00:00", end: "2026-02-28T04:00:00" },
     groups: [
       {
         items: [
           {
-            img: "/images/drops/Twitch.png",
+            img: "/images/drops/MirageWeaponEffect.png",
             name: "허상 무기 이펙트",
           },
         ],

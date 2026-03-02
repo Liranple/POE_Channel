@@ -140,12 +140,6 @@ export default function DiscussionPage() {
       return;
     }
 
-    // If we are editing ANY item and click another comment/reply, cancel the edit
-    if (editingItem) {
-      setEditingItem(null);
-      // Continue to process the click (open reply form)
-    }
-
     // If password input is open, do not process this click at all
     // (clicking on comment area should not close password input - it's handled by global click)
     if (deleteTarget || editTarget) {
@@ -238,7 +232,7 @@ export default function DiscussionPage() {
 
         // Check save button for comment/reply edit
         if (editingItem.type === "comment" || editingItem.type === "reply") {
-          if (target.closest(".save-comment-btn")) return true;
+          if (target.closest(".save-comment-btn") || target.closest(".cancel-comment-btn")) return true;
         }
       }
 
@@ -288,7 +282,6 @@ export default function DiscussionPage() {
           });
           setActiveReply(null);
         }
-        if (editingItem && !editTarget) setEditingItem(null);
       }
     }
 
@@ -935,6 +928,25 @@ export default function DiscussionPage() {
                             >
                               저장
                             </button>
+                            <button
+                              onClick={handleEditCancel}
+                              style={{
+                                background: "#ff4d4d",
+                                color: "white",
+                                border: "none",
+                                padding: "0 10px",
+                                borderRadius: "4px",
+                                cursor: "pointer",
+                                fontSize: "13px",
+                                height: "28px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                order: -1,
+                              }}
+                            >
+                              {"\uCDE8\uC18C"}
+                            </button>
                           </>
                         ) : (
                           <>
@@ -1122,6 +1134,7 @@ export default function DiscussionPage() {
                               <div className="comment-meta">
                                 {editingItem?.type === "comment" &&
                                 editingItem?.id === comment.id ? (
+                                  <>
                                   <button
                                     className="save-comment-btn"
                                     onClick={(e) => {
@@ -1157,6 +1170,30 @@ export default function DiscussionPage() {
                                   >
                                     저장
                                   </button>
+                                  <button
+                                    className="cancel-comment-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditCancel();
+                                    }}
+                                    style={{
+                                      background: "#ff4d4d",
+                                      color: "white",
+                                      border: "none",
+                                      padding: "0 10px",
+                                      borderRadius: "4px",
+                                      cursor: "pointer",
+                                      fontSize: "13px",
+                                      height: "30px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      order: -1,
+                                    }}
+                                  >
+                                    {"\uCDE8\uC18C"}
+                                  </button>
+                                  </>
                                 ) : (
                                   <>
                                     {!(
@@ -1502,6 +1539,7 @@ export default function DiscussionPage() {
                                           >
                                             {editingItem?.type === "reply" &&
                                             editingItem?.id === reply.id ? (
+                                              <>
                                               <button
                                                 className="save-comment-btn"
                                                 onClick={(e) => {
@@ -1537,6 +1575,30 @@ export default function DiscussionPage() {
                                               >
                                                 저장
                                               </button>
+                                              <button
+                                                className="cancel-comment-btn"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleEditCancel();
+                                                }}
+                                                style={{
+                                                  background: "#ff4d4d",
+                                                  color: "white",
+                                                  border: "none",
+                                                  padding: "0 10px",
+                                                  borderRadius: "4px",
+                                                  cursor: "pointer",
+                                                  fontSize: "13px",
+                                                  height: "30px",
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  justifyContent: "center",
+                                                  order: -1,
+                                                }}
+                                              >
+                                                {"\uCDE8\uC18C"}
+                                              </button>
+                                              </>
                                             ) : (
                                               <>
                                                 {!(

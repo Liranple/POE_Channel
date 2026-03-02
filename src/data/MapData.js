@@ -93,73 +93,74 @@ export const DEFAULT_PREFIX_DATA = [
   {
     id: 14,
     affix: "prefix",
-    optionText: "10초 마다 3초 동안 피해를 주지 않음",
-    filterRegex: "3초",
-    type: "Uber",
-  },
-  {
-    id: 15,
-    affix: "prefix",
     optionText: "공격 피해 막기 확률 증가",
     filterRegex: "해.막",
     type: "Uber",
   },
   {
-    id: 16,
+    id: 15,
     affix: "prefix",
     optionText: "폭발성 중심부 보유",
     filterRegex: "폭발",
     type: "Uber",
   },
   {
-    id: 17,
+    id: 16,
     affix: "prefix",
     optionText: "피얼룩 톱날에 습격당함",
     filterRegex: "톱날",
     type: "Uber",
   },
   {
-    id: 18,
+    id: 17,
     affix: "prefix",
     optionText: "질식의 구체 등장",
     filterRegex: "질식",
     type: "Uber",
   },
-  {
-    id: 19,
-    affix: "prefix",
-    optionText: "10초 동안 죽음의 징표 획득",
-    filterRegex: "징표",
-    type: "Uber",
-  },
-  {
-    id: 20,
+    {
+    id: 18,
     affix: "prefix",
     optionText: "쉐이퍼의 손길에 닿음",
     filterRegex: "손길",
     type: "Uber",
   },
-  {
-    id: 21,
-    affix: "prefix",
-    optionText: "지뢰, 덫 1개 덜 투척",
-    filterRegex: "투척",
-    type: "Uber",
-  },
-  {
-    id: 22,
+    {
+    id: 19,
     affix: "prefix",
     optionText: "결합 보스 대동",
     filterRegex: "결합",
     type: "Uber",
   },
   {
-    id: 23,
+    id: 20,
     affix: "prefix",
     optionText: "작열의 총주교의 룬 등장",
     filterRegex: "룬",
     type: "Uber",
   },
+    // {
+  //   id: ,
+  //   affix: "prefix",
+  //   optionText: "10초 마다 3초 동안 피해를 주지 않음",
+  //   filterRegex: "3초",
+  //   type: "Uber",
+  // },
+  // {
+  //   id: ,
+  //   affix: "prefix",
+  //   optionText: "10초 동안 죽음의 징표 획득",
+  //   filterRegex: "징표",
+  //   type: "Uber",
+  // },
+  // {
+  //   id: ,
+  //   affix: "prefix",
+  //   optionText: "지뢰, 덫 1개 덜 투척",
+  //   filterRegex: "투척",
+  //   type: "Uber",
+  // },
+
 ];
 
 export const DEFAULT_SUFFIX_DATA = [
@@ -317,39 +318,41 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "유성",
     type: "Uber",
   },
-  {
+    {
     id: 23,
-    affix: "suffix",
-    optionText: "스킬 사용 1회당 동작 속도 감소",
-    filterRegex: "1회",
-    type: "Uber",
-  },
-  {
-    id: 24,
     affix: "suffix",
     optionText: "불안정한 촉수 마귀 등장",
     filterRegex: "촉수",
     type: "Uber",
   },
-  {
-    id: 25,
-    affix: "suffix",
-    optionText: "각성자의 비애 지대 존재",
-    filterRegex: "비애",
-    type: "Uber",
-  },
-  {
-    id: 26,
-    affix: "suffix",
-    optionText: "소환수의 공격, 시전, 이동 속도 감폭",
-    filterRegex: "의.소",
-    type: "Uber",
-  },
-  {
-    id: 27,
+    {
+    id: 24,
     affix: "suffix",
     optionText: "메이븐이 방해함",
     filterRegex: "메이",
     type: "Uber",
   },
+  // {
+  //   id: ,
+  //   affix: "suffix",
+  //   optionText: "스킬 사용 1회당 동작 속도 감소",
+  //   filterRegex: "1회",
+  //   type: "Uber",
+  // },
+
+  // {
+  //   id: ,
+  //   affix: "suffix",
+  //   optionText: "각성자의 비애 지대 존재",
+  //   filterRegex: "비애",
+  //   type: "Uber",
+  // },
+  // {
+  //   id: ,
+  //   affix: "suffix",
+  //   optionText: "소환수의 공격, 시전, 이동 속도 감폭",
+  //   filterRegex: "의.소",
+  //   type: "Uber",
+  // },
+
 ];

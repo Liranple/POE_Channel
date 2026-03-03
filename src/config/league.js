@@ -29,9 +29,11 @@
  * ----------------------------------------
  */
 
+import { version } from "react";
+
 // POE Ninja API URL에 사용되는 리그명 (영문)
 // 예: "Keepers", "Settlers", "Necropolis" 등
-export const CURRENT_LEAGUE = "Phrecia+2.0";
+export const CURRENT_LEAGUE = "Mirage";
 
 // EventLeague display toggle on HomePage
 // true: show, false: hide
@@ -46,16 +48,19 @@ export const EVENT = {
 
 // 메인 페이지에 표시되는 리그 정보
 export const LEAGUE_INFO = {
+  // 리그 버전
+  version: "3.28",
+  
   // 영문 리그명 (전체)
-  name: "Keepers of the Flame",
+  name: "Mirage",
 
   // 한글 리그명
-  nameKo: "불꽃의 수호자",
+  nameKo: "허상",
 
   // 리그 시작 시간 (한국 시간 기준)
   // ⚠️ 리그 경과 시간 계산에 사용되므로 정확히 설정!
   // ⚠️ 공식 홈페이지에서 자동으로 가져오지 않음! 수동 입력 필요!
-  startDate: new Date("2025-11-01T04:00:00+09:00"),
+  startDate: new Date("2026-03-07T04:00:00+09:00"),
 };
 
 // 캐시 설정
@@ -67,4 +72,4 @@ export const CACHE_DURATION = {
 // 1.0.x - 버그 수정, 자잘한 개선
 // 1.x.0 - 새 페이지/탭 추가 등 기능 추가
 // x.0.0 - 대규모 변경
-export const APP_VERSION = "1.2.0";
+export const APP_VERSION = "1.2.1";

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 /* eslint-disable @next/next/no-img-element */
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
@@ -215,7 +215,7 @@ export default function HomePage() {
               opacity: 0.85,
             }}
           >
-            3.27
+            {LEAGUE_INFO.version}
           </span>
           <h1 className="league-name">{LEAGUE_INFO.name}</h1>
           <p className="league-start-info">

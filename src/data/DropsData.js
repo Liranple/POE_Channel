@@ -13,13 +13,43 @@ export const DROPS_PAGE_ANIMATION = {
 
 export const EVENTS = [
   {
+    title: "허상 Launch",
+    period: { start: "2026-03-07T04:00:00", end: "2026-03-22T19:00:00" },
+    groups: [
+      {
+        items: [
+          {
+            img: "/images/drops/Twitch.png",
+            name: "미정",
+          },
+        ],
+        start: "2026-03-14T19:00:00",
+        end: "2026-03-22T19:00:00",
+        watchingText: "3 hour",
+        url: poe1,
+      },
+      {
+        items: [
+          {
+            img: "/images/drops/Twitch.png",
+            name: "미정",
+          },
+        ],
+        start: "2026-03-07T04:00:00",
+        end: "2026-03-14T19:00:00",
+        watchingText: "3 hour",
+        url: poe1,
+      },
+    ],
+  },
+  {
     title: "허상 Live Stream",
     period: { start: "2026-02-27T04:00:00", end: "2026-02-28T04:00:00" },
     groups: [
       {
         items: [
           {
-            img: "/images/drops/MirageWeaponEffect.png",
+            img: "/images/drops/MirageWeaponEffect.webp",
             name: "허상 무기 이펙트",
           },
         ],

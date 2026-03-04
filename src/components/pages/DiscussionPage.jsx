@@ -6,6 +6,7 @@ import { BsArrowReturnRight } from "react-icons/bs";
 import { motion, useDragControls, AnimatePresence } from "framer-motion";
 import "../../styles/DiscussionPage.css";
 import { formatDate } from "../../utils";
+import { parseTextWithLinks } from "../../utils/parseTextWithLinks";
 
 /**
  * 게시글 데이터 구조:
@@ -875,9 +876,7 @@ export default function DiscussionPage() {
                             }}
                           />
                         ) : (
-                          post.content
-                            .split("\n")
-                            .map((line, i) => <p key={i}>{line}</p>)
+                          parseTextWithLinks(post.content, `post-${post.id}`)
                         )}
                       </div>
 
@@ -1127,7 +1126,10 @@ export default function DiscussionPage() {
                                   />
                                 ) : (
                                   <span className="comment-content">
-                                    {comment.content}
+                                    {parseTextWithLinks(
+                                      comment.content,
+                                      `comment-${comment.id}`
+                                    )}
                                   </span>
                                 )}
                               </div>
@@ -1524,7 +1526,10 @@ export default function DiscussionPage() {
                                               />
                                             ) : (
                                               <span className="comment-content">
-                                                {reply.content}
+                                                {parseTextWithLinks(
+                                                  reply.content,
+                                                  `reply-${reply.id}`
+                                                )}
                                               </span>
                                             )}
                                           </div>

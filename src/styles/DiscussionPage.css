@@ -389,6 +389,17 @@
   word-break: break-word;
 }
 
+.discussion-page-wrapper .discussion-link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+
+.discussion-page-wrapper .discussion-link:hover {
+  opacity: 0.85;
+}
+
 .reply-btn {
   display: none;
 }

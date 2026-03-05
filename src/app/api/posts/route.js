@@ -35,7 +35,16 @@ const HASH_PREFIX = "sha256:";
  * @param {number} maxLength - 최대 길이
  * @returns {string} - 정제된 문자열
  */
-function sanitizeInput(input, maxLength = 10000) {
+function sanitizeTextInput(input, maxLength = 10000) {
+  if (typeof input !== "string") return "";
+
+  return input
+    .replace(/\u0000/g, "")
+    .trim()
+    .slice(0, maxLength);
+}
+
+function sanitizeLegacyEscapedInput(input, maxLength = 10000) {
   if (typeof input !== "string") return "";
 
   return input
@@ -49,7 +58,48 @@ function sanitizeInput(input, maxLength = 10000) {
 }
 
 function normalizePasswordInput(input) {
-  return sanitizeInput(input, MAX_PASSWORD_LENGTH);
+  return sanitizeLegacyEscapedInput(input, MAX_PASSWORD_LENGTH);
+}
+
+const HTML_ENTITY_DECODE_MAP = {
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#x27;": "'",
+  "&#39;": "'",
+};
+const HTML_ENTITY_REGEX = /&(amp|lt|gt|quot|#x27|#39);/g;
+
+function decodeHtmlEntities(input) {
+  if (typeof input !== "string") return "";
+
+  return input.replace(
+    HTML_ENTITY_REGEX,
+    (entity) => HTML_ENTITY_DECODE_MAP[entity] || entity
+  );
+}
+
+function normalizeLegacyEntities(posts) {
+  if (!Array.isArray(posts)) return [];
+
+  return posts.map((post) => ({
+    ...post,
+    title: decodeHtmlEntities(post.title),
+    content: decodeHtmlEntities(post.content),
+    comments: (Array.isArray(post.comments) ? post.comments : []).map(
+      (comment) => ({
+        ...comment,
+        content: decodeHtmlEntities(comment.content),
+        replies: (Array.isArray(comment.replies) ? comment.replies : []).map(
+          (reply) => ({
+            ...reply,
+            content: decodeHtmlEntities(reply.content),
+          })
+        ),
+      })
+    ),
+  }));
 }
 
 function hashPassword(password) {
@@ -111,9 +161,9 @@ function stripPasswords(posts) {
 // 게시글 목록 조회
 export async function GET() {
   try {
-    const posts = await redis.get(POSTS_KEY);
+    const posts = normalizeLegacyEntities((await redis.get(POSTS_KEY)) || []);
     // 비밀번호를 제거하고 반환
-    const safePosts = stripPasswords(posts || []);
+    const safePosts = stripPasswords(posts);
     return NextResponse.json({ posts: safePosts });
   } catch (error) {
     console.error("Failed to fetch posts:", error);
@@ -152,7 +202,7 @@ export async function POST(request) {
     const { action, data } = body;
 
     // 현재 게시글 가져오기
-    let posts = (await redis.get(POSTS_KEY)) || [];
+    let posts = normalizeLegacyEntities((await redis.get(POSTS_KEY)) || []);
 
     switch (action) {
       case "create_post": {
@@ -160,8 +210,8 @@ export async function POST(request) {
           id: Date.now(),
           author: "익명",
           password: createStoredPassword(data.password),
-          title: sanitizeInput(data.title, MAX_TITLE_LENGTH),
-          content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
+          title: sanitizeTextInput(data.title, MAX_TITLE_LENGTH),
+          content: sanitizeTextInput(data.content, MAX_CONTENT_LENGTH),
           date: data.date,
           comments: [],
         };
@@ -174,8 +224,8 @@ export async function POST(request) {
           post.id === data.id
             ? {
                 ...post,
-                title: sanitizeInput(data.title, MAX_TITLE_LENGTH),
-                content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
+                title: sanitizeTextInput(data.title, MAX_TITLE_LENGTH),
+                content: sanitizeTextInput(data.content, MAX_CONTENT_LENGTH),
               }
             : post
         );
@@ -198,7 +248,7 @@ export async function POST(request) {
                   id: data.commentId,
                   author: "익명",
                   password: createStoredPassword(data.password),
-                  content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
+                  content: sanitizeTextInput(data.content, MAX_CONTENT_LENGTH),
                   date: data.date,
                   replies: [],
                 },
@@ -217,7 +267,7 @@ export async function POST(request) {
             comment.id === data.id
               ? {
                   ...comment,
-                  content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
+                  content: sanitizeTextInput(data.content, MAX_CONTENT_LENGTH),
                 }
               : comment
           ),
@@ -246,7 +296,7 @@ export async function POST(request) {
                 id: data.replyId,
                 author: "익명",
                 password: createStoredPassword(data.password),
-                content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
+                content: sanitizeTextInput(data.content, MAX_CONTENT_LENGTH),
                 date: data.date,
                 depth: data.depth || 0,
               };
@@ -293,7 +343,7 @@ export async function POST(request) {
               reply.id === data.id
                 ? {
                     ...reply,
-                    content: sanitizeInput(data.content, MAX_CONTENT_LENGTH),
+                    content: sanitizeTextInput(data.content, MAX_CONTENT_LENGTH),
                   }
                 : reply
             ),

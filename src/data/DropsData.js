@@ -14,29 +14,17 @@ export const DROPS_PAGE_ANIMATION = {
 export const EVENTS = [
   {
     title: "허상 Launch",
-    period: { start: "2026-03-07T04:00:00", end: "2026-03-22T19:00:00" },
+    period: { start: "2026-03-07T04:00:00", end: "2026-03-14T20:00:00" },
     groups: [
       {
         items: [
           {
             img: "/images/drops/Twitch.png",
-            name: "미정",
-          },
-        ],
-        start: "2026-03-14T19:00:00",
-        end: "2026-03-22T19:00:00",
-        watchingText: "3 hour",
-        url: poe1,
-      },
-      {
-        items: [
-          {
-            img: "/images/drops/Twitch.png",
-            name: "미정",
+            name: "허상 수은 플라스크 이펙트",
           },
         ],
         start: "2026-03-07T04:00:00",
-        end: "2026-03-14T19:00:00",
+        end: "2026-03-14T20:00:00",
         watchingText: "3 hour",
         url: poe1,
       },

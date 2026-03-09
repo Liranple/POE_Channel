@@ -2,6 +2,7 @@ import { GRAND_SPECTRUM_DATA } from "./GrandSpectrumData";
 import { SUBLIME_VISION_DATA } from "./SublimeVisionData";
 import { CATALYST_DATA } from "./CatalystData";
 import { EXPERIMENTAL_ACCESSORIES_DATA } from "./ExperimentalAccessoriesData";
+import { AWAKENED_EXCEPTIONAL_GEM_DATA } from "./AwakenedExceptionalGemData";
 
 export const REWARD_DATA = {
   "칼란드라의 거울": {
@@ -523,27 +524,7 @@ export const REWARD_DATA = {
       "보조 젬입니다. 캐릭터가 아닌, 홈을 통해 연결된 젬이 보유한 스킬에 영향을 줍니다. 강화하고 싶은 스킬 젬과 연결된 빈 홈에 장착하십시오. 제거하려면 홈을 우클릭하십시오.",
     iconSize: "60px",
   },
-  "각성한 특출난 젬": {
-    name: "각성한 보조",
-    type: "gem",
-    properties: [
-      "<yellow>특출난 보조</yellow>",
-      "레벨: <white>1</white>",
-      "소모 및 점유 배율 : <white>100%</white>",
-      "---",
-      "요구 사항 레벨 <white>72</white>",
-      "---",
-      "<green>스킬에 적용됩니다.</green>",
-      "---",
-      "<blue>[각성한 보조 젬 보너스 옵션]</blue>",
-      "\n",
-      "<white>퀄리티로 인한 추가 효과 :</white>",
-      "<blue>이 젬의 경험치 획득 </blue><white>(0-100)</white><blue>% 증가</blue>",
-    ],
-    explanation:
-      "보조 젬입니다. 캐릭터가 아닌, 홈을 통해 연결된 젬이 보유한 스킬에 영향을 줍니다. 강화하고 싶은 스킬 젬과 연결된 빈 홈에 장착하십시오. 제거하려면 홈을 우클릭하십시오.",
-    iconSize: "60px",
-  },
+  "각성한 특출난 젬": AWAKENED_EXCEPTIONAL_GEM_DATA,
   스발린: {
     name: "스발린",
     baseType: "둘러싼 거대 방패",
@@ -565,7 +546,6 @@ export const REWARD_DATA = {
       "<blue>주문 피해 막기 확률 최대치 </blue><white>-10</white><blue>%</blue>",
       "<blue>막기 확률에 행운 적용</blue>",
       "<blue>막아낼 시 장착된 원소 주문 발동, 재사용 대기시간</blue><white> 0.25</white><blue>초</blue>",
-      "<green>shield trigger a socketed skill on block [1]</green>",
       '<grey>(공격 피해 막기 확률 최대치는 90%를 넘어갈 수 없습니다)\n(주문 피해 막기 확률 최대치는 90%를 넘어갈 수 없습니다)\n("행운"은 주사위를 2회 굴린 수치 중 좋은 값을 사용하는 메커니즘입니다)</grey>',
     ],
     explanation:

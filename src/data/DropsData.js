@@ -19,7 +19,7 @@ export const EVENTS = [
       {
         items: [
           {
-            img: "/images/drops/Twitch.png",
+            img: "/images/drops/MirageQuicksilverFlask.webp",
             name: "허상 수은 플라스크 이펙트",
           },
         ],

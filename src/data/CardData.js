@@ -1,4 +1,23 @@
 export const CARD_DATA = [
+  // {
+  //   name: "사기꾼",
+  //   reward: "6레벨 각성한 보조 젬",
+  //   cardReward:
+  //     "6레벨 각성한 보조 젬\n<grey>퀄리티 : </grey><blue>+20%</blue>\n<red>타락</red>",
+  //   locations: ["요새"],
+  //   stackSize: 3,
+  //   flavorText: "때로는 지름길로도 위대함에 도달할 수 있다.",
+  // },
+  // {
+  //   name: "훼손된 미덕",
+  //   reward: "<blue>+23%</blue> 6레벨 각성한 보조 젬",
+  //   cardReward:
+  //     "6레벨 각성한 보조 젬\n<grey>퀄리티 : </grey><blue>+23%</blue>\n<red>타락</red>",
+  //   locations: ["아울"],
+  //   stackSize: 9,
+  //   flavorText:
+  //     "깨어난 공허의 고결한 편린,\n탐욕에 더럽혀지고,\n압제에 사로잡힌 존재.",
+  // },
   {
     name: "거울의 집",
     reward: "칼란드라의 거울",
@@ -156,15 +175,6 @@ export const CARD_DATA = [
     flavorText: "별을 바라보면서도, 네 등을 주시하는 이를 경계하라.",
   },
   {
-    name: "사기꾼",
-    reward: "6레벨 각성한 보조 젬",
-    cardReward:
-      "6레벨 각성한 보조 젬\n<grey>퀄리티 : </grey><blue>+20%</blue>\n<red>타락</red>",
-    locations: ["요새"],
-    stackSize: 3,
-    flavorText: "때로는 지름길로도 위대함에 도달할 수 있다.",
-  },
-  {
     name: "한 수 밀림",
     reward: "장막의 엑잘티드 오브",
     cardReward: "장막의 엑잘티드 오브",
@@ -279,13 +289,56 @@ export const CARD_DATA = [
       "수많은 이들이 들어오네, 보물을 노리며 그중 스물이 피를 흘리고, 달아나다 쓰러지네 그림자들이 닥쳐오고, 절반은 파멸하네 눈먼 자들이 비명을 지르고, 다섯이 눈을 잃었네 부주의한 쌍둥이는, 리치의 장난감이 되네 하나는 미끼가 되고, 아무도 왕을 지나지 못해 게헤닉스는 그저 속삭임을 먹을 뿐",
   },
   {
-    name: "훼손된 미덕",
-    reward: "<blue>+23%</blue> 6레벨 각성한 보조 젬",
-    cardReward:
-      "6레벨 각성한 보조 젬\n<grey>퀄리티 : </grey><blue>+23%</blue>\n<red>타락</red>",
-    locations: ["아울"],
+    name: "기적",
+    reward: "각성한 특출난 젬",
+    cardReward: "각성한 특출난 젬",
+    locations: ["도박꾼"],
+    stackSize: 3,
+    flavorText:
+      "일찍 도착했는데도,\n그녀의 어리석은 치천사는\n그저 흡족할 뿐이었다.\n옥타비아, 2023",
+  },
+  {
+    name: "행운의 보루",
+    reward: "스발린",
+    cardReward: "스발린",
+    locations: ["도박꾼"],
+    stackSize: 6,
+    flavorText:
+      "절제가 우리의 무너지지 않는 성벽을,\n절망을 막는 보루를 쌓아 올렸다.",
+  },
+  {
+    name: "잠든 야수",
+    reward: "히네코라의 머리카락",
+    cardReward: "히네코라의 머리카락",
+    locations: ["도박꾼"],
+    stackSize: 5,
+    flavorText: "그는 잠들어 있다...\n하지만 곧 깨어나리라.",
+  },
+  {
+    name: "심장의 투영",
+    reward: "칼란드라의 손길",
+    cardReward: "칼란드라의 손길",
+    locations: ["도박꾼"],
+    stackSize: 2,
+    flavorText:
+      "그는 자신이 원하는 것은\n그녀뿐이라 생각했지만,\n그의 마음은 더 많은 것을\n갈구했다.",
+  },
+  {
+    name: "방패 운반자",
+    reward: "종자",
+    cardReward: "종자",
+    locations: ["도박꾼"],
+    stackSize: 6,
+    flavorText:
+      "네가 자라는 동안 나는 너의 기사일 것이고,\n너는 나의 종자일 것이다. 언젠가는 네가 버\n티고 서서 우리 터전을 지키는 이가 되리라.",
+  },
+  {
+    name: "계약",
+    reward: "손으로 맺은 서약",
+    cardReward: "손으로 맺은 서약(Pledge of Hands)",
+    locations: ["항만", "태고의 웅덩이", "부두"],
     stackSize: 9,
     flavorText:
-      "깨어난 공허의 고결한 편린,\n탐욕에 더럽혀지고,\n압제에 사로잡힌 존재.",
+      '"오늘 이 날에 나는 이 땅과 이곳에 사\n는 사람들과의 첫 약속을 기억한다."',
   },
 ];

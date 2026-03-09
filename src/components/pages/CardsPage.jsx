@@ -52,6 +52,12 @@ const CARD_NAME_TO_ID = {
   호수: "the-lake",
   "빛나는 발견물": "luminous-trove",
   "훼손된 미덕": "desecrated-virtue",
+  기적: "the-miracle",
+  "행운의 보루": "lucky-bastion",
+  "잠든 야수": "the-slumbering-beast",
+  "심장의 투영": "the-reflection-of-the-heart",
+  "방패 운반자": "the-shieldbearer",
+  계약: "the-pact",
 };
 
 // 전역 캐시 (컴포넌트 외부에 선언하여 페이지 이동 후에도 유지)
@@ -104,7 +110,7 @@ export default function CardsPage() {
   const [priceData, setPriceData] = useState(cardsCache.data || {});
   const [priceLoading, setPriceLoading] = useState(!cardsCache.data);
   const [lastUpdated, setLastUpdated] = useState(
-    cardsCache.timestamp ? new Date(cardsCache.timestamp) : null
+    cardsCache.timestamp ? new Date(cardsCache.timestamp) : null,
   );
 
   // 시세 데이터 가져오기 (1시간 캐싱)
@@ -170,10 +176,7 @@ export default function CardsPage() {
     const timeoutId = setTimeout(() => {
       fetchPriceData(true); // 강제 새로고침
       // 정시 이후 1시간마다 반복
-      intervalId = setInterval(
-        () => fetchPriceData(true),
-        60 * 60 * 1000
-      );
+      intervalId = setInterval(() => fetchPriceData(true), 60 * 60 * 1000);
     }, getTimeUntilNextHour());
 
     return () => {
@@ -191,7 +194,7 @@ export default function CardsPage() {
       if (price === undefined) return null;
       return (Math.round(price * 10) / 10).toFixed(1); // 소숫점 1자리 항상 표시 (1 -> "1.0")
     },
-    [priceData]
+    [priceData],
   );
 
   // 시세순으로 정렬된 카드 데이터
@@ -210,19 +213,23 @@ export default function CardsPage() {
     const cleanText = rewardText.replace(/<[^>]+>/g, "");
 
     if (
-      cleanText.includes("마법사의 피") ||
-      cleanText.includes("헤드헌터") ||
-      cleanText.includes("니미스") ||
-      cleanText.includes("원형의 성서") ||
-      cleanText.includes("숭고한 환영") ||
-      cleanText.includes("죽어가는 해") ||
-      cleanText.includes("장대한 파장") ||
-      cleanText.includes("공허의 탄생") ||
-      cleanText.includes("기이한 본능") ||
-      cleanText.includes("교살의 손아귀") ||
-      cleanText.includes("포기") ||
-      cleanText.includes("운명의 저항") ||
-      cleanText.includes("목소리")
+      rewardText.includes("마법사의 피") ||
+      rewardText.includes("헤드헌터") ||
+      rewardText.includes("니미스") ||
+      rewardText.includes("스발린") ||
+      rewardText.includes("원형의 성서") ||
+      rewardText.includes("숭고한 환영") ||
+      rewardText.includes("죽어가는 해") ||
+      rewardText.includes("장대한 파장") ||
+      rewardText.includes("공허의 탄생") ||
+      rewardText.includes("기이한 본능") ||
+      rewardText.includes("교살의 손아귀") ||
+      rewardText.includes("포기") ||
+      rewardText.includes("운명의 저항") ||
+      rewardText.includes("목소리") ||
+      rewardText.includes("칼란드라의 손길") ||
+      rewardText.includes("종자") ||
+      rewardText.includes("손으로 맺은 서약")
     ) {
       return "unique";
     } else if (cleanText.includes("젬")) {

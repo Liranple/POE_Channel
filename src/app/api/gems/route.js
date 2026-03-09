@@ -44,8 +44,11 @@ export async function GET() {
     let fetchSuccess = false;
 
     try {
-      // 리트라이가 포함된 fetch
-      const response = await fetchWithRetry(url, POE_NINJA_REQUEST_OPTIONS);
+      // SkillGem 응답이 커서(2MB 초과) Next data cache 저장 실패가 발생할 수 있어 no-store 사용
+      const response = await fetchWithRetry(url, {
+        headers: POE_NINJA_REQUEST_OPTIONS.headers,
+        cache: "no-store",
+      });
 
       data = await response.json();
       fetchSuccess = true;

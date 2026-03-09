@@ -49,6 +49,7 @@ const DivinationCard = memo(function DivinationCard({ cardData, artUrl }) {
     rewardText.includes("마법사의 피") ||
     rewardText.includes("헤드헌터") ||
     rewardText.includes("니미스") ||
+    rewardText.includes("스발린") ||
     rewardText.includes("원형의 성서") ||
     rewardText.includes("숭고한 환영") ||
     rewardText.includes("죽어가는 해") ||
@@ -58,7 +59,10 @@ const DivinationCard = memo(function DivinationCard({ cardData, artUrl }) {
     rewardText.includes("교살의 손아귀") ||
     rewardText.includes("포기") ||
     rewardText.includes("운명의 저항") ||
-    rewardText.includes("목소리")
+    rewardText.includes("목소리") ||
+    rewardText.includes("칼란드라의 손길") ||
+    rewardText.includes("종자") ||
+    rewardText.includes("손으로 맺은 서약")
   ) {
     rewardClass = "unique";
   } else if (rewardText.includes("젬")) {
@@ -100,7 +104,7 @@ const DivinationCard = memo(function DivinationCard({ cardData, artUrl }) {
                 </span>
               ))
             : parseColoredTaggedText(displayReward)}
-          </div>
+        </div>
       </div>
 
       {/* Separator */}

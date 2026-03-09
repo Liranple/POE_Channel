@@ -88,6 +88,7 @@ export const GEM_VENDOR_INFO = {
   "Trinity Support": { act: 2, classes: ["Duelist", "Ranger", "Scion", "Shadow", "Templar", "Witch"] },
   "Vicious Projectiles Support": { act: 2, classes: ["Duelist", "Ranger", "Scion"] },
   "Volatility Support": { act: 2, classes: ["Duelist", "Marauder", "Scion", "Templar"] },
+  "Brutality Support": { act: 2, classes: ["Duelist", "Marauder", "Scion", "Templar", "Witch"] },
 
   // Act 3
   "Advanced Traps Support": { act: 3, classes: ["Ranger", "Scion", "Shadow", "Witch"] },
@@ -178,6 +179,5 @@ export const GEM_VENDOR_INFO = {
   "Unleash Support": { act: 4, classes: ["Scion", "Shadow", "Templar", "Witch"] },
   "Vile Toxins Support": { act: 4, classes: ["Ranger", "Scion", "Shadow"] },
   "Withering Touch Support": { act: 4, classes: ["Duelist", "Ranger", "Scion", "Shadow"] },
-
 };
 ;

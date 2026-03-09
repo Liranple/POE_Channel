@@ -50,7 +50,7 @@ export const EVENT = {
 export const LEAGUE_INFO = {
   // 리그 버전
   version: "3.28",
-  
+
   // 영문 리그명 (전체)
   name: "Mirage",
 

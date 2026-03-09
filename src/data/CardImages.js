@@ -33,11 +33,18 @@ export const CARD_ART_IMAGES = {
   호수: "/images/cards/TheLake.png",
   "빛나는 발견물": "/images/cards/LuminousTrove.png",
   "훼손된 미덕": "/images/cards/DesecratedVirtue.png",
+  기적: "/images/cards/TheMiracle.png",
+  "행운의 보루": "/images/cards/LuckyBastion.png",
+  "잠든 야수": "/images/cards/TheSlumberingBeast.png",
+  "심장의 투영": "/images/cards/TheReflectionOfTheHeart.png",
+  "방패 운반자": "/images/cards/TheShieldbearer.png",
+  계약: "/images/cards/ThePact.png",
 };
 
 export const LOCATION_IMAGES = {
   // 드랍처 이름: "이미지 URL" 또는 { overlay: "이미지 URL", color: "#RRGGBB" } (Base23 프레임 사용 시)
   // color 속성을 추가하면 해당 색상으로 이미지를 덮어씌웁니다 (마스킹 효과).
+  도박꾼: "/images/items/InventoryIcon.webp",
   "매혹적인 심연": "/images/items/UberVaal01.webp",
   "더럽혀진 대성당": {
     overlay: "/images/items/DefiledCathedral.webp",
@@ -87,4 +94,10 @@ export const LOCATION_IMAGES = {
   주택: { overlay: "/images/items/Residence.webp", color: "#d20000" },
   수로: { overlay: "/images/items/Waterways.webp", color: "#d20000" },
   아울: "/images/items/BossProtoVaal.webp",
+  항만: { overlay: "/images/items/Quay.webp", color: "#d20000" },
+  "태고의 웅덩이": {
+    overlay: "/images/items/PrimordialPool.webp",
+    color: "#d20000",
+  },
+  부두: { overlay: "/images/items/Wharf.webp", color: "#d20000" },
 };

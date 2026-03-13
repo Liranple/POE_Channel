@@ -1,3 +1,11 @@
+const withOverlayColor = (overlayMap, color) =>
+  Object.fromEntries(
+    Object.entries(overlayMap).map(([name, overlay]) => [
+      name,
+      { overlay, color },
+    ]),
+  );
+
 export const CARD_ART_IMAGES = {
   // 카드 이름: "삽화 이미지 URL"
   "거울의 집": "/images/cards/HouseOfMirrors.png",
@@ -39,65 +47,93 @@ export const CARD_ART_IMAGES = {
   "심장의 투영": "/images/cards/TheReflectionOfTheHeart.png",
   "방패 운반자": "/images/cards/TheShieldbearer.png",
   계약: "/images/cards/ThePact.png",
+  "용의 심장": "/images/cards/TheDragonsHeart.png",
+};
+
+const NIGHTMARE_MAP_OVERLAYS = {
+  흉물: "/images/items/UberMalformation.webp",
+  성역: "/images/items/UberRelicChambers.webp",
+  요새: "/images/items/UberSilo.webp",
+  지구라트: "/images/items/UberMausoleum.webp",
+  성채: "/images/items/UberPrimordialBlocks.webp",
+};
+
+const TIER16_MAP_OVERLAYS = {
+  산호섬: "/images/items/Atoll.webp",
+  공원: "/images/items/Park.webp",
+  해안: "/images/items/Strand.webp",
+  묘지: "/images/items/Graveyard.webp",
+  소굴: "/images/items/Lair.webp",
+  분화구: "/images/items/Tribunal.webp",
+  탑: "/images/items/Tower.webp",
+  미로: "/images/items/Maze.webp",
+  부두: "/images/items/Wharf.webp",
+  빌라: "/images/items/Villa.webp",
+  빈민촌: "/images/items/Ghetto.webp",
+  묘실: "/images/items/BurialChambers.webp",
+  매장소: "/images/items/Sepulchre.webp",
+  종탑: "/images/items/Belfry.webp",
+  공장: "/images/items/Factory.webp",
+  매장지: "/images/items/Necropolis.webp",
+  협곡: "/images/items/Canyon.webp",
+  사막: "/images/items/Desert.webp",
+  전망대: "/images/items/Lookout.webp",
+  감방: "/images/items/Cells.webp",
+  병기창: "/images/items/Arsenal.webp",
+  화산: "/images/items/Volcano.webp",
+  주택: "/images/items/Residence.webp",
+  수로: "/images/items/Waterways.webp",
+  항만: "/images/items/Quay.webp",
+  "상아 사원": "/images/items/IvoryTemple.webp",
+  "무덤 고랑": "/images/items/Burn.webp",
+  "용암 호수": "/images/items/Corpse.webp",
+  "진흙 간헐천": "/images/items/MudGeyser.webp",
+  "산성 암굴": "/images/items/SulphurVents.webp",
+  "공성 구역": "/images/items/Boulevard.webp",
+  "태고의 웅덩이": "/images/items/PrimordialPool.webp",
+  "태고의 구역": "/images/items/PrimevalRuins.webp",
+  "진홍색 마을": "/images/items/CrimsonTownship.webp",
+  "더럽혀진 대성당": "/images/items/DefiledCathedral.webp",
+  "달의 사원": "/images/items/LunarisTemple.webp",
 };
 
 export const LOCATION_IMAGES = {
   // 드랍처 이름: "이미지 URL" 또는 { overlay: "이미지 URL", color: "#RRGGBB" } (Base23 프레임 사용 시)
-  // color 속성을 추가하면 해당 색상으로 이미지를 덮어씌웁니다 (마스킹 효과).
+
+  // 기타
   도박꾼: "/images/items/InventoryIcon.webp",
-  "매혹적인 심연": "/images/items/UberVaal01.webp",
-  "더럽혀진 대성당": {
-    overlay: "/images/items/DefiledCathedral.webp",
-    color: "#d20000",
-  },
-  미로: { overlay: "/images/items/Maze.webp", color: "#d20000" },
-  바알사원: { overlay: "/images/items/VaalTempleBase.webp" },
-  "진홍색 마을": {
-    overlay: "/images/items/CrimsonTownship.webp",
-    color: "#d20000",
-  },
-  빌라: { overlay: "/images/items/Villa.webp", color: "#d20000" },
-  빈민촌: { overlay: "/images/items/Ghetto.webp", color: "#d20000" },
-  "우버 앗지리": "/images/items/UberVaal01.webp",
-  키메라: { overlay: "/images/items/Chimera.webp" },
-  히드라: { overlay: "/images/items/Hydra.webp" },
-  미노타우로스: { overlay: "/images/items/Minotaur.webp" },
-  불사조: { overlay: "/images/items/Phoenix.webp" },
-  "앗조아틀의 사원": "/images/items/TempleMap.webp",
-  "환영 고유 몬스터": "/images/items/DeliriumBoss1.webp",
-  묘실: { overlay: "/images/items/BurialChambers.webp", color: "#d20000" },
-  매장소: { overlay: "/images/items/Sepulchre.webp", color: "#d20000" },
-  종탑: { overlay: "/images/items/Belfry.webp", color: "#d20000" },
-  "용암 호수": { overlay: "/images/items/Corpse.webp", color: "#d20000" },
-  "명인의 전당": "/images/items/HallOfGrandmasters.webp",
-  공장: { overlay: "/images/items/Factory.webp", color: "#d20000" },
-  "무덤 고랑": { overlay: "/images/items/Burn.webp", color: "#d20000" },
-  "푸어조이의 은신처": "/images/items/PoorjoysAsylum.webp",
   "미궁 내 은상자": "/images/items/KeySilver.webp",
-  협곡: { overlay: "/images/items/Canyon.webp", color: "#d20000" },
-  "상아 사원": { overlay: "/images/items/IvoryTemple.webp", color: "#d20000" },
-  교두보: "/images/items/HarbingerRed.webp",
-  요새: { overlay: "/images/items/UberSilo.webp", color: "#6a0dad" },
-  사막: { overlay: "/images/items/Desert.webp", color: "#d20000" },
-  전망대: { overlay: "/images/items/Lookout.webp", color: "#d20000" },
-  베리타니아: "/images/items/VeritaniaMap.webp",
+
+  // 고유 지도
+  "오바의 저주받은 전리품": "/images/items/oba.webp",
+  "액턴의 악몽": "/images/items/musicbox.webp",
+  "황혼의 사원": "/images/items/Celestial.webp",
+  "도리아니의 기계실": "/images/items/Doryanis.webp",
+  "악취 나는 수도원": "/images/items/PutridCloister.webp",
+  "명인의 전당": "/images/items/HallOfGrandmasters.webp",
   "겁쟁이의 시험": "/images/items/UndeadSiege.webp",
-  지구라트: { overlay: "/images/items/UberMausoleum.webp", color: "#6a0dad" },
-  감방: { overlay: "/images/items/Cells.webp", color: "#d20000" },
-  성채: {
-    overlay: "/images/items/UberPrimordialBlocks.webp",
-    color: "#6a0dad",
-  },
+  "푸어조이의 은신처": "/images/items/PoorjoysAsylum.webp",
+
+  // 특수 지도
+  키메라: "/images/items/Chimera.webp",
+  히드라: "/images/items/Hydra.webp",
+  미노타우로스: "/images/items/Minotaur.webp",
+  불사조: "/images/items/Phoenix.webp",
+  "앗조아틀의 사원": "/images/items/TempleMap.webp",
+  "매혹적인 심연": "/images/items/UberVaal01.webp",
+  "바알 사원": "/images/items/VaalTempleBase.webp",
+  교두보: "/images/items/HarbingerRed.webp",
   "끓어오르는 유미즙": "/images/items/TangledOrbQuest0.webp",
-  병기창: { overlay: "/images/items/Arsenal.webp", color: "#d20000" },
-  화산: { overlay: "/images/items/Volcano.webp", color: "#d20000" },
-  주택: { overlay: "/images/items/Residence.webp", color: "#d20000" },
-  수로: { overlay: "/images/items/Waterways.webp", color: "#d20000" },
+
+  // 몬스터
+  "환영 고유 몬스터": "/images/items/DeliriumBoss1.webp",
+  "우버 앗지리": "/images/items/UberVaal01.webp",
+  베리타니아: "/images/items/VeritaniaMap.webp",
   아울: "/images/items/BossProtoVaal.webp",
-  항만: { overlay: "/images/items/Quay.webp", color: "#d20000" },
-  "태고의 웅덩이": {
-    overlay: "/images/items/PrimordialPool.webp",
-    color: "#d20000",
-  },
-  부두: { overlay: "/images/items/Wharf.webp", color: "#d20000" },
+
+  // 악몽 지도
+  ...withOverlayColor(NIGHTMARE_MAP_OVERLAYS, "#6a0dad"),
+
+  // 16티어
+  ...withOverlayColor(TIER16_MAP_OVERLAYS, "#d20000"),
 };

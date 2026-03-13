@@ -58,6 +58,7 @@ const CARD_NAME_TO_ID = {
   "심장의 투영": "the-reflection-of-the-heart",
   "방패 운반자": "the-shieldbearer",
   계약: "the-pact",
+  "용의 심장" : "the-dragons-heart",
 };
 
 // 전역 캐시 (컴포넌트 외부에 선언하여 페이지 이동 후에도 유지)

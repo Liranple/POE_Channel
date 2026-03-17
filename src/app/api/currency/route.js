@@ -1,6 +1,6 @@
-// Next.js API Route - POE Ninja 프록시 (CORS 우회)
+// Next.js API Route - POE Ninja currency + divination card prices
 
-import { CURRENT_LEAGUE, CACHE_DURATION } from "@/config/league";
+import { CURRENT_LEAGUE } from "@/config/league";
 import {
   savePriceHistory,
   getLatestHistory,
@@ -12,44 +12,40 @@ import {
   getCurrentHourTimestamp,
 } from "@/lib/poeNinja";
 
-// 메모리 캐싱
-let cachedData = null;
-let cachedTimestamp = null;
+export const dynamic = "force-dynamic";
 
+const NO_STORE_RESPONSE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+};
 
 export async function GET() {
   try {
-    const now = Date.now();
-
-    // 캐시가 유효하면 캐시된 데이터 반환
-    if (
-      cachedData &&
-      cachedTimestamp &&
-      now - cachedTimestamp < CACHE_DURATION.API
-    ) {
-      return Response.json(cachedData);
-    }
-
-    // 새로운 POE1 전용 API 엔드포인트
     const cardUrl = `${POE_NINJA_BASE_URL}/exchange/current/overview?league=${CURRENT_LEAGUE}&type=DivinationCard`;
     const currencyUrl = `${POE_NINJA_BASE_URL}/exchange/current/overview?league=${CURRENT_LEAGUE}&type=Currency`;
+    const noStoreFetchOptions = {
+      headers: POE_NINJA_REQUEST_OPTIONS.headers,
+      cache: "no-store",
+    };
 
-    let cardData, divineRate;
+    let cardData;
+    let divineRate = 160;
     let fetchSuccess = false;
 
     try {
-      // 리트라이가 포함된 fetch로 카드 데이터 가져오기
-      const cardResponse = await fetchWithRetry(cardUrl, POE_NINJA_REQUEST_OPTIONS);
-
+      const cardResponse = await fetchWithRetry(cardUrl, noStoreFetchOptions);
       cardData = await cardResponse.json();
 
-      // Divine Orb 시세 가져오기 (실패해도 기본값 사용)
-      divineRate = 160; // 기본값
       try {
-        const currencyResponse = await fetchWithRetry(currencyUrl, POE_NINJA_REQUEST_OPTIONS);
+        const currencyResponse = await fetchWithRetry(
+          currencyUrl,
+          noStoreFetchOptions
+        );
         const currencyData = await currencyResponse.json();
-        const divine = currencyData.lines?.find((c) => c.id === "divine-orb");
-        if (divine?.primaryValue) {
+        // poe.ninja exchange API uses id "divine" (not "divine-orb")
+        const divine =
+          currencyData.lines?.find((c) => c.id === "divine") ||
+          currencyData.lines?.find((c) => c.id === "divine-orb");
+        if (typeof divine?.primaryValue === "number") {
           divineRate = divine.primaryValue;
         }
       } catch (currencyError) {
@@ -63,7 +59,6 @@ export async function GET() {
     } catch (fetchError) {
       console.error("All retries failed for currency API:", fetchError.message);
 
-      // Fallback: DB에서 가장 최근 데이터 가져오기
       const fallbackData = await getLatestHistory("currency");
       if (fallbackData) {
         console.log(
@@ -78,46 +73,38 @@ export async function GET() {
           timestamp: fallbackData.timestamp,
           cards: fallbackData.data.cards,
           divineRate: fallbackData.data.divineRate,
-          fallback: true, // 클라이언트에서 fallback 여부 확인 가능
+          fallback: true,
         };
 
-        // 메모리 캐시에도 저장 (다음 요청 시 빠른 응답)
-        cachedData = responseData;
-        cachedTimestamp = now;
-
-        return Response.json(responseData);
+        return Response.json(responseData, {
+          headers: NO_STORE_RESPONSE_HEADERS,
+        });
       }
 
-      // Fallback도 없으면 에러 반환
       throw fetchError;
     }
 
-    // 필요한 데이터만 추출 (모든 카드 포함)
     const cards = cardData.lines.map((card) => ({
       id: card.id,
       name: card.id
         .split("-")
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" "), // kebab-case를 Title Case로 변환
+        .join(" "),
       chaosValue: Math.round(card.primaryValue),
-      divineValue: Math.round((card.primaryValue / divineRate) * 10) / 10, // 실시간 Divine 시세 적용
-      icon: `https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvRGl2aW5hdGlvbi9JbnZlbnRvcnlJY29uIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/f34bf8cbb5/InventoryIcon.png`,
+      divineValue: Math.round((card.primaryValue / divineRate) * 10) / 10,
+      icon: "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvRGl2aW5hdGlvbi9JbnZlbnRvcnlJY29uIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/f34bf8cbb5/InventoryIcon.png",
     }));
 
-    // 정시 timestamp로 설정
     const hourTimestamp = getCurrentHourTimestamp();
 
-    // 응답 데이터 생성 및 캐싱
-    cachedData = {
+    const responseData = {
       success: true,
       league: CURRENT_LEAGUE,
       timestamp: hourTimestamp,
       cards,
       divineRate,
     };
-    cachedTimestamp = now;
 
-    // 히스토리에 저장 (성공한 경우에만, 백그라운드로 실행)
     if (fetchSuccess) {
       savePriceHistory("currency", {
         cards,
@@ -126,7 +113,7 @@ export async function GET() {
       }).catch((err) => console.error("Failed to save currency history:", err));
     }
 
-    return Response.json(cachedData);
+    return Response.json(responseData, { headers: NO_STORE_RESPONSE_HEADERS });
   } catch (error) {
     console.error("Currency API Error:", error);
     return Response.json(
@@ -138,4 +125,3 @@ export async function GET() {
     );
   }
 }
-

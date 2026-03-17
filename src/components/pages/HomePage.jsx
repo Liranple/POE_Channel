@@ -63,14 +63,14 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
-  // ==================== 아이템 시세 가져오기 ====================
+  // ==================== 아이템 시세 가져오기 (클라이언트 캐싱 비활성화) ====================
   const fetchItems = useCallback(async (forceRefresh = false) => {
     const now = Date.now();
     const cacheAge = now - itemsCache.cachedAt;
-    const ONE_HOUR = 60 * 60 * 1000;
+    const ITEMS_CACHE_MS = 0;
 
     // 캐시가 유효하면 캐시 데이터 사용
-    if (!forceRefresh && itemsCache.data && cacheAge < ONE_HOUR) {
+    if (!forceRefresh && itemsCache.data && cacheAge < ITEMS_CACHE_MS) {
       setItems(itemsCache.data);
       setItemsLoading(false);
       return;

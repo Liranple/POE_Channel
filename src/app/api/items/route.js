@@ -1,6 +1,6 @@
-// Next.js API Route - 유니크 아이템 시세 프록시
+﻿// Next.js API Route - 유니크 아이템 시세 프록시
 
-import { CURRENT_LEAGUE, CACHE_DURATION } from "@/config/league";
+import { CURRENT_LEAGUE } from "@/config/league";
 import {
   savePriceHistory,
   getLatestHistory,
@@ -11,6 +11,12 @@ import {
   POE_NINJA_REQUEST_OPTIONS,
   getCurrentHourTimestamp,
 } from "@/lib/poeNinja";
+
+export const dynamic = "force-dynamic";
+
+const NO_STORE_RESPONSE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+};
 
 // 조회할 아이템 목록 (영문명 → 한글명, 이미지)
 const TRACKED_ITEMS = {
@@ -66,35 +72,19 @@ const TRACKED_ITEMS = {
   },
 };
 
-// 캐시 저장
-let cachedData = null;
-let cachedTimestamp = null;
-
-
 export async function GET() {
   try {
-    const now = Date.now();
-
-    // 캐시가 유효하면 캐시된 데이터 반환
-    if (
-      cachedData &&
-      cachedTimestamp &&
-      now - cachedTimestamp < CACHE_DURATION.API
-    ) {
-      return Response.json({
-        success: true,
-        timestamp: getCurrentHourTimestamp(),
-        items: cachedData,
-        cached: true,
-      });
-    }
-
     const types = [
       "UniqueArmour",
       "UniqueAccessory",
       "UniqueFlask",
       "UniqueJewel",
     ];
+
+    const noStoreFetchOptions = {
+      headers: POE_NINJA_REQUEST_OPTIONS.headers,
+      cache: "no-store",
+    };
 
     let allItems = [];
     let fetchSuccess = false;
@@ -103,7 +93,7 @@ export async function GET() {
       // 모든 타입의 데이터 병렬로 가져오기 (리트라이 포함)
       const fetchPromises = types.map(async (type) => {
         const url = `${POE_NINJA_BASE_URL}/stash/current/item/overview?league=${CURRENT_LEAGUE}&type=${type}`;
-        const response = await fetchWithRetry(url, POE_NINJA_REQUEST_OPTIONS);
+        const response = await fetchWithRetry(url, noStoreFetchOptions);
         return response.json();
       });
 
@@ -131,11 +121,9 @@ export async function GET() {
           fallback: true,
         };
 
-        // 메모리 캐시에도 저장
-        cachedData = fallbackData.data.items;
-        cachedTimestamp = now;
-
-        return Response.json(responseData);
+        return Response.json(responseData, {
+          headers: NO_STORE_RESPONSE_HEADERS,
+        });
       }
 
       // Fallback도 없으면 에러 반환
@@ -160,10 +148,6 @@ export async function GET() {
     // 시세순 정렬 (높은 순)
     items.sort((a, b) => b.divineValue - a.divineValue);
 
-    // 캐시 저장
-    cachedData = items;
-    cachedTimestamp = now;
-
     // 히스토리에 저장 (성공한 경우에만, 백그라운드로 실행)
     if (fetchSuccess) {
       savePriceHistory("items", { items, league: CURRENT_LEAGUE }).catch(
@@ -171,12 +155,15 @@ export async function GET() {
       );
     }
 
-    return Response.json({
-      success: true,
-      timestamp: getCurrentHourTimestamp(),
-      items,
-      cached: false,
-    });
+    return Response.json(
+      {
+        success: true,
+        timestamp: getCurrentHourTimestamp(),
+        items,
+        cached: false,
+      },
+      { headers: NO_STORE_RESPONSE_HEADERS }
+    );
   } catch (error) {
     console.error("Unique items API error:", error);
     return Response.json(

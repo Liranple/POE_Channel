@@ -114,14 +114,14 @@ export default function CardsPage() {
     cardsCache.timestamp ? new Date(cardsCache.timestamp) : null,
   );
 
-  // 시세 데이터 가져오기 (1시간 캐싱)
+  // 시세 데이터 가져오기 (클라이언트 캐싱 비활성화)
   const fetchPriceData = useCallback(async (forceRefresh = false) => {
     const now = Date.now();
     const cacheAge = now - cardsCache.cachedAt;
-    const ONE_HOUR = 60 * 60 * 1000;
+    const PRICE_CACHE_MS = 0;
 
     // 캐시가 유효하면 캐시 데이터 사용
-    if (!forceRefresh && cardsCache.data && cacheAge < ONE_HOUR) {
+    if (!forceRefresh && cardsCache.data && cacheAge < PRICE_CACHE_MS) {
       setPriceData(cardsCache.data);
       setLastUpdated(new Date(cardsCache.timestamp));
       setPriceLoading(false);

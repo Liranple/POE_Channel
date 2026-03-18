@@ -75,7 +75,7 @@ export const DEFAULT_PREFIX_DATA = [
     id: 9,
     affix: "prefix",
     optionText: "지속시간 감소, 효과 25% 증가",
-    filterRegex: "과.25%.증",
+    filterRegex: "과.25.*증",
     maxRollRegex: "간.23.*감",
     itemLevel: "80",
     type: "특수",

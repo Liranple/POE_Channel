@@ -85,7 +85,7 @@ export const DEFAULT_PREFIX_DATA = [
     affix: "prefix",
     optionText: "지속시간 증가",
     filterRegex: "실험",
-    maxRollRegex: "간.40",
+    maxRollRegex: "간.40.*증",
     itemLevel: "84",
     type: "특수",
   },

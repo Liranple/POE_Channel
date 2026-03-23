@@ -4,7 +4,6 @@ import { FaExternalLinkAlt } from "react-icons/fa";
 import Image from "next/image";
 
 const SITES = [
-
   {
     label: "Path of Exile",
     url: "https://poe.game.daum.net/",
@@ -17,7 +16,13 @@ const SITES = [
     description: "거래 검색",
     icon: "/images/ui/trade.png",
   },
-    {
+  {
+    label: "Wealthy Exile",
+    url: "https://wealthyexile.com/",
+    description: "보관함 가치 모니터링",
+    icon: "https://www.google.com/s2/favicons?sz=64&domain_url=wealthyexile.com",
+  },
+  {
     label: "POE Ninja",
     url: "https://poe.ninja",
     description: "시세와 리그 통계",
@@ -65,7 +70,7 @@ const SITES = [
     description: "위키",
     icon: "https://www.google.com/s2/favicons?sz=64&domain_url=https://www.poewiki.net/wiki/Path_of_Exile_Wiki",
   },
-    {
+  {
     label: "Cthugha Item Filter",
     url: "https://poe.game.daum.net/account/view-profile/Liranple-6584/item-filters",
     description: "Cthugha 아이템 필터",

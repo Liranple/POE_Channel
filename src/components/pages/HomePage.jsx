@@ -32,6 +32,7 @@ export default function HomePage() {
 
   // Divine 아이콘 (로컬 이미지)
   const divineIcon = "/images/items/CurrencyModValues.webp";
+  const chaosIcon = "/images/items/CurrencyRerollRare.webp";
 
   useEffect(() => {
     setIsMounted(true);
@@ -309,9 +310,11 @@ export default function HomePage() {
                     <div className="item-price">
                       {item.divineValue >= 1
                         ? item.divineValue.toFixed(1)
-                        : `${Math.round(item.chaosValue)}c`}
-                      {item.divineValue >= 1 && (
+                        : Math.round(item.chaosValue)}
+                      {item.divineValue >= 1 ? (
                         <img src={divineIcon} alt="div" className="divine-icon" />
+                      ) : (
+                        <img src={chaosIcon} alt="chaos" className="divine-icon" />
                       )}
                     </div>
                   </div>

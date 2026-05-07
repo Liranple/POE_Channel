@@ -13,6 +13,24 @@ export const DROPS_PAGE_ANIMATION = {
 
 export const EVENTS = [
   {
+    title: "고대의 귀환 Live Stream",
+    period: { start: "2026-05-08T05:00:00", end: "2026-05-09T05:00:00" },
+    groups: [
+      {
+        items: [
+          {
+            img: "/images/drops/TheRedQueensFont.png",
+            name: "The Red Queen's Font",
+          },
+        ],
+        start: "2026-05-08T05:00:00",
+        end: "2026-05-09T05:00:00",
+        watchingText: "1 hour",
+        url: poe2,
+      },
+    ],
+  },
+  {
     title: "허상 Launch",
     period: { start: "2026-03-07T04:00:00", end: "2026-03-14T20:00:00" },
     groups: [
@@ -114,7 +132,7 @@ export const EVENTS = [
         start: "2025-12-05T04:00:00",
         end: "2025-12-06T04:00:00",
         watchingText: "45 minute",
-        url: poe1,
+        url: poe2,
       },
     ],
   },

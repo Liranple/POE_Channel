@@ -13,6 +13,36 @@ export const DROPS_PAGE_ANIMATION = {
 
 export const EVENTS = [
   {
+    title: "고대의 귀환 Launch",
+    period: { start: "2026-05-30T05:00:00", end: "2026-06-14T21:00:00" },
+    groups: [
+      {
+        items: [
+          {
+            img: "/images/drops/Twitch.png",
+            name: "웬디고의 왕관 투구 부착물",
+          },
+        ],
+        start: "2026-06-06T21:00:00",
+        end: "2026-06-14T21:00:00",
+        watchingText: "3 hour",
+        url: poe2,
+      },
+      {
+        items: [
+          {
+            img: "/images/drops/Twitch.png",
+            name: "재의 중재자 거점",
+          },
+        ],
+        start: "2026-05-30T05:00:00",
+        end: "2026-06-06T19:00:00",
+        watchingText: "3 hour",
+        url: poe2,
+      },
+    ],
+  },
+  {
     title: "고대의 귀환 Live Stream",
     period: { start: "2026-05-08T05:00:00", end: "2026-05-09T05:00:00" },
     groups: [
@@ -20,7 +50,7 @@ export const EVENTS = [
         items: [
           {
             img: "/images/drops/TheRedQueensFont.png",
-            name: "The Red Queen's Font",
+            name: "붉은 여왕의 원천 은신처 장식물",
           },
         ],
         start: "2026-05-08T05:00:00",

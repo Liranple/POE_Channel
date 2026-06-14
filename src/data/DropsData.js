@@ -14,7 +14,7 @@ export const DROPS_PAGE_ANIMATION = {
 export const EVENTS = [
   {
     title: "고대의 귀환 Launch",
-    period: { start: "2026-05-30T05:00:00", end: "2026-06-14T21:00:00" },
+    period: { start: "2026-05-30T05:00:00", end: "2026-06-13T21:00:00" },
     groups: [
       {
         items: [
@@ -24,7 +24,7 @@ export const EVENTS = [
           },
         ],
         start: "2026-06-06T21:00:00",
-        end: "2026-06-14T21:00:00",
+        end: "2026-06-13T21:00:00",
         watchingText: "3 hour",
         url: poe2,
       },

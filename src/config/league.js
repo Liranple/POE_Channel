@@ -52,7 +52,7 @@ export const LEAGUE_INFO = {
   version: "3.29",
 
   // 영문 리그명 (전체)
-  name: "Allflame",
+  name: "Curse of the Allflame",
 
   // 한글 리그명
   nameKo: "올플레임의 저주",

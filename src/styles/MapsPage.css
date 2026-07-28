@@ -470,24 +470,6 @@ body.dragging-active .add-preset-chip {
   font-weight: 700;
 }
 
-.option-tags {
-  display: flex;
-  gap: 6px;
-  margin-left: auto;
-  padding-right: 6px;
-  order: 0;
-}
-.option-tag {
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  background: var(--tag-bg);
-  color: var(--text);
-  border: 1px solid var(--tag-border);
-  white-space: nowrap;
-  font-weight: 500;
-}
-
 .option.active-max .option-tag {
   border-color: var(--active-max-tag-border);
 }
@@ -510,15 +492,11 @@ body.dragging-active .add-preset-chip {
 }
 
 /* Type Colors */
-.tag-Top,
-.tag-top,
 .type-Top {
   background: #b83333;
   border-color: #d14c4c;
   color: white;
 }
-.tag-Uber,
-.tag-uber,
 .type-Uber {
   background: #6a0dad;
   border-color: #8a2be2;

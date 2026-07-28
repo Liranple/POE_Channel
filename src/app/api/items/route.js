@@ -24,6 +24,7 @@ const TRACKED_ITEMS = {
     nameKo: "마법사의 피",
     icon: "InjectorBelt.webp",
     type: "UniqueArmour",
+    variant: "4Flasks",
   },
   Headhunter: {
     nameKo: "헤드헌터",
@@ -70,6 +71,26 @@ const TRACKED_ITEMS = {
     icon: "Mastery.webp",
     type: "UniqueJewel",
   },
+};
+
+const normalizeItemPart = (value = "") =>
+  String(value).toLowerCase().replace(/[\s,]+/g, "");
+
+const matchesTrackedItem = (item, trackedName, trackedInfo) => {
+  if (!trackedInfo.variant) {
+    return item.name === trackedName;
+  }
+
+  const expectedName = normalizeItemPart(trackedName);
+  const expectedVariant = normalizeItemPart(trackedInfo.variant);
+  const normalizedItemName = normalizeItemPart(item.name);
+  const normalizedItemVariant = normalizeItemPart(item.variant);
+
+  return (
+    normalizedItemName === `${expectedName}${expectedVariant}` ||
+    normalizedItemName === `${expectedName}${expectedVariant.replace(/s$/, "")}` ||
+    (item.name === trackedName && normalizedItemVariant === expectedVariant)
+  );
 };
 
 export async function GET() {
@@ -133,7 +154,7 @@ export async function GET() {
     // 추적 아이템 필터링 및 매핑
     const items = [];
     for (const [name, info] of Object.entries(TRACKED_ITEMS)) {
-      const found = allItems.find((item) => item.name === name);
+      const found = allItems.find((item) => matchesTrackedItem(item, name, info));
       if (found) {
         items.push({
           name: found.name,

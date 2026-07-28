@@ -1,0 +1,276 @@
+.option-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding-right: 6px;
+  order: 0;
+  flex: 0 0 auto;
+}
+
+.option-tag {
+  width: 3.6em;
+  min-width: 3.6em;
+  max-width: 3.6em;
+  height: 22px;
+  padding: 0;
+  border-radius: 12px;
+  font-size: 12px;
+  background: var(--tag-bg);
+  color: var(--text);
+  border: 1px solid var(--tag-border);
+  white-space: nowrap;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  line-height: 1;
+}
+
+.tag-life {
+  background: #9f243f !important;
+  border-color: #c33b5a !important;
+  color: white !important;
+}
+
+.tag-physical {
+  background: #5b6470 !important;
+  border-color: #7a8491 !important;
+  color: white !important;
+}
+
+.tag-reflection {
+  background: #8b4f7e !important;
+  border-color: #aa6a9d !important;
+  color: white !important;
+}
+
+.tag-area {
+  background: #2f7f73 !important;
+  border-color: #45a394 !important;
+  color: white !important;
+}
+
+.tag-ailment {
+  background: #6b7f23 !important;
+  border-color: #8da63a !important;
+  color: white !important;
+}
+
+.tag-suppression {
+  background: #2e5f8f !important;
+  border-color: #477fb8 !important;
+  color: white !important;
+}
+
+.tag-exposure {
+  background: #b35c1e !important;
+  border-color: #d97835 !important;
+  color: white !important;
+}
+
+.tag-regen {
+  background: #237a45 !important;
+  border-color: #35a863 !important;
+  color: white !important;
+}
+
+.tag-charge {
+  background: #8c6b1f !important;
+  border-color: #b58d35 !important;
+  color: white !important;
+}
+
+.tag-aura {
+  background: #5a56a8 !important;
+  border-color: #7772cc !important;
+  color: white !important;
+}
+
+.tag-summon {
+  background: #466b2a !important;
+  border-color: #65923f !important;
+  color: white !important;
+}
+
+.tag-slow {
+  background: #526b8c !important;
+  border-color: #7190b5 !important;
+  color: white !important;
+}
+
+.tag-bleed {
+  background: #7d1f26 !important;
+  border-color: #a83740 !important;
+  color: white !important;
+}
+
+.tag-poison {
+  background: #4f7d1d !important;
+  border-color: #70a833 !important;
+  color: white !important;
+}
+
+.tag-duration {
+  background: #6b5a8c !important;
+  border-color: #8b78b5 !important;
+  color: white !important;
+}
+
+.tag-effect {
+  background: #2d7f9f !important;
+  border-color: #45a4c5 !important;
+  color: white !important;
+}
+
+.tag-cooldown {
+  background: #3f5f7f !important;
+  border-color: #5f83a8 !important;
+  color: white !important;
+}
+
+.tag-armour {
+  background: #7a4f2a !important;
+  border-color: #a16f43 !important;
+  color: white !important;
+}
+
+.tag-evasion {
+  background: #2f7a52 !important;
+  border-color: #49a373 !important;
+  color: white !important;
+}
+
+.tag-shield {
+  background: #346d8a !important;
+  border-color: #4d91b2 !important;
+  color: white !important;
+}
+
+.tag-speed {
+  background: #9a6b16 !important;
+  border-color: #c48b2b !important;
+  color: white !important;
+}
+
+.tag-stun {
+  background: #6f4b3a !important;
+  border-color: #926a55 !important;
+  color: white !important;
+}
+
+.tag-resistance {
+  background: #416f7d !important;
+  border-color: #5b94a6 !important;
+  color: white !important;
+}
+
+.tag-leech {
+  background: #7c2f57 !important;
+  border-color: #a34b78 !important;
+  color: white !important;
+}
+
+.tag-critical {
+  background: #a13f1f !important;
+  border-color: #c95e39 !important;
+  color: white !important;
+}
+
+.tag-curse {
+  background: #4b327d !important;
+  border-color: #674aa3 !important;
+  color: white !important;
+}
+
+.tag-fire {
+  background: #b6421c !important;
+  border-color: #db633b !important;
+  color: white !important;
+}
+
+.tag-cold {
+  background: #2775a8 !important;
+  border-color: #4099cf !important;
+  color: white !important;
+}
+
+.tag-lightning {
+  background: #8f7a12 !important;
+  border-color: #b9a326 !important;
+  color: white !important;
+}
+
+.tag-chaos {
+  background: #5f2a86 !important;
+  border-color: #7d45a8 !important;
+  color: white !important;
+}
+
+.tag-hp {
+  background: #b02a2a !important;
+  border-color: #d64646 !important;
+  color: white !important;
+}
+
+.tag-mp {
+  background: #254fa3 !important;
+  border-color: #416ed1 !important;
+  color: white !important;
+}
+
+.tag-sp {
+  background: #19824a !important;
+  border-color: #28a965 !important;
+  color: white !important;
+}
+
+.tag-tc {
+  background: #8a5a2f !important;
+  border-color: #b27a46 !important;
+  color: white !important;
+}
+
+.tag-top {
+  background: #b02a2a !important;
+  border-color: #d64646 !important;
+  color: white !important;
+}
+
+.tag-uber {
+  background: #6a0dad !important;
+  border-color: #8a2be2 !important;
+  color: white !important;
+}
+
+.tag-custom {
+  background: #4a5568 !important;
+  border-color: #6b778c !important;
+  color: white !important;
+}
+
+.option-tag.tag-jewel {
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
+  height: 32px;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.option-tag.tag-jewel img {
+  width: 32px !important;
+  height: 32px !important;
+  display: block;
+  filter: brightness(1.3) saturate(1.2);
+}
+
+.theme-light .option-tag.tag-jewel img {
+  filter: brightness(1.5) saturate(1.3) contrast(1.1);
+}
+
+.option.active-max .option-tag {
+  border-color: var(--active-max-tag-border);
+}

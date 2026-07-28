@@ -3,6 +3,7 @@ import "../styles/variables.css";
 import "./globals.css";
 import "../styles/FlaskPage.css";
 import "../styles/JewelsPage.css";
+import "../styles/OptionTags.css";
 import { OPTION_STORAGE_KEYS } from "../utils/optionStorage";
 
 // 폰트 최적화 - 로컬 호스팅 & 프리로드

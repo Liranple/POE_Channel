@@ -7,8 +7,8 @@ import {
   DEFAULT_PREFIX_DATA,
   DEFAULT_SUFFIX_DATA,
   DEFAULT_CORRUPTED_DATA,
-  JEWEL_TYPES,
 } from "../../data/JewelData";
+import { JEWEL_TYPES } from "../../data/OptionTagData";
 import OptionItem from "../OptionItem";
 import PresetItem from "../PresetItem";
 import ResetModal from "../ResetModal";
@@ -464,6 +464,7 @@ export default function JewelsPage() {
                     setData={setCorruptedData}
                   />
                 ))}
+                {/*
                 {adminMode && (
                   <div
                     className="add-option"
@@ -472,6 +473,7 @@ export default function JewelsPage() {
                     +
                   </div>
                 )}
+                */}
               </div>
             </div>
 
@@ -495,6 +497,7 @@ export default function JewelsPage() {
                         setData={setPrefixData}
                       />
                     ))}
+                    {/*
                     {adminMode && (
                       <div
                         className="add-option"
@@ -503,6 +506,7 @@ export default function JewelsPage() {
                         +
                       </div>
                     )}
+                    */}
                   </div>
                 </div>
                 <div className="card">
@@ -523,6 +527,7 @@ export default function JewelsPage() {
                         setData={setSuffixData}
                       />
                     ))}
+                    {/*
                     {adminMode && (
                       <div
                         className="add-option"
@@ -531,6 +536,7 @@ export default function JewelsPage() {
                         +
                       </div>
                     )}
+                    */}
                   </div>
                 </div>
               </div>

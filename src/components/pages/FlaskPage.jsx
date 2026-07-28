@@ -134,7 +134,28 @@ export default function FlaskPage() {
       }
     });
 
-    return sortedTags.join("|");
+    const excludedTags = [];
+    const includedTags = [];
+
+    sortedTags.forEach((tag) => {
+      tag
+        .split(/\s+/)
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .forEach((part) => {
+          if (part.startsWith("!")) {
+            excludedTags.push(part.slice(1));
+          } else {
+            includedTags.push(part);
+          }
+        });
+    });
+
+    const excludedText =
+      excludedTags.length > 0 ? `!${excludedTags.join("|")}` : "";
+    const includedText = includedTags.join("|");
+
+    return [excludedText, includedText].filter(Boolean).join(" ");
   }, [selected, prefixData, suffixData]);
 
   const handleCopy = useCallback(() => {
@@ -586,6 +607,7 @@ export default function FlaskPage() {
                         setData={setPrefixData}
                       />
                     ))}
+                    {/*
                     {adminMode && (
                       <div
                         className="add-option"
@@ -594,6 +616,7 @@ export default function FlaskPage() {
                         +
                       </div>
                     )}
+                    */}
                   </div>
                 </div>
                 <div className="card">
@@ -614,6 +637,7 @@ export default function FlaskPage() {
                         setData={setSuffixData}
                       />
                     ))}
+                    {/*
                     {adminMode && (
                       <div
                         className="add-option"
@@ -622,6 +646,7 @@ export default function FlaskPage() {
                         +
                       </div>
                     )}
+                    */}
                   </div>
                 </div>
               </div>

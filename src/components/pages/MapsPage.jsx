@@ -264,7 +264,13 @@ export default function MapsPage() {
 
     const parts = [];
 
-    // 1. Map Stats
+    // 1. Excluded Options (NOT OR group)
+    if (excludes.length > 0) {
+      const uniqueExcludes = Array.from(new Set(excludes));
+      parts.push("!" + uniqueExcludes.join("|"));
+    }
+
+    // 2. Map Stats
     // AND stats (space separated)
     if (mapAnds.length > 0) {
       parts.push(mapAnds.join(" "));
@@ -274,16 +280,10 @@ export default function MapsPage() {
       parts.push(mapOrs.join("|"));
     }
 
-    // 2. Included Options (OR group)
+    // 3. Included Options (OR group)
     if (includes.length > 0) {
       const uniqueIncludes = Array.from(new Set(includes));
       parts.push(uniqueIncludes.join("|"));
-    }
-
-    // 3. Excluded Options (NOT OR group)
-    if (excludes.length > 0) {
-      const uniqueExcludes = Array.from(new Set(excludes));
-      parts.push("!" + uniqueExcludes.join("|"));
     }
 
     return parts.join(" ");
@@ -878,6 +878,7 @@ export default function MapsPage() {
                         setData={setPrefixData}
                       />
                     ))}
+                    {/*
                     {adminMode && (
                       <div
                         className="add-option"
@@ -886,6 +887,7 @@ export default function MapsPage() {
                         +
                       </div>
                     )}
+                    */}
                   </div>
                 </div>
                 <div className="card">
@@ -906,6 +908,7 @@ export default function MapsPage() {
                         setData={setSuffixData}
                       />
                     ))}
+                    {/*
                     {adminMode && (
                       <div
                         className="add-option"
@@ -914,6 +917,7 @@ export default function MapsPage() {
                         +
                       </div>
                     )}
+                    */}
                   </div>
                 </div>
               </div>

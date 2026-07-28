@@ -1,10 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import useHoldDelete from "../hooks/useHoldDelete";
-import { JEWEL_TYPE_MAP } from "../data/JewelData";
-
-// 정적 배열 - 컴포넌트 외부에 선언하여 재생성 방지
-const TYPE_ORDER = ["생명력", "마나", "특수", "팅크"];
+import { getOptionTag } from "../data/OptionTagData";
 
 // 정적 스타일 객체
 const spanStyle = { position: "relative", zIndex: 2 };
@@ -80,59 +77,34 @@ const OptionItem = memo(
               .split(",")
               .map((t) => t.trim())
               .filter(Boolean)
+              .map((type, idx) => ({
+                ...getOptionTag(type),
+                sourceIndex: idx,
+              }))
               .sort((a, b) => {
-                // Jewel types order doesn't matter much, but let's keep them together
-                return TYPE_ORDER.indexOf(a) - TYPE_ORDER.indexOf(b);
+                if (a.order !== b.order) return a.order - b.order;
+                return a.sourceIndex - b.sourceIndex;
               })
-              .map((type, idx) => {
-                const normalizedType = type.normalize
-                  ? type.normalize("NFC")
-                  : type;
-                let className = "option-tag";
-                let label = normalizedType;
-                let style = {};
-
-                if (JEWEL_TYPE_MAP[normalizedType]) {
-                  className += ` tag-jewel`;
-                  label = (
-                    <img
-                      src={JEWEL_TYPE_MAP[normalizedType]}
-                      alt={normalizedType}
-                      style={{
-                        width: "24px",
-                        height: "24px",
-                        display: "block",
-                      }}
-                    />
-                  );
-                } else if (normalizedType === "생명력") {
-                  className += " tag-life";
-                  label = "HP";
-                } else if (normalizedType === "마나") {
-                  className += " tag-mana";
-                  label = "MP";
-                } else if (normalizedType === "특수") {
-                  className += " tag-special";
-                  label = "SP";
-                } else if (normalizedType === "팅크") {
-                  className += " tag-tincture";
-                  label = "TK";
-                } else if (normalizedType === "Top") {
-                  className += " tag-top";
-                  label = "Top";
-                } else if (normalizedType === "Uber") {
-                  className += " tag-uber";
-                  label = "Uber";
-                }
+              .map((tag, idx) => {
                 return (
-                  <div key={idx} className={className} style={style}>
-                    {label}
+                  <div
+                    key={`${tag.id}-${idx}`}
+                    className={`option-tag ${tag.className}`}
+                    style={{ order: tag.order }}
+                    title={tag.id}
+                  >
+                    {tag.image ? (
+                      <img src={tag.image} alt={tag.id} />
+                    ) : (
+                      tag.label
+                    )}
                   </div>
                 );
               })}
           </div>
           {adminMode && (
             <div className="buttons">
+              {/*
               <button
                 className="edit"
                 onClick={(e) => {
@@ -141,6 +113,7 @@ const OptionItem = memo(
                 }}
                 style={{ display: "inline-block" }}
               ></button>
+              */}
               <button
                 className="delete"
                 {...handlers}

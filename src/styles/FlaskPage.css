@@ -451,23 +451,6 @@ body.dragging-active .add-preset-chip {
   font-weight: 700;
 }
 
-.option-tags {
-  display: flex;
-  gap: 6px;
-  margin-left: auto;
-  padding-right: 6px;
-  order: 0;
-}
-.option-tag {
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  background: var(--tag-bg);
-  color: var(--text);
-  border: 1px solid var(--tag-border);
-  white-space: nowrap;
-  font-weight: 500; /* 라벨 폰트 웨이트 500 설정 */
-}
 .type-btn {
   display: flex;
   align-items: center;
@@ -476,28 +459,6 @@ body.dragging-active .add-preset-chip {
   border-color: var(--type-btn-border) !important;
   color: var(--text) !important;
 }
-.tag-life {
-  background: #b83333 !important;
-  border-color: #d14c4c !important;
-  color: white !important;
-}
-.tag-mana {
-  background: #2f4fb8 !important;
-  border-color: #4e6be0 !important;
-  color: white !important;
-}
-/* 더 진한 초록색으로 변경 */
-.tag-special {
-  background: #187a2c !important;
-  border-color: #1e9a36 !important;
-  color: white !important;
-}
-.tag-tincture {
-  background: #8a5a2f !important;
-  border-color: #b27a46 !important;
-  color: white !important;
-}
-
 .type-life {
   background: #b83333;
   border-color: #d14c4c;

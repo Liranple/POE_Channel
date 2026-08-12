@@ -198,7 +198,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "속풀",
     maxRollRegex: "(17.*출 17.*타)",
     itemLevel: "80",
-    type: "HP, MP, 출혈",
+    type: "HP, MP",
   },
   {
     id: 6,
@@ -207,7 +207,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "유전",
     maxRollRegex: "17.*전",
     itemLevel: "78",
-    type: "HP, MP, 번개",
+    type: "HP, MP",
   },
   {
     id: 7,
@@ -216,7 +216,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "녹이",
     maxRollRegex: "(17.*냉 17.*동)",
     itemLevel: "76",
-    type: "HP, MP, 냉기",
+    type: "HP, MP",
   },
   {
     id: 8,
@@ -225,7 +225,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "끄기",
     maxRollRegex: "17.*점",
     itemLevel: "78",
-    type: "HP, MP, 화염",
+    type: "HP, MP",
   },
   {
     id: 9,
@@ -234,7 +234,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "해독",
     maxRollRegex: "17.*독",
     itemLevel: "82",
-    type: "HP, MP, 카오스",
+    type: "HP, MP",
   },
   {
     id: 10,
@@ -243,7 +243,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "딜로",
     maxRollRegex: "어도.60",
     itemLevel: "84",
-    type: "SP, 방어도",
+    type: "SP",
   },
   {
     id: 11,
@@ -252,7 +252,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "임팔",
     maxRollRegex: "회피.60",
     itemLevel: "84",
-    type: "SP, 회피",
+    type: "SP",
   },
   {
     id: 12,
@@ -261,7 +261,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "치타",
     maxRollRegex: "속도.14",
     itemLevel: "85",
-    type: "SP, 속도",
+    type: "SP",
   },
   {
     id: 13,
@@ -270,7 +270,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "안정",
     maxRollRegex: "복.80",
     itemLevel: "85",
-    type: "SP, 기절",
+    type: "SP",
   },
   {
     id: 14,
@@ -279,7 +279,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "무지",
     maxRollRegex: "저항.20",
     itemLevel: "81",
-    type: "SP, 저항",
+    type: "SP",
   },
   {
     id: 15,
@@ -288,7 +288,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "과다",
     maxRollRegex: "과다",
     itemLevel: "80",
-    type: "SP, 흡수",
+    type: "SP",
   },
   {
     id: 16,
@@ -297,7 +297,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "고갈",
     maxRollRegex: "고갈",
     itemLevel: "80",
-    type: "SP, 흡수",
+    type: "SP",
   },
   {
     id: 17,
@@ -306,7 +306,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "절개",
     maxRollRegex: "률.55",
     itemLevel: "82",
-    type: "SP, 치명타",
+    type: "SP",
   },
   {
     id: 18,
@@ -315,7 +315,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "형벌",
     maxRollRegex: "34.*유발",
     itemLevel: "72",
-    type: "SP, 화염, 냉기, 번개",
+    type: "SP",
   },
   {
     id: 19,
@@ -324,7 +324,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "끈기",
     maxRollRegex: "55.*기절",
     itemLevel: "80",
-    type: "SP, 기절",
+    type: "SP",
   },
   {
     id: 20,
@@ -333,7 +333,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "곰$",
     maxRollRegex: "(냉.*65 동.*65)",
     itemLevel: "80",
-    type: "SP, 냉기",
+    type: "SP",
   },
   {
     id: 21,
@@ -342,7 +342,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "세발",
     maxRollRegex: "감전.*65",
     itemLevel: "82",
-    type: "SP, 번개",
+    type: "SP",
   },
   {
     id: 22,
@@ -351,7 +351,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "올빼",
     maxRollRegex: "저주.*65",
     itemLevel: "84",
-    type: "SP, 저주",
+    type: "SP",
   },
   {
     id: 23,
@@ -360,7 +360,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "물개",
     maxRollRegex: "(55.*냉 55.*동)",
     itemLevel: "80",
-    type: "SP, 냉기",
+    type: "SP",
   },
   {
     id: 24,
@@ -369,7 +369,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "복치",
     maxRollRegex: "55.*점화",
     itemLevel: "82",
-    type: "SP, 화염",
+    type: "SP",
   },
   {
     id: 25,
@@ -378,7 +378,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "습지",
     maxRollRegex: "55.*감전",
     itemLevel: "82",
-    type: "SP, 번개",
+    type: "SP",
   },
   {
     id: 26,
@@ -396,7 +396,7 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "흉포",
     maxRollRegex: "배율.*33",
     itemLevel: "85",
-    type: "TC, 치명타",
+    type: "TC",
   },
   {
     id: 28,
@@ -405,6 +405,6 @@ export const DEFAULT_SUFFIX_DATA = [
     filterRegex: "숙련",
     maxRollRegex: "속도.29",
     itemLevel: "85",
-    type: "TC, 속도",
+    type: "TC",
   },
 ];

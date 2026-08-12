@@ -48,6 +48,9 @@ export const CARD_ART_IMAGES = {
   "방패 운반자": "/images/cards/TheShieldbearer.png",
   계약: "/images/cards/ThePact.png",
   "용의 심장": "/images/cards/TheDragonsHeart.png",
+  "돼지 목에 진주 목걸이": "/images/cards/PearlsBeforeSwine.png",
+  "공포의 눈": "/images/cards/TheEyeOfTerror.png",
+  "결백한 자의 원조": "/images/cards/SuccorOfTheSinless.png",
 };
 
 const NIGHTMARE_MAP_OVERLAYS = {
@@ -130,6 +133,7 @@ export const LOCATION_IMAGES = {
   "우버 앗지리": "/images/items/UberVaal01.webp",
   베리타니아: "/images/items/VeritaniaMap.webp",
   아울: "/images/items/BossProtoVaal.webp",
+  "달아난 그것": "/images/items/Breach.webp",
 
   // 악몽 지도
   ...withOverlayColor(NIGHTMARE_MAP_OVERLAYS, "#6a0dad"),

@@ -1,7 +1,7 @@
 .reward-tooltip-container {
   width: max-content;
   min-width: 300px;
-  max-width: 650px;
+  max-width: 820px;
   font-family: "Fontin", "Noto Sans KR", sans-serif;
   text-align: center;
   position: relative;
@@ -175,6 +175,29 @@
   background-position: center;
   z-index: 0;
   opacity: 0.8;
+}
+
+.reward-tooltip-header.breach::before,
+.reward-tooltip-header.breach::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 43px;
+  height: 100%;
+  background-image: url(/images/ui/breach-symbol.png);
+  background-size: 80%;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 0;
+  opacity: 0.85;
+}
+
+.reward-tooltip-header.breach::before {
+  left: 0px;
+}
+
+.reward-tooltip-header.breach::after {
+  right: 0px;
 }
 
 .reward-tooltip-container.unique .reward-tooltip-explanation {

@@ -7,23 +7,26 @@ import "../styles/RewardTooltip.css";
 const ParsedText = React.memo(({ text }) => {
   if (typeof text !== "string") return text;
   const parts = text.split(
-    /(<(?:grey|white|unique|blue|red)>[\s\S]*?<\/(?:grey|white|unique|blue|red)>|<sep>|\n)/g
+    /(<(?:grey|gray|white|unique|blue|red|foulborn|purple|yellow|green)>[\s\S]*?<\/(?:grey|gray|white|unique|blue|red|foulborn|purple|yellow|green)>|<sep>|\n)/g
   );
   return parts.map((part, index) => {
     if (part === "\n") return <br key={index} />;
     if (part === "<sep>")
       return <div key={index} className="reward-tooltip-separator"></div>;
     const match = part.match(
-      /<(grey|white|unique|blue|red|yellow|green)>([\s\S]*?)<\/\1>/
+      /<(grey|gray|white|unique|blue|red|foulborn|purple|yellow|green)>([\s\S]*?)<\/\1>/
     );
     if (match) {
       const [_, colorType, content] = match;
       const colors = {
         grey: "#7f7f7f",
+        gray: "#7f7f7f",
         white: "#fff",
         unique: "#af6025",
         blue: "#8888ff",
         red: "#d20000",
+        foulborn: "#de2277",
+        purple: "#800080",
         yellow: "#eBc850",
         green: "#1BA29B",
       };

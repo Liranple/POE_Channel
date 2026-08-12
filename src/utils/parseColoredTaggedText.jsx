@@ -6,14 +6,15 @@ const TAG_COLORS = {
   unique: "#af6025",
   blue: "#8888ff",
   red: "#d20000",
+  foulborn: "#de2277",
   yellow: "#eBc850",
   green: "#1BA29B",
 };
 
 const TAG_BLOCK_REGEX =
-  /(<(?:grey|white|unique|blue|red|yellow|green)>[\s\S]*?<\/(?:grey|white|unique|blue|red|yellow|green)>|\n)/g;
+  /(<(?:grey|gray|white|unique|blue|red|foulborn|purple|yellow|green)>[\s\S]*?<\/(?:grey|gray|white|unique|blue|red|foulborn|purple|yellow|green)>|\n)/g;
 const TAG_CONTENT_REGEX =
-  /<(grey|white|unique|blue|red|yellow|green)>([\s\S]*?)<\/\1>/;
+  /<(grey|gray|white|unique|blue|red|foulborn|purple|yellow|green)>([\s\S]*?)<\/\1>/;
 
 export function parseColoredTaggedText(text) {
   if (typeof text !== "string") return text;

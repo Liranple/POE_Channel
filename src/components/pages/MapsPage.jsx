@@ -127,11 +127,11 @@ export default function MapsPage() {
         setPresets(newPresets);
         localStorage.setItem(
           STORAGE_KEYS.MAP_PRESETS,
-          JSON.stringify(newPresets)
+          JSON.stringify(newPresets),
         );
       });
     },
-    [presets, handlePresetDragStart]
+    [presets, handlePresetDragStart],
   );
 
   const toggleOption = useCallback((opt) => {
@@ -231,9 +231,9 @@ export default function MapsPage() {
   const resultText = useMemo(() => {
     const stats = [
       { key: "quantity", prefix: "량.*", val: mapStats.quantity },
-      { key: "packSize", prefix: "모.*", val: mapStats.packSize },
+      { key: "packSize", prefix: "규.*", val: mapStats.packSize },
       { key: "scarabs", prefix: "갑.*", val: mapStats.scarabs },
-      { key: "currency", prefix: "화.*", val: mapStats.currency },
+      { key: "currency", prefix: "폐.*", val: mapStats.currency },
       { key: "maps", prefix: "지도.*", val: mapStats.maps },
     ];
 
@@ -316,7 +316,7 @@ export default function MapsPage() {
               mapStats,
               andFlags,
             }
-          : p
+          : p,
       );
     } else {
       // 추가 모드
@@ -411,7 +411,7 @@ export default function MapsPage() {
     let dropIndex;
     if (dropTarget) {
       dropIndex = Array.from(dropTarget.parentNode.children).indexOf(
-        dropTarget
+        dropTarget,
       );
     } else {
       dropIndex = presets.length - 1;
@@ -543,7 +543,7 @@ export default function MapsPage() {
         return prev;
       });
     },
-    [deleteOptionFromData]
+    [deleteOptionFromData],
   );
 
   const toggleType = useCallback((type) => {
@@ -1076,12 +1076,12 @@ export default function MapsPage() {
                 {modalMode === "add" && duplicateError
                   ? duplicateError
                   : !modalData.optionText ||
-                    !modalData.filterRegex ||
-                    modalData.types.length === 0
-                  ? "모든 항목을 입력해주세요"
-                  : modalMode === "add"
-                  ? "추가"
-                  : "저장"}
+                      !modalData.filterRegex ||
+                      modalData.types.length === 0
+                    ? "모든 항목을 입력해주세요"
+                    : modalMode === "add"
+                      ? "추가"
+                      : "저장"}
               </button>
             </div>
           </div>

@@ -38,14 +38,14 @@ export const DEFAULT_PREFIX_DATA = [
     id: 6,
     affix: "prefix",
     optionText: "물리 피해 반사",
-    filterRegex: "물.*반",
+    filterRegex: "리.가",
     type: "Top",
   },
   {
     id: 7,
     affix: "prefix",
     optionText: "원소 피해 반사",
-    filterRegex: "원.*반",
+    filterRegex: "소.가",
     type: "Top",
   },
   {
@@ -93,53 +93,67 @@ export const DEFAULT_PREFIX_DATA = [
   {
     id: 14,
     affix: "prefix",
-    optionText: "공격 피해 막기 확률 증가",
-    filterRegex: "해.막",
+    optionText: "몬스터의 주문 피해 억제 확률",
+    filterRegex: "해.억",
     type: "Uber",
   },
   {
     id: 15,
+    affix: "prefix",
+    optionText: "몬스터의 공격 피해 막기 확률",
+    filterRegex: "해.막",
+    type: "Uber",
+  },
+  {
+    id: 16,
     affix: "prefix",
     optionText: "폭발성 중심부 보유",
     filterRegex: "폭발",
     type: "Uber",
   },
   {
-    id: 16,
+    id: 17,
     affix: "prefix",
     optionText: "피얼룩 톱날에 습격당함",
     filterRegex: "톱날",
     type: "Uber",
   },
   {
-    id: 17,
+    id: 18,
     affix: "prefix",
     optionText: "질식의 구체 등장",
     filterRegex: "질식",
     type: "Uber",
   },
-    {
-    id: 18,
+  {
+    id: 19,
     affix: "prefix",
     optionText: "쉐이퍼의 손길에 닿음",
     filterRegex: "손길",
     type: "Uber",
   },
-    {
-    id: 19,
+  {
+    id: 20,
     affix: "prefix",
     optionText: "결합 보스 대동",
     filterRegex: "결합",
     type: "Uber",
   },
   {
-    id: 20,
+    id: 21,
     affix: "prefix",
     optionText: "작열의 총주교의 룬 등장",
     filterRegex: "룬",
     type: "Uber",
   },
-    // {
+  {
+    id: 22,
+    affix: "prefix",
+    optionText: "플라스크 효과 감폭",
+    filterRegex: "크.효",
+    type: "Uber",
+  },
+  // {
   //   id: ,
   //   affix: "prefix",
   //   optionText: "10초 마다 3초 동안 피해를 주지 않음",
@@ -160,7 +174,6 @@ export const DEFAULT_PREFIX_DATA = [
   //   filterRegex: "투척",
   //   type: "Uber",
   // },
-
 ];
 
 export const DEFAULT_SUFFIX_DATA = [
@@ -280,7 +293,7 @@ export const DEFAULT_SUFFIX_DATA = [
     id: 17,
     affix: "suffix",
     optionText: "방어도, 막기 확률 감소",
-    filterRegex: "어도",
+    filterRegex: "의.막",
     type: "Top",
   },
   {
@@ -301,35 +314,63 @@ export const DEFAULT_SUFFIX_DATA = [
     id: 20,
     affix: "suffix",
     optionText: "오라 스킬로 받는 효과 감소",
-    filterRegex: "오라",
+    filterRegex: "주.오",
     type: "Top",
   },
   {
     id: 21,
+    affix: "suffix",
+    optionText: "정확도 감폭",
+    filterRegex: "의.정",
+    type: "Top",
+  },
+  {
+    id: 22,
+    affix: "suffix",
+    optionText: "방어력 감폭",
+    filterRegex: "어력.*감",
+    type: "Uber",
+  },
+  {
+    id: 23,
     affix: "suffix",
     optionText: "흡수로 인한 회복량 최대치 감소",
     filterRegex: "인한",
     type: "Uber",
   },
   {
-    id: 22,
+    id: 24,
     affix: "suffix",
     optionText: "플라스크 사용 시 유성의 대상이 됨",
     filterRegex: "유성",
     type: "Uber",
   },
-    {
-    id: 23,
+  {
+    id: 25,
     affix: "suffix",
     optionText: "불안정한 촉수 마귀 등장",
     filterRegex: "촉수",
     type: "Uber",
   },
-    {
-    id: 24,
+  {
+    id: 26,
     affix: "suffix",
     optionText: "메이븐이 방해함",
     filterRegex: "메이",
+    type: "Uber",
+  },
+  {
+    id: 27,
+    affix: "suffix",
+    optionText: "고유 몬스터 성소 버프 보유",
+    filterRegex: "성소",
+    type: "Uber",
+  },
+  {
+    id: 28,
+    affix: "suffix",
+    optionText: "오라 스킬이 적에게도 영향을 줌",
+    filterRegex: "적에",
     type: "Uber",
   },
   // {
@@ -354,5 +395,4 @@ export const DEFAULT_SUFFIX_DATA = [
   //   filterRegex: "의.소",
   //   type: "Uber",
   // },
-
 ];

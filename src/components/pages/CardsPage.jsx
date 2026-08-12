@@ -55,10 +55,13 @@ const CARD_NAME_TO_ID = {
   기적: "the-miracle",
   "행운의 보루": "lucky-bastion",
   "잠든 야수": "the-slumbering-beast",
-  "심장의 투영": "the-reflection-of-the-heart",
+  "심장의 투영": "reflection-of-the-heart",
   "방패 운반자": "the-shieldbearer",
   계약: "the-pact",
-  "용의 심장" : "the-dragons-heart",
+  "용의 심장": "the-dragons-heart",
+  "돼지 목에 진주 목걸이": "pearls-before-swine",
+  "공포의 눈": "the-eye-of-terror",
+  "결백한 자의 원조": "succor-of-the-sinless",
 };
 
 // 전역 캐시 (컴포넌트 외부에 선언하여 페이지 이동 후에도 유지)
@@ -230,7 +233,9 @@ export default function CardsPage() {
       rewardText.includes("목소리") ||
       rewardText.includes("칼란드라의 손길") ||
       rewardText.includes("종자") ||
-      rewardText.includes("손으로 맺은 서약")
+      rewardText.includes("손으로 맺은 서약") ||
+      rewardText.includes("병에 담긴 믿음") ||
+      rewardText.includes("전창조")
     ) {
       return "unique";
     } else if (cleanText.includes("젬")) {

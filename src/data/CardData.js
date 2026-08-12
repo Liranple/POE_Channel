@@ -8,16 +8,16 @@ export const CARD_DATA = [
   //   stackSize: 3,
   //   flavorText: "때로는 지름길로도 위대함에 도달할 수 있다.",
   // },
-  // {
-  //   name: "훼손된 미덕",
-  //   reward: "<blue>+23%</blue> 6레벨 각성한 보조 젬",
-  //   cardReward:
-  //     "6레벨 각성한 보조 젬\n<grey>퀄리티 : </grey><blue>+23%</blue>\n<red>타락</red>",
-  //   locations: ["아울"],
-  //   stackSize: 9,
-  //   flavorText:
-  //     "깨어난 공허의 고결한 편린,\n탐욕에 더럽혀지고,\n압제에 사로잡힌 존재.",
-  // },
+  {
+    name: "훼손된 미덕",
+    reward: "<blue>+23%</blue> 4레벨 특출난 보조 젬",
+    cardReward:
+      "4레벨 특출난 보조 젬\n<grey>퀄리티 : </grey><blue>+23%</blue>\n<red>타락</red>",
+    locations: ["아울"],
+    stackSize: 9,
+    flavorText:
+      "깨어난 공허의 고결한 편린,\n탐욕에 더럽혀지고,\n압제에 사로잡힌 존재.",
+  },
   {
     name: "거울의 집",
     reward: "칼란드라의 거울",
@@ -349,5 +349,32 @@ export const CARD_DATA = [
     stackSize: 11,
     flavorText:
       "일설에 따르면, 용이 죽으면 육체가 타고 마\n지막에는 몹시 뜨거운 심장만 남는다고 한\n다.",
+  },
+  {
+    name: "돼지 목에 진주 목걸이",
+    reward: "전창조",
+    cardReward: "전창조",
+    locations: ["무덤 고랑"],
+    stackSize: 3,
+    flavorText:
+      "무지한 자들은 그 나약한 손이\n닿을 만큼 가까운 곳에\n보물이 있다는 것도 모른다.",
+  },
+  {
+    name: "공포의 눈",
+    reward: "삿된 마법사의 피",
+    cardReward: "마법사의 피\n<foulborn>삿된</foulborn>",
+    locations: ["달아난 그것"],
+    stackSize: 8,
+    flavorText:
+      "혼돈의 군주는 자신을 위한 보상을 응시하며\n눈도 깜빡이지 않은 채 꿈을 꾼다. 곧, 모든\n생물이 걸어 다니는 그의 형체를 바라보며\n전율하리라.",
+  },
+  {
+    name: "결백한 자의 원조",
+    reward: "병에 담긴 믿음",
+    cardReward: "병에 담긴 믿음(Bottled Faith)",
+    locations: ["성역"],
+    stackSize: 6,
+    flavorText:
+      "은혜 입은 신봉자의 피는 복되도다. 대지는\n그의 걸음으로 기름 부음을 받으며, 저주받\n은 자는 그의 공격으로 정화될지니.",
   },
 ];
